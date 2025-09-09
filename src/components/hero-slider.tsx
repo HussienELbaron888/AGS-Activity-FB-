@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -15,6 +16,29 @@ interface HeroSliderProps {
 
 export function HeroSlider({ activities }: HeroSliderProps) {
   const { t, language } = useLanguage();
+
+  if (activities.length === 0) {
+    return (
+        <div className="relative h-[50vh] md:h-[60vh] w-full rounded-lg overflow-hidden bg-muted flex flex-col items-center justify-center text-center">
+            <div className="relative h-full w-full">
+                 <Image
+                  src="https://picsum.photos/1200/800"
+                  alt="Placeholder"
+                  fill
+                  className="object-cover"
+                  data-ai-hint="school building"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
+                 <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 text-white flex flex-col items-start">
+                    <h2 className="text-2xl md:text-4xl font-bold font-headline mb-2">{t('Welcome to AGS Activities', 'أهلاً بكم في أنشطة مدارس الأجيال المتطورة')}</h2>
+                    <p className="text-sm md:text-base text-white/90 mb-4 max-w-prose hidden md:block">
+                        {t('Explore our events, trips, and clubs. Add activities and enable "Show in Hero Slider" from the admin dashboard to feature them here.', 'استكشف فعالياتنا ورحلاتنا وأنديتنا. أضف أنشطة وفعّل "العرض في السلايدر" من لوحة تحكم المسؤول لعرضها هنا.')}
+                    </p>
+                </div>
+            </div>
+        </div>
+    )
+  }
 
   return (
     <Carousel
@@ -53,7 +77,7 @@ export function HeroSlider({ activities }: HeroSliderProps) {
                     {description}
                   </p>
                   <Button asChild className="bg-primary hover:bg-primary/90">
-                    <Link href={`/`}>{t('Learn More', 'اعرف المزيد')}</Link>
+                    <Link href={activity.sliderUrl || `/`}>{t('Learn More', 'اعرف المزيد')}</Link>
                   </Button>
                 </div>
               </div>

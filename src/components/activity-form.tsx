@@ -45,6 +45,7 @@ const formSchema = z.object({
   imageUrl: z.string().url({ message: "Please enter a valid image URL." }),
   imageHint: z.string().min(2, { message: "Image hint must be at least 2 characters." }),
   showInSlider: z.boolean().default(false).optional(),
+  sliderUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
 });
 
 type ActivityFormValues = z.infer<typeof formSchema>;
@@ -74,8 +75,11 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
       imageUrl: "",
       imageHint: "",
       showInSlider: false,
+      sliderUrl: "",
     },
   });
+
+  const showInSlider = form.watch("showInSlider");
 
   useEffect(() => {
     form.reset(activity || {
@@ -92,6 +96,7 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
       imageUrl: "",
       imageHint: "",
       showInSlider: false,
+      sliderUrl: "",
     });
   }, [activity, form]);
 
@@ -304,6 +309,24 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
                         </FormItem>
                     )}
                 />
+                 {showInSlider && (
+                    <FormField
+                        control={form.control}
+                        name="sliderUrl"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>{t('Slider Button URL', 'رابط زر السلايدر')}</FormLabel>
+                            <FormControl>
+                                <Input placeholder={t('e.g. /gallery', 'مثال: /gallery')} {...field} />
+                            </FormControl>
+                            <FormDescription>
+                                {t('The URL the slider button will link to. Leave empty to link to homepage.', 'الرابط الذي سينقل إليه زر السلايدر. اتركه فارغًا للربط بالصفحة الرئيسية.')}
+                            </FormDescription>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                 )}
             </div>
         </ScrollArea>
         <div className="flex justify-end gap-2 pt-4">

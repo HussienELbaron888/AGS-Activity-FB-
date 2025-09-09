@@ -16,6 +16,7 @@ export interface Activity {
   imageUrl: string;
   imageHint: string;
   showInSlider?: boolean;
+  sliderUrl?: string;
 }
 
 export type AlbumCategory = 'Events' | 'Trips' | 'Sports' | 'Academics';

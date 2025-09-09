@@ -1,3 +1,4 @@
+
 import type { Activity, Album, Registration, TalentedStudent } from './types';
 
 export const activities: Activity[] = [
@@ -15,7 +16,8 @@ export const activities: Activity[] = [
     cost: 0,
     imageUrl: 'https://picsum.photos/600/400?random=1',
     imageHint: 'science experiment',
-    showInSlider: true
+    showInSlider: true,
+    sliderUrl: '/events'
   },
   {
     id: '2',
@@ -31,7 +33,8 @@ export const activities: Activity[] = [
     cost: 5,
     imageUrl: 'https://picsum.photos/600/400?random=2',
     imageHint: 'basketball game',
-    showInSlider: true
+    showInSlider: true,
+    sliderUrl: '/gallery'
   },
   {
     id: '3',
@@ -47,7 +50,8 @@ export const activities: Activity[] = [
     cost: 25,
     imageUrl: 'https://picsum.photos/600/400?random=3',
     imageHint: 'museum interior',
-    showInSlider: true
+    showInSlider: true,
+    sliderUrl: '/trips'
   },
   {
     id: '4',
@@ -63,7 +67,8 @@ export const activities: Activity[] = [
     cost: 0,
     imageUrl: 'https://picsum.photos/600/400?random=4',
     imageHint: 'students coding',
-    showInSlider: true
+    showInSlider: true,
+    sliderUrl: '/free-activities'
   },
   {
     id: '5',
