@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { getAuth, signOut } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
@@ -24,7 +24,6 @@ import { useAuth } from '@/contexts/auth-provider';
 const AppSidebar = () => {
   const pathname = usePathname();
   const { t, language } = useLanguage();
-  const router = useRouter();
   const { toast } = useToast();
   const { user, isAdmin } = useAuth();
   const auth = getAuth(firebaseApp);
@@ -49,7 +48,7 @@ const AppSidebar = () => {
         title: "Logged Out",
         description: "You have been successfully logged out.",
       });
-      router.push('/login');
+      // AuthProvider will handle the redirect.
     } catch (error: any) {
       toast({
         title: "Error",

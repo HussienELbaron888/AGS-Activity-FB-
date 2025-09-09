@@ -3,7 +3,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -20,17 +20,18 @@ import { firebaseApp } from "@/lib/firebase";
 import { useAuth } from "@/contexts/auth-provider";
 import { useRouter } from "next/navigation";
 
-
 export default function LoginPage() {
   const [email, setEmail] = useState('admin@ags.edu');
   const [password, setPassword] = useState('123456');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const auth = getAuth(firebaseApp);
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
-  
-  if (user) {
+
+  // This effect will prevent the login page from flashing for logged-in users.
+  // The main redirect logic is now in AuthProvider.
+  if (loading || user) {
     return null; 
   }
 
@@ -39,12 +40,13 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // AuthProvider will handle the redirect
+      // AuthProvider will handle the redirect. No need for router.push here.
     } catch (error: any) {
       if (error.code === 'auth/user-not-found' && email === 'admin@ags.edu') {
+        // If admin user doesn't exist, create it.
         try {
           await createUserWithEmailAndPassword(auth, email, password);
-          // AuthProvider will handle the redirect
+          // AuthProvider will handle the redirect.
         } catch (creationError: any) {
            toast({
             title: "Admin Creation Failed",

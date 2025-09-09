@@ -36,7 +36,7 @@ export function UserNav() {
         title: t("Logged Out", "تم تسجيل الخروج"),
         description: t("You have been successfully logged out.", "لقد تم تسجيل خروجك بنجاح."),
       });
-      router.push('/login');
+      // AuthProvider will handle the redirect
     } catch (error: any) {
       toast({
         title: "Error",

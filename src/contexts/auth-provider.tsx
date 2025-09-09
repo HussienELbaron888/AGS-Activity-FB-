@@ -54,17 +54,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (loading) return;
 
     const publicPaths = ['/login', '/register', '/forgot-password'];
-    const isPublicPath = publicPaths.includes(pathname);
+    const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
     const isAdminPath = pathname.startsWith('/admin');
 
     if (user) {
+      // User is logged in
       if (isPublicPath) {
+        // If on a public page, redirect away
         router.replace(isAdmin ? '/admin' : '/');
       } else if (isAdminPath && !isAdmin) {
+        // If a non-admin tries to access an admin path, redirect to home
         router.replace('/');
       }
     } else {
+      // User is not logged in
       if (isAdminPath) {
+        // If trying to access admin path, redirect to login
         router.replace('/login');
       }
     }

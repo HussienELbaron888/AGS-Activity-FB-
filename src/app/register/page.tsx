@@ -4,7 +4,6 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -18,7 +17,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast";
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
-
+import { useAuth } from "@/contexts/auth-provider";
 
 export default function RegisterPage() {
   const [firstName, setFirstName] = useState('');
@@ -26,9 +25,13 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
   const { toast } = useToast();
   const auth = getAuth(firebaseApp);
+  const { user, loading } = useAuth();
+
+  if (loading || user) {
+    return null;
+  }
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +45,7 @@ export default function RegisterPage() {
         title: "Account Created",
         description: "You have successfully created an account. Redirecting...",
       });
-      // AuthProvider will handle the redirect
+      // AuthProvider will handle the redirect.
     } catch (error: any) {
       toast({
         title: "Registration Failed",
