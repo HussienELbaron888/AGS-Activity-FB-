@@ -74,18 +74,6 @@ const AppSidebar = () => {
         </SidebarMenu>
       </div>
 
-      <SidebarFooter>
-         <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={handleLogout}
-              tooltip={t('Logout', 'خروج')}
-              className="justify-start"
-            >
-              <LogOut />
-              <span>{t('Logout', 'خروج')}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-      </SidebarFooter>
     </Sidebar>
   );
 };
