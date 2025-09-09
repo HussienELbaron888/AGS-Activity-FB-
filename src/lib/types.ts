@@ -37,3 +37,11 @@ export interface Album {
   coverImageHint: string;
   photos: Photo[];
 }
+
+export interface Registration {
+    id: string;
+    name: string;
+    email: string;
+    activityId: string;
+    registrationDate: string;
+}

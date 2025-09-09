@@ -1,4 +1,4 @@
-import type { Activity, Album } from './types';
+import type { Activity, Album, Registration } from './types';
 
 export const activities: Activity[] = [
   {
@@ -155,4 +155,12 @@ export const albums: Album[] = [
       { id: 'p13', url: 'https://picsum.photos/800/600?random=23', alt: 'Group photo at a monument', altAr: 'صورة جماعية عند نصب تذكاري', hint: 'group monument' },
     ],
   },
+];
+
+export const registrations: Registration[] = [
+  { id: 'reg1', name: 'Ahmed Ali', email: 'ahmed.ali@example.com', activityId: '1', registrationDate: '2024-09-01' },
+  { id: 'reg2', name: 'Fatima Zahra', email: 'fatima.zahra@example.com', activityId: '2', registrationDate: '2024-09-02' },
+  { id: 'reg3', name: 'Khalid Hassan', email: 'khalid.hassan@example.com', activityId: '3', registrationDate: '2024-09-03' },
+  { id: 'reg4', name: 'Nour Mohamed', email: 'nour.mohamed@example.com', activityId: '5', registrationDate: '2024-09-04' },
+  { id: 'reg5', name: 'Youssef Ibrahim', email: 'youssef.ibrahim@example.com', activityId: '6', registrationDate: '2024-09-05' },
 ];
