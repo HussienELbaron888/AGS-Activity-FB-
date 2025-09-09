@@ -109,12 +109,10 @@ export default function AdminDashboardPage() {
                   <CardTitle>{t('Manage Activities', 'إدارة الأنشطة')}</CardTitle>
                   <CardDescription>{t('Add, edit, or remove school activities.', 'إضافة أو تعديل أو حذف أنشطة المدرسة.')}</CardDescription>
               </div>
-              <DialogTrigger asChild>
-                <Button onClick={handleAddNew}>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    {t('Add New Activity', 'إضافة نشاط جديد')}
-                </Button>
-              </DialogTrigger>
+              <Button onClick={handleAddNew}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  {t('Add New Activity', 'إضافة نشاط جديد')}
+              </Button>
           </CardHeader>
           <CardContent>
             <Table>
@@ -142,11 +140,9 @@ export default function AdminDashboardPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                          <DialogTrigger asChild>
-                            <Button variant="ghost" size="icon" onClick={() => handleEdit(activity)}>
-                                <Edit className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(activity)}>
+                              <Edit className="h-4 w-4" />
+                          </Button>
 
                           <AlertDialog>
                             <AlertDialogTrigger asChild>

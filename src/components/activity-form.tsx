@@ -26,6 +26,7 @@ import {
 import type { Activity, ActivityCategory } from "@/lib/types";
 import { useLanguage } from "@/contexts/language-provider";
 import { ScrollArea } from "./ui/scroll-area";
+import { useEffect } from "react";
 
 const activityCategories: ActivityCategory[] = ['Event', 'Trip', 'Free', 'Paid'];
 
@@ -72,6 +73,23 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
       imageHint: "",
     },
   });
+
+  useEffect(() => {
+    form.reset(activity || {
+      title: "",
+      titleAr: "",
+      description: "",
+      descriptionAr: "",
+      category: 'Event',
+      date: "",
+      time: "",
+      location: "",
+      locationAr: "",
+      cost: 0,
+      imageUrl: "",
+      imageHint: "",
+    });
+  }, [activity, form]);
 
   const handleSubmit = (values: ActivityFormValues) => {
     onSubmit(values);
