@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { getAuth, signOut } from "firebase/auth";
+import { getAuth, signOut, onAuthStateChanged, type User } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -13,8 +13,9 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import { LayoutGrid, Calendar, Mail, School, LogOut, Images, DollarSign, Gift, Plane, Star, Home, Shield } from 'lucide-react';
+import { LayoutGrid, Calendar, Mail, School, LogOut, Images, DollarSign, Gift, Plane, Star, Home, Shield, User as UserIcon } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-provider';
+import React, { useEffect, useState } from 'react';
 
 const AppSidebar = () => {
   const pathname = usePathname();
@@ -22,6 +23,16 @@ const AppSidebar = () => {
   const router = useRouter();
   const { toast } = useToast();
   const auth = getAuth(firebaseApp);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, [auth]);
+  
+  const isAdmin = user?.email === 'admin@ags.edu';
 
   const menuItems = [
     { href: '/', label: t('Home', 'الرئيسية'), icon: Home },
@@ -32,8 +43,9 @@ const AppSidebar = () => {
     { href: '/talented', label: t('Talented', 'موهوبين'), icon: Star },
     { href: '/gallery', label: t('Gallery', 'معرض الصور'), icon: Images },
     { href: '/contact', label: t('Contact Us', 'اتصل بنا'), icon: Mail },
-    { href: '/admin', label: t('Admin', 'الإدارة'), icon: Shield, admin: true },
   ];
+  
+  const adminMenuItem = { href: '/admin', label: t('Admin', 'الإدارة'), icon: Shield };
 
   const handleLogout = async () => {
     try {
@@ -54,8 +66,8 @@ const AppSidebar = () => {
 
   return (
     <Sidebar side={language === 'ar' ? 'right' : 'left'}>
-      <div className="flex flex-col h-full justify-center">
-        <SidebarMenu>
+      <div className="flex flex-col h-full">
+        <SidebarMenu className="flex-1">
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
@@ -71,7 +83,35 @@ const AppSidebar = () => {
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
+          {isAdmin && (
+             <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === adminMenuItem.href}
+                tooltip={adminMenuItem.label}
+                className="justify-start"
+              >
+                <Link href={adminMenuItem.href}>
+                  <adminMenuItem.icon />
+                  <span>{adminMenuItem.label}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
+        
+        <SidebarFooter>
+          {user && (
+            <SidebarMenu>
+               <SidebarMenuItem>
+                 <SidebarMenuButton onClick={handleLogout} className="justify-start">
+                    <LogOut />
+                    <span>{t('Log out', 'تسجيل الخروج')}</span>
+                 </SidebarMenuButton>
+               </SidebarMenuItem>
+            </SidebarMenu>
+          )}
+        </SidebarFooter>
       </div>
 
     </Sidebar>

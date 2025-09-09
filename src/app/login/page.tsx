@@ -56,7 +56,7 @@ export default function LoginPage() {
             variant: "destructive",
           });
         }
-      } else if (error.code === 'auth/invalid-credential') {
+      } else if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
          toast({
           title: "Login Failed",
           description: "Invalid email or password. Please try again.",
@@ -132,9 +132,9 @@ export default function LoginPage() {
             </div>
           </form>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
+            Don&apos;t have an admin account?{" "}
             <Link href="/register" className="underline">
-              Sign up
+              Sign up as a user
             </Link>
           </div>
         </CardContent>

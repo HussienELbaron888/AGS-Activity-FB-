@@ -42,8 +42,8 @@ export function UserNav() {
     try {
       await signOut(auth);
       toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
+        title: t("Logged Out", "تم تسجيل الخروج"),
+        description: t("You have been successfully logged out.", "لقد تم تسجيل خروجك بنجاح."),
       });
       router.push('/');
     } catch (error: any) {
@@ -101,12 +101,6 @@ export function UserNav() {
               </Link>
             </DropdownMenuItem>
            )}
-          <DropdownMenuItem>
-            {t('Profile', 'الملف الشخصي')}
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            {t('My Registrations', 'تسجيلاتي')}
-          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
