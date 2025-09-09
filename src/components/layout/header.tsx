@@ -6,7 +6,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { UserNav } from './user-nav';
 import { useLanguage } from '@/contexts/language-provider';
-import { Globe, School } from 'lucide-react';
+import { Globe } from 'lucide-react';
 
 const Header = () => {
   const { toggleLanguage } = useLanguage();
@@ -18,10 +18,13 @@ const Header = () => {
       </div>
       <div className="flex-1 flex justify-center">
         <Link href="/" className="flex items-center gap-2 text-foreground">
-            <div className="bg-primary rounded-lg p-2 flex items-center justify-center">
-                <School className="text-primary-foreground h-6 w-6" />
-            </div>
-            <span className="text-xl font-bold font-headline">AGS Activity Hub</span>
+          <Image
+            src="https://firebasestudio.ai/storage/get/projects/YnN3T9EHDuJ243yW8sJd/assets/c50c184c-dd39-4d64-ac6b-a2c679a785e0"
+            alt="AGS Logo"
+            width={180}
+            height={40}
+            className="object-contain"
+          />
         </Link>
       </div>
       <div className="flex items-center gap-2">
