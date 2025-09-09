@@ -1,11 +1,10 @@
 
 'use client';
 
-import { useMemo } from 'react';
 import type { Activity } from '@/lib/types';
 import { activities } from '@/lib/data';
 import { ActivityCard } from '@/components/activity-card';
-import { LanguageProvider, useLanguage } from '@/contexts/language-provider';
+import { useLanguage } from '@/contexts/language-provider';
 
 function EventsPageContent() {
   const { t } = useLanguage();
@@ -40,9 +39,5 @@ function EventsPageContent() {
 }
 
 export default function EventsPage() {
-  return (
-    <LanguageProvider>
-      <EventsPageContent />
-    </LanguageProvider>
-  );
+  return <EventsPageContent />;
 }

@@ -1,11 +1,10 @@
 
 'use client';
 
-import { useMemo } from 'react';
 import type { Activity } from '@/lib/types';
 import { activities } from '@/lib/data';
 import { ActivityCard } from '@/components/activity-card';
-import { LanguageProvider, useLanguage } from '@/contexts/language-provider';
+import { useLanguage } from '@/contexts/language-provider';
 
 function PaidActivitiesPageContent() {
   const { t } = useLanguage();
@@ -40,9 +39,5 @@ function PaidActivitiesPageContent() {
 }
 
 export default function PaidActivitiesPage() {
-  return (
-    <LanguageProvider>
-      <PaidActivitiesPageContent />
-    </LanguageProvider>
-  );
+  return <PaidActivitiesPageContent />;
 }

@@ -1,10 +1,10 @@
+
 'use client';
 
-import { useMemo } from 'react';
 import type { Activity } from '@/lib/types';
 import { activities } from '@/lib/data';
 import { ActivityCard } from '@/components/activity-card';
-import { LanguageProvider, useLanguage } from '@/contexts/language-provider';
+import { useLanguage } from '@/contexts/language-provider';
 
 function TripsPageContent() {
   const { t } = useLanguage();
@@ -39,9 +39,5 @@ function TripsPageContent() {
 }
 
 export default function TripsPage() {
-  return (
-    <LanguageProvider>
-      <TripsPageContent />
-    </LanguageProvider>
-  );
+  return <TripsPageContent />;
 }
