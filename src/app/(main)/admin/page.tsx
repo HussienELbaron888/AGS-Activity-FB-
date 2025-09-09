@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-provider";
 import { activities as initialActivities, registrations as initialRegistrations, talentedStudents as initialTalentedStudents } from "@/lib/data";
 import type { Activity, Registration, TalentedStudent } from "@/lib/types";
-import { Users, BarChart2, DollarSign, PlusCircle, Edit, Trash2, Mail, Send, UserCog, Star } from "lucide-react";
+import { Users, BarChart2, DollarSign, PlusCircle, Edit, Trash2, Mail, Send, UserCog, Star, CheckSquare, XSquare } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -155,7 +155,7 @@ export default function AdminDashboardPage() {
                         <TableRow>
                         <TableHead>{t('Activity', 'النشاط')}</TableHead>
                         <TableHead>{t('Category', 'الفئة')}</TableHead>
-                        <TableHead>{t('Date', 'التاريخ')}</TableHead>
+                        <TableHead>{t('In Slider?', 'في السلايدر؟')}</TableHead>
                         <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -166,7 +166,9 @@ export default function AdminDashboardPage() {
                             {language === 'en' ? activity.title : activity.titleAr}
                             </TableCell>
                             <TableCell><Badge variant="outline">{activity.category}</Badge></TableCell>
-                            <TableCell>{activity.date}</TableCell>
+                            <TableCell>
+                                {activity.showInSlider ? <CheckSquare className="h-5 w-5 text-green-500" /> : <XSquare className="h-5 w-5 text-muted-foreground" />}
+                            </TableCell>
                             <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
                                 <Button variant="ghost" size="icon" onClick={() => handleEditActivity(activity)}>

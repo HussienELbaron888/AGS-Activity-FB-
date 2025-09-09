@@ -27,6 +27,7 @@ import type { Activity, ActivityCategory } from "@/lib/types";
 import { useLanguage } from "@/contexts/language-provider";
 import { ScrollArea } from "./ui/scroll-area";
 import { useEffect } from "react";
+import { Checkbox } from "./ui/checkbox";
 
 const activityCategories: ActivityCategory[] = ['Event', 'Trip', 'Free', 'Paid'];
 
@@ -43,6 +44,7 @@ const formSchema = z.object({
   cost: z.coerce.number().min(0).optional(),
   imageUrl: z.string().url({ message: "Please enter a valid image URL." }),
   imageHint: z.string().min(2, { message: "Image hint must be at least 2 characters." }),
+  showInSlider: z.boolean().default(false).optional(),
 });
 
 type ActivityFormValues = z.infer<typeof formSchema>;
@@ -71,6 +73,7 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
       cost: 0,
       imageUrl: "",
       imageHint: "",
+      showInSlider: false,
     },
   });
 
@@ -88,6 +91,7 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
       cost: 0,
       imageUrl: "",
       imageHint: "",
+      showInSlider: false,
     });
   }, [activity, form]);
 
@@ -278,6 +282,28 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
                         )}
                     />
                 </div>
+                 <FormField
+                    control={form.control}
+                    name="showInSlider"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                            <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                            <FormLabel>
+                            {t('Show in Hero Slider', 'عرض في السلايدر الرئيسي')}
+                            </FormLabel>
+                            <FormDescription>
+                            {t('Check this to feature this activity on the homepage slider.', 'حدد هذا الخيار لعرض هذا النشاط في السلايدر بالصفحة الرئيسية.')}
+                            </FormDescription>
+                        </div>
+                        </FormItem>
+                    )}
+                />
             </div>
         </ScrollArea>
         <div className="flex justify-end gap-2 pt-4">

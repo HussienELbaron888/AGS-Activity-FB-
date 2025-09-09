@@ -14,7 +14,8 @@ export const activities: Activity[] = [
     locationAr: 'القاعة الرئيسية',
     cost: 0,
     imageUrl: 'https://picsum.photos/600/400?random=1',
-    imageHint: 'science experiment'
+    imageHint: 'science experiment',
+    showInSlider: true
   },
   {
     id: '2',
@@ -29,7 +30,8 @@ export const activities: Activity[] = [
     locationAr: 'صالة الألعاب الرياضية',
     cost: 5,
     imageUrl: 'https://picsum.photos/600/400?random=2',
-    imageHint: 'basketball game'
+    imageHint: 'basketball game',
+    showInSlider: true
   },
   {
     id: '3',
@@ -44,7 +46,8 @@ export const activities: Activity[] = [
     locationAr: 'متحف المدينة',
     cost: 25,
     imageUrl: 'https://picsum.photos/600/400?random=3',
-    imageHint: 'museum interior'
+    imageHint: 'museum interior',
+    showInSlider: true
   },
   {
     id: '4',
@@ -59,7 +62,8 @@ export const activities: Activity[] = [
     locationAr: 'مختبر الحاسوب 2',
     cost: 0,
     imageUrl: 'https://picsum.photos/600/400?random=4',
-    imageHint: 'students coding'
+    imageHint: 'students coding',
+    showInSlider: true
   },
   {
     id: '5',
@@ -74,7 +78,8 @@ export const activities: Activity[] = [
     locationAr: 'استوديو الفن',
     cost: 120,
     imageUrl: 'https://picsum.photos/600/400?random=5',
-    imageHint: 'pottery wheel'
+    imageHint: 'pottery wheel',
+    showInSlider: false
   },
   {
     id: '6',
@@ -89,7 +94,8 @@ export const activities: Activity[] = [
     locationAr: 'مركز الفنون الأدائية',
     cost: 10,
     imageUrl: 'https://picsum.photos/600/400?random=6',
-    imageHint: 'theatre stage'
+    imageHint: 'theatre stage',
+    showInSlider: false
   }
 ];
 

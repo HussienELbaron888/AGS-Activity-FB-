@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/language-provider';
 
 function HomePageContent() {
   const { t } = useLanguage();
-  const sliderActivities = activities.slice(0, 4);
+  const sliderActivities = activities.filter(a => a.showInSlider);
 
   return (
     <div className="space-y-8">
