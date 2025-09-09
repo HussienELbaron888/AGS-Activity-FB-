@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect, useMemo } from '
 import { getAuth, onAuthStateChanged, type User } from 'firebase/auth';
 import { firebaseApp } from '@/lib/firebase';
 import { usePathname, useRouter } from 'next/navigation';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface AuthContextType {
   user: User | null;
@@ -25,15 +26,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
-      
-      // Redirect logic
-      const isAdminPage = pathname.startsWith('/admin');
-      if (!loading && !currentUser && isAdminPage) {
-        router.push('/login');
-      }
     });
     return () => unsubscribe();
-  }, [auth, loading, pathname, router]);
+  }, [auth]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    const isAdminPage = pathname.startsWith('/admin');
+    const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/forgot-password');
+    const isAdmin = user?.email === 'admin@ags.edu';
+
+    if (isAdminPage && !isAdmin) {
+      router.push('/login');
+    }
+
+    if (isAuthPage && user) {
+      router.push(isAdmin ? '/admin' : '/');
+    }
+
+  }, [user, loading, pathname, router]);
 
   const isAdmin = useMemo(() => !!user && user.email === 'admin@ags.edu', [user]);
 
@@ -43,9 +55,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAdmin,
   }), [user, loading, isAdmin]);
 
-  // Don't render children until loading is false to avoid flashes of unauthenticated content
   if (loading) {
-    return null; // Or a full-page loader
+    return (
+       <div className="flex items-center justify-center min-h-screen">
+          <div className="p-4 space-y-4">
+              <Skeleton className="h-10 w-[250px]" />
+              <Skeleton className="h-8 w-[200px]" />
+              <Skeleton className="h-8 w-[200px]" />
+          </div>
+       </div>
+    );
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
