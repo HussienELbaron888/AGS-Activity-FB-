@@ -2,6 +2,7 @@
 'use client';
 
 import Link from "next/link"
+import Image from "next/image"
 import { useState } from "react";
 import { Button } from "@/components/ui/button"
 import {
@@ -13,7 +14,6 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { School } from "lucide-react"
 import { useToast } from "@/hooks/use-toast";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
@@ -51,10 +51,7 @@ export default function ForgotPasswordPage() {
         <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
                 <Link href="/" className="flex items-center gap-2 text-foreground">
-                    <div className="bg-primary rounded-lg p-2 flex items-center justify-center">
-                        <School className="text-primary-foreground h-6 w-6" />
-                    </div>
-                    <span className="text-xl font-bold font-headline">AGS Activities Hub</span>
+                    <Image src="/aclogo.png" alt="AGS Activities Hub Logo" width={150} height={40} />
                 </Link>
             </div>
           <CardTitle className="text-2xl font-headline">Forgot Password</CardTitle>
