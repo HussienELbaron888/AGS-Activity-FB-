@@ -6,7 +6,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { UserNav } from './user-nav';
 import { useLanguage } from '@/contexts/language-provider';
-import { Globe } from 'lucide-react';
+import { Globe, School } from 'lucide-react';
 
 const Header = () => {
   const { toggleLanguage } = useLanguage();
@@ -17,14 +17,11 @@ const Header = () => {
         <SidebarTrigger className="md:hidden" />
       </div>
       <div className="flex-1 flex justify-center">
-        <Link href="/">
-            <img 
-                src="https://storage.googleapis.com/studiogpt-config-metadata/agsl-logo-removbg.png" 
-                alt="AGS Logo" 
-                width={180} 
-                height={60} 
-                className="object-contain"
-            />
+        <Link href="/" className="flex items-center gap-2 text-foreground">
+            <div className="bg-primary rounded-lg p-2 flex items-center justify-center">
+                <School className="text-primary-foreground h-6 w-6" />
+            </div>
+            <span className="text-xl font-bold font-headline">AGS Activity Hub</span>
         </Link>
       </div>
       <div className="flex items-center gap-2">
