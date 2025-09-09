@@ -21,8 +21,8 @@ import { firebaseApp } from "@/lib/firebase";
 
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@ags.edu');
+  const [password, setPassword] = useState('123456');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -39,11 +39,33 @@ export default function LoginPage() {
       });
       router.push('/admin');
     } catch (error: any) {
-      toast({
-        title: "Login Failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      // If default admin doesn't exist, create it.
+      if (error.code === 'auth/user-not-found') {
+        try {
+          const { createUserWithEmailAndPassword } = await import("firebase/auth");
+          await createUserWithEmailAndPassword(auth, email, password);
+          toast({
+            title: "Admin Account Created",
+            description: "Default admin account created. Logging you in...",
+          });
+          // Retry login
+          await signInWithEmailAndPassword(auth, email, password);
+          router.push('/admin');
+
+        } catch (creationError: any) {
+           toast({
+            title: "Login Failed",
+            description: creationError.message,
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Login Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -97,11 +119,11 @@ export default function LoginPage() {
                   disabled={isLoading}
                 />
               </div>
+              <p className="px-1 text-center text-xs text-muted-foreground">
+                Use <span className="font-semibold text-foreground">admin@ags.edu</span> and password <span className="font-semibold text-foreground">123456</span> to sign in.
+              </p>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Logging in...' : 'Login'}
-              </Button>
-              <Button variant="outline" className="w-full" disabled>
-                Login with Google
               </Button>
             </div>
           </form>
