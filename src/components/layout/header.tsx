@@ -19,11 +19,12 @@ const Header = () => {
       <div className="flex-1 flex justify-center">
         <Link href="/">
             <Image 
-                src="/logo.png" 
+                src="https://firebasestudio.ai/static/images/agsl-logo-removebg.png" 
                 alt="AGS Logo" 
                 width={180} 
                 height={60} 
                 className="object-contain" 
+                priority
             />
         </Link>
       </div>

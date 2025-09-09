@@ -32,11 +32,8 @@ const AppSidebar = () => {
     <Sidebar side={language === 'ar' ? 'right' : 'left'}>
       <SidebarHeader>
         <div className="flex items-center gap-2 p-2">
-            <div className="bg-primary rounded-lg p-2 flex items-center justify-center">
-                 <School className="text-primary-foreground h-6 w-6" />
-            </div>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden transition-opacity duration-200 opacity-100 group-data-[collapsible=icon]:opacity-0">
-                <h1 className="font-headline font-bold text-lg text-sidebar-foreground">AGS Hub</h1>
+                <h1 className="font-headline font-bold text-lg text-sidebar-foreground">AGS ACTIVITY</h1>
             </div>
         </div>
       </SidebarHeader>
