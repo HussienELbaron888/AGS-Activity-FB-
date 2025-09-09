@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -6,7 +7,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { UserNav } from './user-nav';
 import { useLanguage } from '@/contexts/language-provider';
-import { Globe } from 'lucide-react';
+import { Globe, School } from 'lucide-react';
 
 const Header = () => {
   const { toggleLanguage } = useLanguage();
@@ -18,13 +19,10 @@ const Header = () => {
       </div>
       <div className="flex-1 flex justify-center">
         <Link href="/" className="flex items-center gap-2 text-foreground">
-          <Image
-            src="https://firebasestudio.ai/storage/get/projects/YnN3T9EHDuJ243yW8sJd/assets/818f4a13-d123-4567-89ab-cdef01234567"
-            alt="AGS Logo"
-            width={180}
-            height={40}
-            className="object-contain"
-          />
+            <div className="bg-primary rounded-lg p-2 flex items-center justify-center">
+                <School className="text-primary-foreground h-6 w-6" />
+            </div>
+            <span className="text-xl font-bold font-headline">AGS Activities Hub</span>
         </Link>
       </div>
       <div className="flex items-center gap-2">
