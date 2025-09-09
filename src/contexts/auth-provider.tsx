@@ -2,22 +2,34 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import { getAuth, onAuthStateChanged, type User } from 'firebase/auth';
-import { firebaseApp } from '@/lib/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 
+// Mock User type, mirrors Firebase User but simplified
+interface MockUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL?: string | null;
+}
+
 interface AuthContextType {
-  user: User | null;
+  user: MockUser | null;
   loading: boolean;
   isAdmin: boolean;
+  login: (email: string) => void;
+  logout: () => void;
+  register: (name: string, email: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   isAdmin: false,
+  login: () => {},
+  logout: () => {},
+  register: () => {},
 });
 
 const AuthLoadingScreen = () => (
@@ -33,20 +45,87 @@ const AuthLoadingScreen = () => (
   </div>
 );
 
+// This is a temporary, insecure mock user storage.
+// Replace with real authentication once API key issue is resolved.
+const getMockUsers = () => {
+  if (typeof window === 'undefined') return {};
+  const users = localStorage.getItem('mockUsers');
+  return users ? JSON.parse(users) : {};
+};
+
+const setMockUsers = (users: any) => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('mockUsers', JSON.stringify(users));
+};
+
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<MockUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const auth = getAuth(firebaseApp);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, [auth]);
+    // Simulate checking auth state on load
+    if (typeof window !== 'undefined') {
+      const loggedInUserEmail = localStorage.getItem('loggedInUser');
+      if (loggedInUserEmail) {
+        const users = getMockUsers();
+        const currentUser = users[loggedInUserEmail];
+        if (currentUser) {
+          setUser(currentUser);
+        }
+      }
+    }
+    setLoading(false);
+  }, []);
+
+  const login = (email: string) => {
+    const users = getMockUsers();
+    const foundUser = users[email];
+    if (foundUser) {
+      localStorage.setItem('loggedInUser', email);
+      setUser(foundUser);
+      router.push('/');
+    } else {
+       // Special case for admin: create if not exists
+      if (email === 'admin@ags.edu') {
+        register('Admin User', email, true);
+      } else {
+        throw new Error("User not found.");
+      }
+    }
+  };
+
+  const register = (name: string, email: string, isAdminUser = false) => {
+    const users = getMockUsers();
+    if (users[email]) {
+      throw new Error("User already exists.");
+    }
+    const newUser: MockUser = {
+      uid: `mock_${Date.now()}`,
+      email: email,
+      displayName: name,
+    };
+    users[email] = newUser;
+    setMockUsers(users);
+    
+    // Log in the new user immediately
+    localStorage.setItem('loggedInUser', email);
+    setUser(newUser);
+
+    if (isAdminUser) {
+        router.push('/admin');
+    } else {
+        router.push('/');
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('loggedInUser');
+    setUser(null);
+    router.push('/login');
+  };
 
   const isAdmin = useMemo(() => !!user && user.email === 'admin@ags.edu', [user]);
 
@@ -58,28 +137,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const isAdminPath = pathname.startsWith('/admin');
 
     if (user) {
-      // User is logged in
       if (isPublicPath) {
-        // If on a public page, redirect away
         router.replace(isAdmin ? '/admin' : '/');
       } else if (isAdminPath && !isAdmin) {
-        // If a non-admin tries to access an admin path, redirect to home
         router.replace('/');
       }
     } else {
-      // User is not logged in
       if (isAdminPath) {
-        // If trying to access admin path, redirect to login
         router.replace('/login');
       }
     }
   }, [user, loading, pathname, router, isAdmin]);
-
+  
   const value = useMemo(() => ({
     user,
     loading,
     isAdmin,
+    login,
+    logout,
+    register,
   }), [user, loading, isAdmin]);
+
 
   if (loading) {
     return <AuthLoadingScreen />;

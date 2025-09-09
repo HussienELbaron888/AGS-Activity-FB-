@@ -2,9 +2,6 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { getAuth, signOut } from "firebase/auth"
-import { firebaseApp } from "@/lib/firebase"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -24,19 +21,16 @@ import { useAuth } from "@/contexts/auth-provider"
 
 export function UserNav() {
   const { t } = useLanguage();
-  const router = useRouter();
   const { toast } = useToast();
-  const { user, loading, isAdmin } = useAuth();
-  const auth = getAuth(firebaseApp);
+  const { user, loading, isAdmin, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      logout();
       toast({
         title: t("Logged Out", "تم تسجيل الخروج"),
         description: t("You have been successfully logged out.", "لقد تم تسجيل خروجك بنجاح."),
       });
-      // AuthProvider will handle the redirect
     } catch (error: any) {
       toast({
         title: "Error",

@@ -3,7 +3,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -15,8 +15,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { firebaseApp } from "@/lib/firebase";
 import { useAuth } from "@/contexts/auth-provider";
 import { useRouter } from "next/navigation";
 
@@ -25,12 +23,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState('123456');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const auth = getAuth(firebaseApp);
-  const { user, loading } = useAuth();
+  const { login, user, loading } = useAuth();
   const router = useRouter();
 
-  // This effect will prevent the login page from flashing for logged-in users.
-  // The main redirect logic is now in AuthProvider.
   if (loading || user) {
     return null; 
   }
@@ -39,34 +34,15 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // AuthProvider will handle the redirect. No need for router.push here.
+      // With mock auth, password is not checked.
+      login(email);
+      // The provider will handle redirect.
     } catch (error: any) {
-      if (error.code === 'auth/user-not-found' && email === 'admin@ags.edu') {
-        // If admin user doesn't exist, create it.
-        try {
-          await createUserWithEmailAndPassword(auth, email, password);
-          // AuthProvider will handle the redirect.
-        } catch (creationError: any) {
-           toast({
-            title: "Admin Creation Failed",
-            description: creationError.message,
-            variant: "destructive",
-          });
-        }
-      } else if (error.code === 'auth/invalid-credential') {
-        toast({
-          title: "Login Failed",
-          description: "Invalid email or password.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Login Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Login Failed",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

@@ -15,8 +15,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast";
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { firebaseApp } from "@/lib/firebase";
 import { useAuth } from "@/contexts/auth-provider";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
@@ -28,9 +26,9 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const auth = getAuth(firebaseApp);
-  const { user, loading } = useAuth();
+  const { register, user, loading } = useAuth();
 
+  // If user is already logged in, redirect them.
   if (loading || user) {
     return null;
   }
@@ -39,21 +37,14 @@ export default function RegisterPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCredential.user, {
-        displayName: `${firstName} ${lastName}`.trim()
-      });
-      // AuthProvider will handle the redirect.
+      const fullName = `${firstName} ${lastName}`.trim();
+      // With mock auth, password is not used.
+      register(fullName, email);
+      // The provider will handle redirect.
     } catch (error: any) {
-       let description = "An unknown error occurred. Please try again later.";
-      if (error.code === 'auth/permission-denied') {
-        description = "We are currently experiencing technical difficulties with our registration service. Please try again later.";
-      } else {
-        description = error.message;
-      }
       toast({
         title: "Registration Failed",
-        description: description,
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -76,13 +67,6 @@ export default function RegisterPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-           <Alert variant="destructive" className="mb-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Service Temporarily Unavailable</AlertTitle>
-              <AlertDescription>
-                Account registration is currently unavailable due to a technical issue. Please try again later. We apologize for the inconvenience.
-              </AlertDescription>
-            </Alert>
           <form onSubmit={handleRegister}>
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-4">
@@ -94,7 +78,7 @@ export default function RegisterPage() {
                     required 
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    disabled={true}
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="grid gap-2">
@@ -105,7 +89,7 @@ export default function RegisterPage() {
                     required 
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    disabled={true}
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -118,7 +102,7 @@ export default function RegisterPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={true}
+                  disabled={isLoading}
                 />
               </div>
               <div className="grid gap-2">
@@ -129,12 +113,12 @@ export default function RegisterPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={true} 
+                  disabled={isLoading}
                   minLength={6}
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={true}>
-                Create an account
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Creating Account...' : 'Create an account'}
               </Button>
             </div>
           </form>

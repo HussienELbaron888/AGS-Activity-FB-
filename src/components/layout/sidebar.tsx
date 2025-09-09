@@ -3,8 +3,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getAuth, signOut } from "firebase/auth";
-import { firebaseApp } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import {
   Sidebar,
@@ -25,8 +23,7 @@ const AppSidebar = () => {
   const pathname = usePathname();
   const { t, language } = useLanguage();
   const { toast } = useToast();
-  const { user, isAdmin } = useAuth();
-  const auth = getAuth(firebaseApp);
+  const { user, isAdmin, logout } = useAuth();
 
   const menuItems = [
     { href: '/', label: t('Home', 'الرئيسية'), icon: Home },
@@ -43,12 +40,11 @@ const AppSidebar = () => {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      logout();
       toast({
         title: "Logged Out",
         description: "You have been successfully logged out.",
       });
-      // AuthProvider will handle the redirect.
     } catch (error: any) {
       toast({
         title: "Error",
