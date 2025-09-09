@@ -1,3 +1,6 @@
+
+'use client';
+
 import { useMemo } from 'react';
 import type { Activity } from '@/lib/types';
 import { activities } from '@/lib/data';
