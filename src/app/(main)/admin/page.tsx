@@ -1,15 +1,31 @@
+
 'use client';
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-provider";
-import { activities } from "@/lib/data";
-import { Activity, Users, BarChart2, DollarSign } from "lucide-react";
+import { activities as initialActivities } from "@/lib/data";
+import { Activity, Users, BarChart2, DollarSign, PlusCircle, Edit, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
+// NOTE: In a real application, this state would be managed in a database.
+// For this prototype, we're managing it in component state.
 export default function AdminDashboardPage() {
   const { t, language } = useLanguage();
-  const recentActivities = activities.slice(0, 5);
+  const [activities, setActivities] = useState(initialActivities);
 
   const stats = [
     { title: t('Total Activities', 'إجمالي الأنشطة'), value: activities.length, icon: Activity, color: 'text-blue-500' },
@@ -17,6 +33,12 @@ export default function AdminDashboardPage() {
     { title: t('Events Hosted', 'الفعاليات المستضافة'), value: activities.filter(a => a.category === 'Event').length, icon: BarChart2, color: 'text-purple-500' },
     { title: t('Total Revenue', 'إجمالي الإيرادات'), value: `$${activities.reduce((sum, a) => sum + (a.cost || 0) * 5, 0)}`, icon: DollarSign, color: 'text-yellow-500' },
   ];
+  
+  const handleDelete = (id: string) => {
+    // In a real app, you'd call an API to delete the activity.
+    setActivities(activities.filter(a => a.id !== id));
+  };
+
 
   return (
     <div className="space-y-8">
@@ -44,9 +66,15 @@ export default function AdminDashboardPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>{t('Recent Activities', 'الأنشطة الأخيرة')}</CardTitle>
-          <CardDescription>{t('A list of the most recently added activities.', 'قائمة بالأنشطة المضافة مؤخرًا.')}</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+                <CardTitle>{t('Manage Activities', 'إدارة الأنشطة')}</CardTitle>
+                <CardDescription>{t('Add, edit, or remove school activities.', 'إضافة أو تعديل أو حذف أنشطة المدرسة.')}</CardDescription>
+            </div>
+            <Button>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                {t('Add New Activity', 'إضافة نشاط جديد')}
+            </Button>
         </CardHeader>
         <CardContent>
           <Table>
@@ -55,11 +83,12 @@ export default function AdminDashboardPage() {
                 <TableHead>{t('Activity', 'النشاط')}</TableHead>
                 <TableHead>{t('Category', 'الفئة')}</TableHead>
                 <TableHead>{t('Date', 'التاريخ')}</TableHead>
-                <TableHead className="text-right">{t('Cost', 'التكلفة')}</TableHead>
+                <TableHead>{t('Cost', 'التكلفة')}</TableHead>
+                <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recentActivities.map((activity) => (
+              {activities.map((activity) => (
                 <TableRow key={activity.id}>
                   <TableCell className="font-medium">
                     {language === 'en' ? activity.title : activity.titleAr}
@@ -68,8 +97,37 @@ export default function AdminDashboardPage() {
                     <Badge variant="outline">{activity.category}</Badge>
                   </TableCell>
                   <TableCell>{activity.date}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell>
                     {activity.cost ? `$${activity.cost}` : 'Free'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="icon">
+                            <Edit className="h-4 w-4" />
+                        </Button>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>{t('Are you sure?', 'هل أنت متأكد؟')}</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {t('This action cannot be undone. This will permanently delete the activity.', 'لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف النشاط نهائيًا.')}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>{t('Cancel', 'إلغاء')}</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(activity.id)} className="bg-destructive hover:bg-destructive/90">
+                                {t('Delete', 'حذف')}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
