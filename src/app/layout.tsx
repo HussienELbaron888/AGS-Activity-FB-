@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { LanguageProvider } from '@/contexts/language-provider';
-import { AppLayout } from './app-layout';
 import { DataProvider } from '@/contexts/data-provider';
 import { AuthProvider } from '@/contexts/auth-provider';
+import { AppLayout } from './app-layout';
 
 export const metadata: Metadata = {
   title: 'AGS Activities Hub',
