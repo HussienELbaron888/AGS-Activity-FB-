@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -17,7 +18,7 @@ const Header = () => {
         <SidebarTrigger className="md:hidden" />
       </div>
       <div className="flex-1 flex justify-center">
-        <Link href="/">
+        <Link href="/" className="rounded-lg p-2 bg-slate-900">
             <Image 
                 src="https://firebasestudio.ai/static/images/agsl-logo-removebg.png" 
                 alt="AGS Logo" 
