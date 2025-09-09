@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Activity } from '@/lib/types';
@@ -6,9 +7,8 @@ import { ActivityCard } from '@/components/activity-card';
 import { HeroSlider } from '@/components/hero-slider';
 import { useLanguage } from '@/contexts/language-provider';
 
-export default function HomePage() {
+function HomePageContent() {
   const { t } = useLanguage();
-
   const sliderActivities = activities.slice(0, 4);
 
   return (
@@ -42,4 +42,9 @@ export default function HomePage() {
       </div>
     </div>
   );
+}
+
+
+export default function HomePage() {
+  return <HomePageContent />;
 }

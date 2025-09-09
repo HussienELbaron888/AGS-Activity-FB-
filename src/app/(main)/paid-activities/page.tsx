@@ -1,18 +1,13 @@
-'use client';
-
 import { useMemo } from 'react';
 import type { Activity } from '@/lib/types';
 import { activities } from '@/lib/data';
 import { ActivityCard } from '@/components/activity-card';
-import { useLanguage } from '@/contexts/language-provider';
+import { LanguageProvider, useLanguage } from '@/contexts/language-provider';
 
-export default function PaidActivitiesPage() {
+function PaidActivitiesPageContent() {
   const { t } = useLanguage();
 
-  const paidActivities = useMemo(() => 
-    activities.filter((activity) => activity.category === 'Paid'), 
-    []
-  );
+  const paidActivities = activities.filter((activity) => activity.category === 'Paid');
 
   return (
     <div className="space-y-8">
@@ -38,5 +33,13 @@ export default function PaidActivitiesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function PaidActivitiesPage() {
+  return (
+    <LanguageProvider>
+      <PaidActivitiesPageContent />
+    </LanguageProvider>
   );
 }

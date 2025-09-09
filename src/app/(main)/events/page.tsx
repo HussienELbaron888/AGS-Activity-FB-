@@ -1,18 +1,13 @@
-'use client';
-
 import { useMemo } from 'react';
 import type { Activity } from '@/lib/types';
 import { activities } from '@/lib/data';
 import { ActivityCard } from '@/components/activity-card';
-import { useLanguage } from '@/contexts/language-provider';
+import { LanguageProvider, useLanguage } from '@/contexts/language-provider';
 
-export default function EventsPage() {
+function EventsPageContent() {
   const { t } = useLanguage();
 
-  const eventActivities = useMemo(() => 
-    activities.filter((activity) => activity.category === 'Event'), 
-    []
-  );
+  const eventActivities = activities.filter((activity) => activity.category === 'Event');
 
   return (
     <div className="space-y-8">
@@ -38,5 +33,13 @@ export default function EventsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function EventsPage() {
+  return (
+    <LanguageProvider>
+      <EventsPageContent />
+    </LanguageProvider>
   );
 }

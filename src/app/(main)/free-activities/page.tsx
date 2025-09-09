@@ -1,18 +1,13 @@
-'use client';
-
 import { useMemo } from 'react';
 import type { Activity } from '@/lib/types';
 import { activities } from '@/lib/data';
 import { ActivityCard } from '@/components/activity-card';
-import { useLanguage } from '@/contexts/language-provider';
+import { LanguageProvider, useLanguage } from '@/contexts/language-provider';
 
-export default function FreeActivitiesPage() {
+function FreeActivitiesPageContent() {
   const { t } = useLanguage();
 
-  const freeActivities = useMemo(() => 
-    activities.filter((activity) => activity.category === 'Free'), 
-    []
-  );
+  const freeActivities = activities.filter((activity) => activity.category === 'Free');
 
   return (
     <div className="space-y-8">
@@ -38,5 +33,13 @@ export default function FreeActivitiesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function FreeActivitiesPage() {
+  return (
+    <LanguageProvider>
+      <FreeActivitiesPageContent />
+    </LanguageProvider>
   );
 }
