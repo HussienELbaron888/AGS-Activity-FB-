@@ -14,9 +14,12 @@ interface AuthContextType {
   isAdmin: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: true,
+  isAdmin: false,
+});
 
-// A loading component to show while auth state is being determined
 const AuthLoadingScreen = () => (
   <div className="flex flex-col items-center justify-center min-h-screen bg-background">
     <Image src="/aclogo.png" alt="AGS Activities Hub Logo" width={200} height={60} className="mb-8" />
@@ -29,7 +32,6 @@ const AuthLoadingScreen = () => (
     <p className="mt-4 text-muted-foreground">Loading user session...</p>
   </div>
 );
-
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -51,20 +53,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loading) return;
 
-    const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password';
-    
-    // If on an auth page and logged in, redirect away
-    if (user && isAuthPage) {
-      router.replace(isAdmin ? '/admin' : '/');
-      return;
-    }
+    const publicPaths = ['/login', '/register', '/forgot-password'];
+    const isPublicPath = publicPaths.includes(pathname);
+    const isAdminPath = pathname.startsWith('/admin');
 
-    // If trying to access admin page but not logged in as admin, redirect to login
-    if (pathname.startsWith('/admin') && !isAdmin) {
-      router.replace('/login');
-      return;
+    if (user) {
+      if (isPublicPath) {
+        router.replace(isAdmin ? '/admin' : '/');
+      } else if (isAdminPath && !isAdmin) {
+        router.replace('/');
+      }
+    } else {
+      if (isAdminPath) {
+        router.replace('/login');
+      }
     }
-
   }, [user, loading, pathname, router, isAdmin]);
 
   const value = useMemo(() => ({

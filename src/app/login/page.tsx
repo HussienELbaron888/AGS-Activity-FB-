@@ -31,8 +31,7 @@ export default function LoginPage() {
   const router = useRouter();
   
   if (user) {
-    // router.replace('/'); // AuthProvider already handles this, but as a fallback.
-    return null; // Render nothing while redirecting
+    return null; 
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -40,12 +39,12 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // AuthProvider will handle the redirect, no need to push here.
+      // AuthProvider will handle the redirect
     } catch (error: any) {
       if (error.code === 'auth/user-not-found' && email === 'admin@ags.edu') {
         try {
           await createUserWithEmailAndPassword(auth, email, password);
-          // Don't need to sign in again, onAuthStateChanged will handle it.
+          // AuthProvider will handle the redirect
         } catch (creationError: any) {
            toast({
             title: "Admin Creation Failed",
@@ -53,10 +52,16 @@ export default function LoginPage() {
             variant: "destructive",
           });
         }
-      } else {
+      } else if (error.code === 'auth/invalid-credential') {
         toast({
           title: "Login Failed",
           description: "Invalid email or password.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Login Failed",
+          description: error.message,
           variant: "destructive",
         });
       }
