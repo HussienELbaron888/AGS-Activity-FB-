@@ -16,6 +16,7 @@ interface DataContextType {
   addActivity: (activity: Omit<Activity, 'id'>) => void;
   updateActivity: (id: string, updates: Partial<Omit<Activity, 'id'>>) => void;
   deleteActivity: (id: string) => void;
+  addRegistration: (registration: Omit<Registration, 'id' | 'registrationDate'>) => void;
   addTalentedStudent: (student: Omit<TalentedStudent, 'id'>) => void;
   updateTalentedStudent: (id: string, updates: Partial<Omit<TalentedStudent, 'id'>>) => void;
   deleteTalentedStudent: (id: string) => void;
@@ -76,6 +77,15 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const deleteActivity = (id: string) => {
     setActivities(prev => prev.filter(a => a.id !== id));
   };
+  
+  const addRegistration = (registration: Omit<Registration, 'id' | 'registrationDate'>) => {
+    const newRegistration: Registration = {
+        id: `reg-${Date.now()}`,
+        ...registration,
+        registrationDate: new Date().toISOString().split('T')[0] // 'YYYY-MM-DD'
+    };
+    setRegistrations(prev => [...prev, newRegistration]);
+  };
 
   const addTalentedStudent = (student: Omit<TalentedStudent, 'id'>) => {
     const newStudent: TalentedStudent = { id: `ts-${Date.now()}`, ...student };
@@ -97,6 +107,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     addActivity,
     updateActivity,
     deleteActivity,
+    addRegistration,
     addTalentedStudent,
     updateTalentedStudent,
     deleteTalentedStudent,
