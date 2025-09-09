@@ -13,6 +13,7 @@ import { CheckCircle } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 import { sendConfirmationEmail } from '@/ai/flows/send-email-flow';
 import { useData } from '@/contexts/data-provider';
+import { useAuth } from '@/contexts/auth-provider';
 
 interface ActivityRegistrationModalProps {
   activity: Activity;
@@ -24,6 +25,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const { addRegistration } = useData();
+  const { user } = useAuth();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -43,11 +45,12 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
     };
 
     try {
-      // Add registration to local data
+      // Add registration to local data, including user's photoURL if available
       addRegistration({
         name: registrationData.studentName,
         email: registrationData.email,
         activityId: activity.id,
+        photoURL: user?.photoURL || null,
       });
 
       // Call the server action to "send" the email
@@ -108,11 +111,11 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
                 <div className="space-y-4 pr-1">
                     <div className="space-y-2">
                         <Label htmlFor="parent-name">{t('Parent\'s Name', 'اسم ولي الأمر')}</Label>
-                        <Input id="parent-name" name="parent-name" placeholder={t('Parent\'s full name', 'الاسم الكامل لولي الأمر')} required />
+                        <Input id="parent-name" name="parent-name" placeholder={t('Parent\'s full name', 'الاسم الكامل لولي الأمر')} required defaultValue={user?.displayName || ''} />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="email">{t('Email Address', 'البريد الإلكتروني')}</Label>
-                        <Input id="email" name="email" type="email" placeholder={t('your.email@example.com', 'email@example.com')} required />
+                        <Input id="email" name="email" type="email" placeholder={t('your.email@example.com', 'email@example.com')} required defaultValue={user?.email || ''} />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="mobile">{t('Mobile Number', 'رقم الموبايل')}</Label>

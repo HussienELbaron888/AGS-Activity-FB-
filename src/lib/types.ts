@@ -1,3 +1,4 @@
+
 export type ActivityCategory = 'Paid' | 'Free' | 'Trip' | 'Event';
 
 export interface Activity {
@@ -45,6 +46,7 @@ export interface Registration {
     email: string;
     activityId: string;
     registrationDate: string;
+    photoURL?: string | null;
 }
 
 export interface TalentedStudent {

@@ -31,6 +31,7 @@ import { ActivityForm } from "@/components/activity-form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TalentedStudentForm } from "@/components/talented-student-form";
 import { useData } from "@/contexts/data-provider";
+import { useAuth } from "@/contexts/auth-provider";
 
 export default function AdminDashboardPage() {
   const { t, language } = useLanguage();
@@ -231,7 +232,13 @@ export default function AdminDashboardPage() {
                 <CardContent className="space-y-4">
                     {registrations.slice(0, 5).map((registration) => (
                         <div key={registration.id} className="flex items-center gap-4">
-                            <Avatar className="h-10 w-10"><AvatarImage src={`https://i.pravatar.cc/150?u=${registration.email}`} data-ai-hint="user avatar" /><AvatarFallback>{registration.name.charAt(0)}</AvatarFallback></Avatar>
+                            <Avatar className="h-10 w-10">
+                                <AvatarImage 
+                                    src={registration.photoURL || `https://i.pravatar.cc/150?u=${registration.email}`} 
+                                    alt={registration.name}
+                                    data-ai-hint="user avatar" />
+                                <AvatarFallback>{registration.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
                             <div className="flex-1">
                                 <p className="font-medium text-sm">{registration.name}</p>
                                 <p className="text-xs text-muted-foreground">{findActivityTitle(registration.activityId)}</p>

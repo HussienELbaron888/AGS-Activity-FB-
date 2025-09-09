@@ -84,7 +84,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         ...registration,
         registrationDate: new Date().toISOString().split('T')[0] // 'YYYY-MM-DD'
     };
-    setRegistrations(prev => [...prev, newRegistration]);
+    setRegistrations(prev => [newRegistration, ...prev]);
   };
 
   const addTalentedStudent = (student: Omit<TalentedStudent, 'id'>) => {

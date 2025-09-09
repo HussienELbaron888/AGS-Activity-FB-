@@ -56,13 +56,11 @@ const AppSidebar = () => {
 
   return (
     <Sidebar side={language === 'ar' ? 'right' : 'left'}>
-      <SidebarHeader className="p-4 items-center flex justify-center">
-        <Link href="/" className="flex items-center gap-2 text-foreground">
-            <Image src="/aclogo.png" alt="AGS Activities Hub Logo" width={150} height={40} className="min-w-[150px]" />
-        </Link>
+      <SidebarHeader className="p-4 items-center flex justify-center h-24 border-b">
+        {/* Logo removed from here as requested */}
       </SidebarHeader>
       <SidebarContent>
-        <SidebarMenu>
+        <SidebarMenu className="gap-2">
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
