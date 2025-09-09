@@ -1,7 +1,11 @@
+
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { getAuth, signOut } from "firebase/auth";
+import { firebaseApp } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
 import {
   Sidebar,
   SidebarHeader,
@@ -16,6 +20,9 @@ import { useLanguage } from '@/contexts/language-provider';
 const AppSidebar = () => {
   const pathname = usePathname();
   const { t, language } = useLanguage();
+  const router = useRouter();
+  const { toast } = useToast();
+  const auth = getAuth(firebaseApp);
 
   const menuItems = [
     { href: '/', label: t('Home', 'الرئيسية'), icon: Home },
@@ -28,6 +35,23 @@ const AppSidebar = () => {
     { href: '/faq', label: t('FAQ', 'أسئلة'), icon: MessageCircleQuestion },
     { href: '/admin', label: t('Admin', 'الإدارة'), icon: Shield, admin: true },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      router.push('/login');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Sidebar side={language === 'ar' ? 'right' : 'left'}>
@@ -60,14 +84,12 @@ const AppSidebar = () => {
       <SidebarFooter>
          <SidebarMenuItem>
             <SidebarMenuButton
-              asChild
+              onClick={handleLogout}
               tooltip={t('Logout', 'خروج')}
               className="justify-start"
             >
-              <Link href="/login">
-                <LogOut />
-                <span>{t('Logout', 'خروج')}</span>
-              </Link>
+              <LogOut />
+              <span>{t('Logout', 'خروج')}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
       </SidebarFooter>

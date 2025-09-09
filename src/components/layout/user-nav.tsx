@@ -1,6 +1,10 @@
+
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { getAuth, signOut } from "firebase/auth"
+import { firebaseApp } from "@/lib/firebase"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,11 +17,33 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useLanguage } from "@/contexts/language-provider"
-import { LayoutDashboard } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { LayoutDashboard, LogOut } from "lucide-react"
 
 export function UserNav() {
   const isAuthenticated = true; // Placeholder for authentication status
   const { t } = useLanguage();
+  const router = useRouter();
+  const { toast } = useToast();
+  const auth = getAuth(firebaseApp);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      router.push('/login');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
 
   if (!isAuthenticated) {
     return (
@@ -62,8 +88,9 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          {t('Log out', 'تسجيل الخروج')}
+        <DropdownMenuItem onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>{t('Log out', 'تسجيل الخروج')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
