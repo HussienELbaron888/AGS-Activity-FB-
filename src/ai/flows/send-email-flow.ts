@@ -44,7 +44,7 @@ const sendConfirmationEmailFlow = ai.defineFlow(
         console.error('Resend API key is not configured. Set RESEND_API_KEY in your .env file.');
         return {
             success: false,
-            message: 'Email service is not configured on the server.',
+            message: 'Email service is not configured on the server. Please contact support.',
         };
     }
 
@@ -97,7 +97,7 @@ const sendConfirmationEmailFlow = ai.defineFlow(
 
         if (error) {
             console.error('Resend API error:', error);
-            return { success: false, message: error.message };
+            return { success: false, message: `Failed to send email: ${error.message}` };
         }
 
         console.log('Email sent successfully:', data);
@@ -106,7 +106,7 @@ const sendConfirmationEmailFlow = ai.defineFlow(
     } catch (e) {
         const error = e as Error;
         console.error('Failed to send email:', error);
-        return { success: false, message: error.message };
+        return { success: false, message: `An unexpected error occurred: ${error.message}` };
     }
   }
 );
