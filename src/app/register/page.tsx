@@ -18,6 +18,8 @@ import { useToast } from "@/hooks/use-toast";
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
 import { useAuth } from "@/contexts/auth-provider";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export default function RegisterPage() {
   const [firstName, setFirstName] = useState('');
@@ -41,15 +43,17 @@ export default function RegisterPage() {
       await updateProfile(userCredential.user, {
         displayName: `${firstName} ${lastName}`.trim()
       });
-      toast({
-        title: "Account Created",
-        description: "You have successfully created an account. Redirecting...",
-      });
       // AuthProvider will handle the redirect.
     } catch (error: any) {
+       let description = "An unknown error occurred. Please try again later.";
+      if (error.code === 'auth/permission-denied') {
+        description = "We are currently experiencing technical difficulties with our registration service. Please try again later.";
+      } else {
+        description = error.message;
+      }
       toast({
         title: "Registration Failed",
-        description: error.message,
+        description: description,
         variant: "destructive",
       });
     } finally {
@@ -72,6 +76,13 @@ export default function RegisterPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+           <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Service Temporarily Unavailable</AlertTitle>
+              <AlertDescription>
+                Account registration is currently unavailable due to a technical issue. Please try again later. We apologize for the inconvenience.
+              </AlertDescription>
+            </Alert>
           <form onSubmit={handleRegister}>
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-4">
@@ -83,7 +94,7 @@ export default function RegisterPage() {
                     required 
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    disabled={isLoading}
+                    disabled={true}
                   />
                 </div>
                 <div className="grid gap-2">
@@ -94,7 +105,7 @@ export default function RegisterPage() {
                     required 
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    disabled={isLoading}
+                    disabled={true}
                   />
                 </div>
               </div>
@@ -107,7 +118,7 @@ export default function RegisterPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
+                  disabled={true}
                 />
               </div>
               <div className="grid gap-2">
@@ -118,12 +129,12 @@ export default function RegisterPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading} 
+                  disabled={true} 
                   minLength={6}
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Creating account...' : 'Create an account'}
+              <Button type="submit" className="w-full" disabled={true}>
+                Create an account
               </Button>
             </div>
           </form>
