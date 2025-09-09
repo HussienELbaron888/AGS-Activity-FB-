@@ -9,10 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/language-provider";
-import { Mail, Phone, MapPin, Send } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Building, School, User, Baby } from "lucide-react";
+import { FaYoutube, FaInstagram, FaTwitter } from 'react-icons/fa';
 
 export default function ContactPage() {
-  const { t, direction } = useLanguage();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,10 +31,11 @@ export default function ContactPage() {
     e.target.reset();
   };
 
-  const contactInfo = [
-    { icon: Mail, text: 'info@ags.edu', href: 'mailto:info@ags.edu' },
-    { icon: Phone, text: '+1 (234) 567-890', href: 'tel:+1234567890' },
-    { icon: MapPin, text: t('123 School Lane, Education City', '١٢٣ شارع المدرسة، مدينة التعليم'), href: '#' },
+  const socialLinks = [
+    { icon: FaYoutube, href: 'https://www.youtube.com/channel/UCQBuf0VTJ6qApRQFqxdJHVQ', 'aria-label': 'YouTube' },
+    { icon: FaTwitter, href: 'https://x.com/ags_jeddah', 'aria-label': 'X (Twitter) - Main' },
+    { icon: FaTwitter, href: 'https://x.com/ags_events', 'aria-label': 'X (Twitter) - Events' },
+    { icon: FaInstagram, href: 'https://instagram.com/agsjeddah', 'aria-label': 'Instagram' },
   ];
 
   return (
@@ -83,45 +85,64 @@ export default function ContactPage() {
         </div>
         
         <div className="space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('Contact Information', 'معلومات الاتصال')}</CardTitle>
-              <CardDescription>{t('Reach out to us directly through the channels below.', 'تواصل معنا مباشرة عبر القنوات أدناه.')}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {contactInfo.map((item, index) => (
-                <div key={index} className="flex items-start gap-4">
-                  <div className="bg-primary/10 text-primary p-3 rounded-full">
-                    <item.icon className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1">
-                    <a href={item.href} className="hover:underline text-sm font-medium">
-                      {item.text}
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-           <Card className="overflow-hidden">
-            <CardHeader>
-                <CardTitle>{t('Our Location', 'موقعنا')}</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-                <div className="aspect-w-16 aspect-h-9">
-                <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3453.536294724933!2d31.2452816151152!3d30.04901988188175!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x145840b896b83f3d%3A0x286b245e3c1a3b83!2sTahrir%20Square!5e0!3m2!1sen!2seg!4v1625585094958!5m2!1sen!2seg"
-                    width="100%"
-                    height="250"
-                    style={{ border: 0 }}
-                    allowFullScreen={true}
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title={t('School Location Map', 'خريطة موقع المدرسة')}
-                ></iframe>
-                </div>
-            </CardContent>
-           </Card>
+            <Card>
+                <CardHeader>
+                <CardTitle>{t('Contact Information', 'معلومات الاتصال')}</CardTitle>
+                <CardDescription>{t('Reach out to us directly through the channels below.', 'تواصل معنا مباشرة عبر القنوات أدناه.')}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div>
+                        <h4 className="font-semibold text-sm mb-2 flex items-center gap-2"><Building className="h-4 w-4 text-primary" />{t('School Administration', 'إدارة المدرسة')}</h4>
+                        <div className="space-y-2 pl-6 text-sm">
+                            <a href="mailto:info@ags.edu.sa" className="flex items-center gap-2 hover:underline text-muted-foreground"><Mail className="h-4 w-4" /> info@ags.edu.sa</a>
+                            <a href="mailto:administration@ags.edu.sa" className="flex items-center gap-2 hover:underline text-muted-foreground"><Mail className="h-4 w-4" /> administration@ags.edu.sa</a>
+                        </div>
+                    </div>
+                     <div>
+                        <h4 className="font-semibold text-sm mb-2 flex items-center gap-2"><Phone className="h-4 w-4 text-primary" />{t('Reach Us by Phone', 'للتواصل عبر الهاتف')}</h4>
+                        <div className="space-y-2 pl-6 text-sm">
+                            <a href="tel:+966126570068" className="flex items-center gap-2 hover:underline text-muted-foreground"><Building className="h-4 w-4" /> {t('School Administration', 'إدارة المدرسة')}: +966 12 657 0068</a>
+                            <a href="tel:+966126570068" className="flex items-center gap-2 hover:underline text-muted-foreground"><Baby className="h-4 w-4" /> {t('KG School', 'مرحلة الروضة')}: +966 12 657 0068</a>
+                            <a href="tel:+966126058011" className="flex items-center gap-2 hover:underline text-muted-foreground"><User className="h-4 w-4" /> {t('Boys School', 'مدارس البنين')}: +966 12 605 8011</a>
+                            <a href="tel:+966126580110" className="flex items-center gap-2 hover:underline text-muted-foreground"><School className="h-4 w-4" /> {t('Primary & Girls School', 'الابتدائي والبنات')}: +966 12 658 0110</a>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold text-sm mb-2 flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" />{t('Our Location', 'موقعنا')}</h4>
+                        <p className="pl-6 text-sm text-muted-foreground">{t('4744 Al Safaa, An Nahdah District, 7607, Jeddah 23615', '٤٧٤٤ الصفا، حي النهضة، ٧٦٠٧، جدة ٢٣٦١٥')}</p>
+                    </div>
+                     <div>
+                        <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">{t('Follow Us', 'تابعنا')}</h4>
+                        <div className="flex gap-4 pl-6">
+                            {socialLinks.map((social, index) => (
+                                <a key={index} href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social['aria-label']} className="text-muted-foreground hover:text-primary transition-colors">
+                                    <social.icon className="h-6 w-6" />
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card className="overflow-hidden">
+                <CardHeader>
+                    <CardTitle>{t('Find Us on Map', 'تجدنا على الخريطة')}</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <div className="aspect-w-16 aspect-h-9">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3710.281896883256!2d39.18738387588385!3d21.5750275685516!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x15c3db47f01736e9%3A0x464948f9468f7636!2sAdvanced%20Generation%20Schools%20(AGS)!5e0!3m2!1sen!2sae!4v1722341853613!5m2!1sen!2sae"
+                        width="100%"
+                        height="250"
+                        style={{ border: 0 }}
+                        allowFullScreen={true}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        title={t('School Location Map', 'خريطة موقع المدرسة')}
+                    ></iframe>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
       </div>
     </div>
