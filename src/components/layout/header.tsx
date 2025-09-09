@@ -19,7 +19,7 @@ const Header = () => {
       <div className="flex-1 flex justify-center">
         <Link href="/" className="flex items-center gap-2 text-foreground">
           <Image
-            src="https://firebasestudio.ai/storage/get/projects/YnN3T9EHDuJ243yW8sJd/assets/c50c184c-dd39-4d64-ac6b-a2c679a785e0"
+            src="https://firebasestudio.ai/storage/get/projects/YnN3T9EHDuJ243yW8sJd/assets/818f4a13-d123-4567-89ab-cdef01234567"
             alt="AGS Logo"
             width={180}
             height={40}
