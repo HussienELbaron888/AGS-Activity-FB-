@@ -7,9 +7,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-provider";
-import { activities as initialActivities, registrations as initialRegistrations } from "@/lib/data";
-import type { Activity, Registration } from "@/lib/types";
-import { Users, BarChart2, DollarSign, PlusCircle, Edit, Trash2, Mail, Send, UserCog } from "lucide-react";
+import { activities as initialActivities, registrations as initialRegistrations, talentedStudents as initialTalentedStudents } from "@/lib/data";
+import type { Activity, Registration, TalentedStudent } from "@/lib/types";
+import { Users, BarChart2, DollarSign, PlusCircle, Edit, Trash2, Mail, Send, UserCog, Star } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,10 +27,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { ActivityForm } from "@/components/activity-form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { TalentedStudentForm } from "@/components/talented-student-form";
 
 // NOTE: In a real application, this state would be managed in a database.
 // For this prototype, we're managing it in component state.
@@ -38,46 +38,65 @@ export default function AdminDashboardPage() {
   const { t, language } = useLanguage();
   const [activities, setActivities] = useState<Activity[]>(initialActivities);
   const [registrations, setRegistrations] = useState<Registration[]>(initialRegistrations);
+  const [talentedStudents, setTalentedStudents] = useState<TalentedStudent[]>(initialTalentedStudents);
+  
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isActivityFormOpen, setIsActivityFormOpen] = useState(false);
+  
+  const [selectedTalentedStudent, setSelectedTalentedStudent] = useState<TalentedStudent | null>(null);
+  const [isTalentedStudentFormOpen, setIsTalentedStudentFormOpen] = useState(false);
 
   const stats = [
     { title: t('Total Activities', 'إجمالي الأنشطة'), value: activities.length, icon: PlusCircle, color: 'text-blue-500' },
     { title: t('Total Registrations', 'إجمالي التسجيلات'), value: registrations.length, icon: Users, color: 'text-green-500' },
-    { title: t('Events Hosted', 'الفعاليات المستضافة'), value: activities.filter(a => a.category === 'Event').length, icon: BarChart2, color: 'text-purple-500' },
-    { title: t('Total Revenue', 'إجمالي الإيرادات'), value: `$${activities.reduce((sum, a) => sum + (a.cost || 0) * registrations.filter(r => r.activityId === a.id).length, 0)}`, icon: DollarSign, color: 'text-yellow-500' },
+    { title: t('Talented Students', 'الطلاب الموهوبون'), value: talentedStudents.length, icon: Star, color: 'text-yellow-500' },
+    { title: t('Total Revenue', 'إجمالي الإيرادات'), value: `$${activities.reduce((sum, a) => sum + (a.cost || 0) * registrations.filter(r => r.activityId === a.id).length, 0)}`, icon: DollarSign, color: 'text-red-500' },
   ];
-
-  const handleAddNew = () => {
-    setSelectedActivity(null);
-    setIsFormOpen(true);
-  };
   
-  const handleEdit = (activity: Activity) => {
-    setSelectedActivity(activity);
-    setIsFormOpen(true);
+  // Activity Handlers
+  const handleAddNewActivity = () => {
+    setSelectedActivity(null);
+    setIsActivityFormOpen(true);
   };
-
-  const handleDelete = (id: string) => {
-    // In a real app, you'd call an API to delete the activity.
+  const handleEditActivity = (activity: Activity) => {
+    setSelectedActivity(activity);
+    setIsActivityFormOpen(true);
+  };
+  const handleDeleteActivity = (id: string) => {
     setActivities(activities.filter(a => a.id !== id));
   };
-  
-  const handleFormSubmit = (values: Omit<Activity, 'id'>) => {
+  const handleActivityFormSubmit = (values: Omit<Activity, 'id'>) => {
      if (selectedActivity) {
-      // Update existing activity
       setActivities(activities.map(a => a.id === selectedActivity.id ? { ...a, ...values } : a));
     } else {
-      // Add new activity
-      const newActivity: Activity = {
-        id: (activities.length + 1).toString(), // simple id generation
-        ...values,
-      };
+      const newActivity: Activity = { id: `act-${Date.now()}`, ...values };
       setActivities([...activities, newActivity]);
     }
-    setIsFormOpen(false);
+    setIsActivityFormOpen(false);
   };
-  
+
+  // Talented Student Handlers
+  const handleAddNewTalentedStudent = () => {
+    setSelectedTalentedStudent(null);
+    setIsTalentedStudentFormOpen(true);
+  }
+  const handleEditTalentedStudent = (student: TalentedStudent) => {
+    setSelectedTalentedStudent(student);
+    setIsTalentedStudentFormOpen(true);
+  };
+  const handleDeleteTalentedStudent = (id: string) => {
+    setTalentedStudents(talentedStudents.filter(s => s.id !== id));
+  };
+  const handleTalentedStudentFormSubmit = (values: Omit<TalentedStudent, 'id'>) => {
+    if (selectedTalentedStudent) {
+      setTalentedStudents(talentedStudents.map(s => s.id === selectedTalentedStudent.id ? { ...s, ...values } : s));
+    } else {
+      const newStudent: TalentedStudent = { id: `ts-${Date.now()}`, ...values };
+      setTalentedStudents([...talentedStudents, newStudent]);
+    }
+    setIsTalentedStudentFormOpen(false);
+  };
+
   const findActivityTitle = (id: string) => {
     const activity = activities.find(a => a.id === id);
     if (!activity) return 'Unknown Activity';
@@ -115,16 +134,17 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
+      {/* Activities and Registrations Section */}
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-            <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+            <Dialog open={isActivityFormOpen} onOpenChange={setIsActivityFormOpen}>
                 <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                         <CardTitle>{t('Manage Activities', 'إدارة الأنشطة')}</CardTitle>
                         <CardDescription>{t('Add, edit, or remove school activities.', 'إضافة أو تعديل أو حذف أنشطة المدرسة.')}</CardDescription>
                     </div>
-                    <Button onClick={handleAddNew}>
+                    <Button onClick={handleAddNewActivity}>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         {t('Add New Activity', 'إضافة نشاط جديد')}
                     </Button>
@@ -136,7 +156,6 @@ export default function AdminDashboardPage() {
                         <TableHead>{t('Activity', 'النشاط')}</TableHead>
                         <TableHead>{t('Category', 'الفئة')}</TableHead>
                         <TableHead>{t('Date', 'التاريخ')}</TableHead>
-                        <TableHead>{t('Cost', 'التكلفة')}</TableHead>
                         <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -146,19 +165,13 @@ export default function AdminDashboardPage() {
                             <TableCell className="font-medium">
                             {language === 'en' ? activity.title : activity.titleAr}
                             </TableCell>
-                            <TableCell>
-                            <Badge variant="outline">{activity.category}</Badge>
-                            </TableCell>
+                            <TableCell><Badge variant="outline">{activity.category}</Badge></TableCell>
                             <TableCell>{activity.date}</TableCell>
-                            <TableCell>
-                            {activity.cost ? `$${activity.cost}` : 'Free'}
-                            </TableCell>
                             <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                                <Button variant="ghost" size="icon" onClick={() => handleEdit(activity)}>
+                                <Button variant="ghost" size="icon" onClick={() => handleEditActivity(activity)}>
                                     <Edit className="h-4 w-4" />
                                 </Button>
-
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
                                     <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
@@ -168,15 +181,11 @@ export default function AdminDashboardPage() {
                                     <AlertDialogContent>
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>{t('Are you sure?', 'هل أنت متأكد؟')}</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                        {t('This action cannot be undone. This will permanently delete the activity.', 'لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف النشاط نهائيًا.')}
-                                        </AlertDialogDescription>
+                                        <AlertDialogDescription>{t('This action will permanently delete the activity.', 'سيؤدي هذا إلى حذف النشاط نهائيًا.')}</AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                         <AlertDialogCancel>{t('Cancel', 'إلغاء')}</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleDelete(activity.id)} className="bg-destructive hover:bg-destructive/90">
-                                        {t('Delete', 'حذف')}
-                                        </AlertDialogAction>
+                                        <AlertDialogAction onClick={() => handleDeleteActivity(activity.id)} className="bg-destructive hover:bg-destructive/90">{t('Delete', 'حذف')}</AlertDialogAction>
                                     </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
@@ -197,11 +206,7 @@ export default function AdminDashboardPage() {
                         {t('Fill in the details below. Click save when you are done.', 'املأ التفاصيل أدناه. انقر على "حفظ" عند الانتهاء.')}
                     </DialogDescription>
                     </DialogHeader>
-                    <ActivityForm
-                    activity={selectedActivity}
-                    onSubmit={handleFormSubmit}
-                    onCancel={() => setIsFormOpen(false)}
-                    />
+                    <ActivityForm activity={selectedActivity} onSubmit={handleActivityFormSubmit} onCancel={() => setIsActivityFormOpen(false)} />
                 </DialogContent>
             </Dialog>
         </div>
@@ -210,7 +215,7 @@ export default function AdminDashboardPage() {
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                         <CardTitle>{t('Recent Registrations', 'التسجيلات الأخيرة')}</CardTitle>
-                        <CardDescription>{t('A list of recent student registrations for activities.', 'قائمة بآخر تسجيلات الطلاب في الأنشطة.')}</CardDescription>
+                        <CardDescription>{t('A list of recent student registrations.', 'قائمة بآخر تسجيلات الطلاب.')}</CardDescription>
                     </div>
                      <Button variant="outline" size="sm" onClick={handleEmailAll}>
                         <Send className="mr-2 h-4 w-4" />
@@ -220,66 +225,97 @@ export default function AdminDashboardPage() {
                 <CardContent className="space-y-4">
                     {registrations.slice(0, 5).map((registration) => (
                         <div key={registration.id} className="flex items-center gap-4">
-                            <Avatar className="h-10 w-10">
-                                <AvatarImage src={`https://i.pravatar.cc/150?u=${registration.email}`} data-ai-hint="user avatar" />
-                                <AvatarFallback>{registration.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
+                            <Avatar className="h-10 w-10"><AvatarImage src={`https://i.pravatar.cc/150?u=${registration.email}`} data-ai-hint="user avatar" /><AvatarFallback>{registration.name.charAt(0)}</AvatarFallback></Avatar>
                             <div className="flex-1">
                                 <p className="font-medium text-sm">{registration.name}</p>
                                 <p className="text-xs text-muted-foreground">{findActivityTitle(registration.activityId)}</p>
                             </div>
-                            <Button variant="ghost" size="icon" asChild>
-                                <a href={`mailto:${registration.email}`}>
-                                    <Mail className="h-4 w-4" />
-                                </a>
-                            </Button>
+                            <Button variant="ghost" size="icon" asChild><a href={`mailto:${registration.email}`}><Mail className="h-4 w-4" /></a></Button>
                         </div>
                     ))}
                 </CardContent>
             </Card>
-             <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle>{t('Admin Management', 'إدارة المسؤولين')}</CardTitle>
-                        <CardDescription>{t('Add or remove administrators.', 'إضافة أو إزالة المسؤولين.')}</CardDescription>
-                    </div>
-                    <Button>
-                        <UserCog className="mr-2 h-4 w-4" />
-                        {t('Add Admin', 'إضافة مسؤول')}
-                    </Button>
-                </CardHeader>
-                <CardContent>
-                   <Table>
-                        <TableHeader>
-                            <TableRow>
-                            <TableHead>{t('Name', 'الاسم')}</TableHead>
-                            <TableHead>{t('Email', 'البريد الإلكتروني')}</TableHead>
-                            <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                             <TableRow>
-                                <TableCell>Admin</TableCell>
-                                <TableCell>admin@ags.edu</TableCell>
-                                <TableCell className="text-right">
-                                    <div className="flex justify-end gap-2">
-                                        <Button variant="ghost" size="icon" disabled>
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" disabled>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
         </div>
       </div>
+      
+      {/* Talented Students Section */}
+      <Dialog open={isTalentedStudentFormOpen} onOpenChange={setIsTalentedStudentFormOpen}>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>{t('Manage Talented Students', 'إدارة الطلاب الموهوبين')}</CardTitle>
+              <CardDescription>{t('Add, edit, or remove talented students.', 'إضافة أو تعديل أو حذف الطلاب الموهوبين.')}</CardDescription>
+            </div>
+            <Button onClick={handleAddNewTalentedStudent}>
+              <Star className="mr-2 h-4 w-4" />
+              {t('Add Talented Student', 'إضافة طالب موهوب')}
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('Student Name', 'اسم الطالب')}</TableHead>
+                  <TableHead>{t('Grade', 'المرحلة')}</TableHead>
+                  <TableHead>{t('Talent', 'الموهبة')}</TableHead>
+                  <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {talentedStudents.map((student) => (
+                  <TableRow key={student.id}>
+                    <TableCell className="font-medium flex items-center gap-3">
+                        <Avatar className="h-9 w-9"><AvatarImage src={student.imageUrl} data-ai-hint={student.imageHint}/><AvatarFallback>{language === 'en' ? student.name.charAt(0) : student.nameAr.charAt(0)}</AvatarFallback></Avatar>
+                        {language === 'en' ? student.name : student.nameAr}
+                    </TableCell>
+                    <TableCell>{language === 'en' ? student.grade : student.gradeAr}</TableCell>
+                    <TableCell><Badge variant="secondary">{language === 'en' ? student.talent : student.talentAr}</Badge></TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => handleEditTalentedStudent(student)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>{t('Are you sure?', 'هل أنت متأكد؟')}</AlertDialogTitle>
+                              <AlertDialogDescription>{t('This will permanently remove the student from the talented list.', 'سيؤدي هذا إلى إزالة الطالب نهائيًا من قائمة الموهوبين.')}</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>{t('Cancel', 'إلغاء')}</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteTalentedStudent(student.id)} className="bg-destructive hover:bg-destructive/90">{t('Delete', 'حذف')}</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-headline text-2xl">
+              {selectedTalentedStudent ? t('Edit Talented Student', 'تعديل طالب موهوب') : t('Add New Talented Student', 'إضافة طالب موهوب جديد')}
+            </DialogTitle>
+            <DialogDescription>
+              {t('Fill in the details for the talented student.', 'املأ التفاصيل الخاصة بالطالب الموهوب.')}
+            </DialogDescription>
+          </DialogHeader>
+          <TalentedStudentForm 
+            student={selectedTalentedStudent} 
+            onSubmit={handleTalentedStudentFormSubmit} 
+            onCancel={() => setIsTalentedStudentFormOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
-    

@@ -45,3 +45,17 @@ export interface Registration {
     activityId: string;
     registrationDate: string;
 }
+
+export interface TalentedStudent {
+  id: string;
+  name: string;
+  nameAr: string;
+  grade: string;
+  gradeAr: string;
+  talent: string;
+  talentAr: string;
+  details: string;
+  detailsAr: string;
+  imageUrl: string;
+  imageHint: string;
+}

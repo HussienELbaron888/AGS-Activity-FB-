@@ -1,4 +1,4 @@
-import type { Activity, Album, Registration } from './types';
+import type { Activity, Album, Registration, TalentedStudent } from './types';
 
 export const activities: Activity[] = [
   {
@@ -163,4 +163,46 @@ export const registrations: Registration[] = [
   { id: 'reg3', name: 'Khalid Hassan', email: 'khalid.hassan@example.com', activityId: '3', registrationDate: '2024-09-03' },
   { id: 'reg4', name: 'Nour Mohamed', email: 'nour.mohamed@example.com', activityId: '5', registrationDate: '2024-09-04' },
   { id: 'reg5', name: 'Youssef Ibrahim', email: 'youssef.ibrahim@example.com', activityId: '6', registrationDate: '2024-09-05' },
+];
+
+export const talentedStudents: TalentedStudent[] = [
+    {
+        id: 'ts1',
+        name: 'Lila Chen',
+        nameAr: 'ليلى تشن',
+        grade: 'Grade 11',
+        gradeAr: 'الصف الحادي عشر',
+        talent: 'Classical Violin',
+        talentAr: 'الكمان الكلاسيكي',
+        details: 'Lila has been playing the violin for 10 years and has won multiple national competitions. She is the first chair in the school orchestra.',
+        detailsAr: 'ليلى تعزف على الكمان منذ 10 سنوات وفازت بالعديد من المسابقات الوطنية. هي العازفة الأولى في أوركسترا المدرسة.',
+        imageUrl: 'https://picsum.photos/400/500?random=24',
+        imageHint: 'girl violin'
+    },
+    {
+        id: 'ts2',
+        name: 'Omar Al-Farsi',
+        nameAr: 'عمر الفارسي',
+        grade: 'Grade 12',
+        gradeAr: 'الصف الثاني عشر',
+        talent: 'Robotics & AI',
+        talentAr: 'الروبوتات والذكاء الاصطناعي',
+        details: 'Omar leads the robotics club and has developed an award-winning AI for environmental monitoring. He plans to study computer engineering at MIT.',
+        detailsAr: 'عمر يقود نادي الروبوتات وقد طور ذكاءً اصطناعيًا حائزًا على جوائز لمراقبة البيئة. يخطط لدراسة هندسة الكمبيوتر في معهد ماساتشوستس للتكنولوجيا.',
+        imageUrl: 'https://picsum.photos/400/500?random=25',
+        imageHint: 'student robot'
+    },
+     {
+        id: 'ts3',
+        name: 'Sophia Rodriguez',
+        nameAr: 'صوفيا رودريغيز',
+        grade: 'Grade 9',
+        gradeAr: 'الصف التاسع',
+        talent: 'Creative Writing & Poetry',
+        talentAr: 'الكتابة الإبداعية والشعر',
+        details: 'Sophia is a published poet with a unique voice. Her work often explores themes of identity and belonging, resonating deeply with her peers.',
+        detailsAr: 'صوفيا شاعرة منشورة بصوت فريد. غالبًا ما تستكشف أعمالها موضوعات الهوية والانتماء، وتتردد أصداؤها بعمق مع أقرانها.',
+        imageUrl: 'https://picsum.photos/400/500?random=26',
+        imageHint: 'girl writing'
+    }
 ];
