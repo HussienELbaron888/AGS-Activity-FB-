@@ -87,8 +87,12 @@ const sendConfirmationEmailFlow = ai.defineFlow(
     `;
 
     try {
+        // !! CRITICAL !!
+        // The 'from' address 'onboarding@resend.dev' is for testing only.
+        // For emails to be delivered reliably, you MUST verify your own domain in your Resend account
+        // and use an email address from that domain, e.g., 'noreply@yourverifieddomain.com'.
         const { data, error } = await resend.emails.send({
-            from: 'AGS Activities Hub <onboarding@resend.dev>', // You must verify a domain with Resend to use a custom 'from' address.
+            from: 'AGS Activities Hub <onboarding@resend.dev>',
             to: [input.to],
             subject: `Confirmation for ${input.activityTitle}`,
             text: emailBody,
