@@ -19,7 +19,7 @@ const Header = () => {
       <div className="flex-1 flex justify-center">
         <Link href="/">
             <Image 
-                src="https://firebasestudio.ai/static/images/agsl-logo-removbg-2.png" 
+                src="https://firebasestudio.ai/static/images/agsl-logo-removbg.png" 
                 alt="AGS Logo" 
                 width={180} 
                 height={60} 
