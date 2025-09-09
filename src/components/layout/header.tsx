@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -7,7 +6,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { UserNav } from './user-nav';
 import { useLanguage } from '@/contexts/language-provider';
-import { Globe, School } from 'lucide-react';
+import { Globe } from 'lucide-react';
 
 const Header = () => {
   const { toggleLanguage } = useLanguage();
@@ -19,7 +18,7 @@ const Header = () => {
       </div>
       <div className="flex-1 flex justify-center">
         <Link href="/" className="flex items-center gap-2 text-foreground">
-            <Image src="/logo.png" alt="AGS Activities Hub Logo" width={150} height={40} />
+            <Image src="/MAIN logo.png" alt="AGS Activities Hub Logo" width={150} height={40} />
         </Link>
       </div>
       <div className="flex items-center gap-2">
