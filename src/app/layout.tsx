@@ -17,11 +17,13 @@ export default function RootLayout({
 }>) {
   return (
     <LanguageProvider>
-      <AuthProvider>
-        <DataProvider>
-          <AppLayout>{children}</AppLayout>
-        </DataProvider>
-      </AuthProvider>
+      <AppLayout>
+        <AuthProvider>
+          <DataProvider>
+            {children}
+          </DataProvider>
+        </AuthProvider>
+      </AppLayout>
     </LanguageProvider>
   );
 }

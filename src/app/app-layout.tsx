@@ -3,6 +3,7 @@
 import { useLanguage } from '@/contexts/language-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
+import React from 'react';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { language, direction } = useLanguage();
