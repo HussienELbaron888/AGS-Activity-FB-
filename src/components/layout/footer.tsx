@@ -25,7 +25,7 @@ export function AppFooter() {
               </p>
               <p className="flex items-center justify-center md:justify-start gap-3">
                 <MapPin className="h-5 w-5" />
-                <span>123 School Lane, Education City</span>
+                <span>{t('123 School Lane, Education City', '١٢٣ شارع المدرسة، مدينة التعليم')}</span>
               </p>
             </div>
           </div>
@@ -34,7 +34,7 @@ export function AppFooter() {
             <ul className="space-y-2">
               <li><Link href="/events" className="hover:underline">{t('Events', 'الفعاليات')}</Link></li>
               <li><Link href="/gallery" className="hover:underline">{t('Gallery', 'معرض الصور')}</Link></li>
-              <li><Link href="/faq" className="hover:underline">{t('FAQ', 'الأسئلة الشائعة')}</Link></li>
+              <li><Link href="/contact" className="hover:underline">{t('Contact Us', 'اتصل بنا')}</Link></li>
             </ul>
           </div>
           <div>

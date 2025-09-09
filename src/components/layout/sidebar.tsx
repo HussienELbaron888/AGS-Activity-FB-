@@ -13,7 +13,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import { LayoutGrid, Calendar, MessageCircleQuestion, School, LogOut, Images, DollarSign, Gift, Plane, Star, Home, Shield } from 'lucide-react';
+import { LayoutGrid, Calendar, Mail, School, LogOut, Images, DollarSign, Gift, Plane, Star, Home, Shield } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-provider';
 
 const AppSidebar = () => {
@@ -31,7 +31,7 @@ const AppSidebar = () => {
     { href: '/trips', label: t('Trips', 'رحلات'), icon: Plane },
     { href: '/talented', label: t('Talented', 'موهوبين'), icon: Star },
     { href: '/gallery', label: t('Gallery', 'معرض الصور'), icon: Images },
-    { href: '/faq', label: t('FAQ', 'أسئلة'), icon: MessageCircleQuestion },
+    { href: '/contact', label: t('Contact Us', 'اتصل بنا'), icon: Mail },
     { href: '/admin', label: t('Admin', 'الإدارة'), icon: Shield, admin: true },
   ];
 
