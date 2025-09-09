@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-provider";
 import { activities as initialActivities, registrations as initialRegistrations } from "@/lib/data";
 import type { Activity, Registration } from "@/lib/types";
-import { Users, BarChart2, DollarSign, PlusCircle, Edit, Trash2, Mail, Send } from "lucide-react";
+import { Users, BarChart2, DollarSign, PlusCircle, Edit, Trash2, Mail, Send, UserCog } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -205,7 +205,7 @@ export default function AdminDashboardPage() {
                 </DialogContent>
             </Dialog>
         </div>
-        <div>
+        <div className="space-y-8">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div>
@@ -237,8 +237,49 @@ export default function AdminDashboardPage() {
                     ))}
                 </CardContent>
             </Card>
+             <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>{t('Admin Management', 'إدارة المسؤولين')}</CardTitle>
+                        <CardDescription>{t('Add or remove administrators.', 'إضافة أو إزالة المسؤولين.')}</CardDescription>
+                    </div>
+                    <Button>
+                        <UserCog className="mr-2 h-4 w-4" />
+                        {t('Add Admin', 'إضافة مسؤول')}
+                    </Button>
+                </CardHeader>
+                <CardContent>
+                   <Table>
+                        <TableHeader>
+                            <TableRow>
+                            <TableHead>{t('Name', 'الاسم')}</TableHead>
+                            <TableHead>{t('Email', 'البريد الإلكتروني')}</TableHead>
+                            <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                             <TableRow>
+                                <TableCell>Admin</TableCell>
+                                <TableCell>admin@ags.edu</TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <Button variant="ghost" size="icon" disabled>
+                                            <Edit className="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" disabled>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
         </div>
       </div>
     </div>
   );
 }
+
+    
