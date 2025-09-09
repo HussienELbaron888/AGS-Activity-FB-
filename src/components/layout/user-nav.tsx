@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useLanguage } from "@/contexts/language-provider"
+import { LayoutDashboard } from "lucide-react"
 
 export function UserNav() {
   const isAuthenticated = true; // Placeholder for authentication status
@@ -47,6 +48,12 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+           <DropdownMenuItem asChild>
+             <Link href="/admin">
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                <span>{t('Dashboard', 'لوحة التحكم')}</span>
+             </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem>
             {t('Profile', 'الملف الشخصي')}
           </DropdownMenuItem>
