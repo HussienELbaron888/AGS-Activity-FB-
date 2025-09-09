@@ -1,7 +1,6 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
-// import { getAnalytics } from "firebase/analytics"; // Temporarily disabled
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -20,11 +19,4 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Conditionally initialize Analytics only in the browser
-let analytics;
-// if (typeof window !== 'undefined') { // Temporarily disabled
-//   analytics = getAnalytics(firebaseApp);
-// }
-
-
-export { firebaseApp, analytics };
+export { firebaseApp };
