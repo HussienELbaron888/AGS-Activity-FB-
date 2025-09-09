@@ -15,7 +15,7 @@ import { useLanguage } from '@/contexts/language-provider';
 
 const AppSidebar = () => {
   const pathname = usePathname();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const menuItems = [
     { href: '/', label: t('Activities', 'أنشطة'), icon: LayoutGrid },
@@ -25,7 +25,7 @@ const AppSidebar = () => {
   ];
 
   return (
-    <Sidebar>
+    <Sidebar side={language === 'ar' ? 'right' : 'left'}>
       <SidebarHeader>
         <div className="flex items-center gap-2 p-2">
             <div className="bg-primary rounded-lg p-2 flex items-center justify-center">

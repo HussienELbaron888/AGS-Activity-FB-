@@ -58,7 +58,7 @@ export default function RegisterPage() {
             <Button type="submit" className="w-full">
               Create an account
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" disabled>
               Sign up with Google
             </Button>
           </div>
