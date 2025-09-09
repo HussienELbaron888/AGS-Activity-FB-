@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { createContext, useState, useContext, useMemo } from 'react';
+import React, { createContext, useState, useContext, useMemo, useEffect } from 'react';
 import type { Activity, Registration, TalentedStudent } from '@/lib/types';
 import { 
     activities as initialActivities, 
@@ -23,10 +23,46 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
+// Helper function to get data from localStorage
+const getFromStorage = <T>(key: string, fallback: T): T => {
+  if (typeof window === 'undefined') return fallback;
+  try {
+    const item = window.localStorage.getItem(key);
+    return item ? JSON.parse(item) : fallback;
+  } catch (error) {
+    console.error(`Error reading from localStorage key “${key}”:`, error);
+    return fallback;
+  }
+};
+
+// Helper function to set data in localStorage
+const setInStorage = <T>(key: string, value: T) => {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.error(`Error writing to localStorage key “${key}”:`, error);
+  }
+};
+
+
 export function DataProvider({ children }: { children: React.ReactNode }) {
-  const [activities, setActivities] = useState<Activity[]>(initialActivities);
-  const [registrations, setRegistrations] = useState<Registration[]>(initialRegistrations);
-  const [talentedStudents, setTalentedStudents] = useState<TalentedStudent[]>(initialTalentedStudents);
+  const [activities, setActivities] = useState<Activity[]>(() => getFromStorage('activitiesData', initialActivities));
+  const [registrations, setRegistrations] = useState<Registration[]>(() => getFromStorage('registrationsData', initialRegistrations));
+  const [talentedStudents, setTalentedStudents] = useState<TalentedStudent[]>(() => getFromStorage('talentedStudentsData', initialTalentedStudents));
+
+  useEffect(() => {
+    setInStorage('activitiesData', activities);
+  }, [activities]);
+
+  useEffect(() => {
+    setInStorage('registrationsData', registrations);
+  }, [registrations]);
+
+  useEffect(() => {
+    setInStorage('talentedStudentsData', talentedStudents);
+  }, [talentedStudents]);
+
 
   const addActivity = (activity: Omit<Activity, 'id'>) => {
     const newActivity: Activity = { id: `act-${Date.now()}`, ...activity };
