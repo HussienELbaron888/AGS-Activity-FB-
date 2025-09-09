@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -14,7 +15,7 @@ interface ActivityDetailsModalProps {
 }
 
 export function ActivityDetailsModal({ activity, isOpen, onOpenChange }: ActivityDetailsModalProps) {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   
   const title = language === 'en' ? activity.title : activity.titleAr;
   const description = language === 'en' ? activity.description : activity.descriptionAr;
@@ -56,7 +57,7 @@ export function ActivityDetailsModal({ activity, isOpen, onOpenChange }: Activit
             <DollarSign className="h-5 w-5 text-primary" />
             <div>
               <p className="font-semibold">Cost</p>
-              <p className="text-muted-foreground">{activity.cost ? `$${activity.cost}` : 'Free'}</p>
+              <p className="text-muted-foreground">{activity.cost ? `${activity.cost} ${t('SAR', 'ر.س')}` : 'Free'}</p>
             </div>
           </div>
         </div>

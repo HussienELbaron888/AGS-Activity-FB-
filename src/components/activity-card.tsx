@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -55,7 +56,7 @@ export function ActivityCard({ activity }: ActivityCardProps) {
           <Button variant="outline" onClick={() => setIsDetailsOpen(true)}>{t('Details', 'تفاصيل')}</Button>
           <Button onClick={() => setIsRegisterOpen(true)} className="bg-primary hover:bg-primary/90">
             {t('Register', 'تسجيل')}
-            {activity.cost ? ` ($${activity.cost})` : ''}
+            {activity.cost ? ` (${activity.cost} ${t('SAR', 'ر.س')})` : ''}
           </Button>
         </CardFooter>
       </Card>

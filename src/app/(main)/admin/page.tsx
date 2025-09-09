@@ -56,7 +56,7 @@ export default function AdminDashboardPage() {
     { title: t('Total Activities', 'إجمالي الأنشطة'), value: activities.length, icon: PlusCircle, color: 'text-blue-500' },
     { title: t('Total Registrations', 'إجمالي التسجيلات'), value: registrations.length, icon: Users, color: 'text-green-500' },
     { title: t('Talented Students', 'الطلاب الموهوبون'), value: talentedStudents.length, icon: Star, color: 'text-yellow-500' },
-    { title: t('Total Revenue', 'إجمالي الإيرادات'), value: `$${activities.reduce((sum, a) => sum + (a.cost || 0) * registrations.filter(r => r.activityId === a.id).length, 0)}`, icon: DollarSign, color: 'text-red-500' },
+    { title: t('Total Revenue', 'إجمالي الإيرادات'), value: `${activities.reduce((sum, a) => sum + (a.cost || 0) * registrations.filter(r => r.activityId === a.id).length, 0)} ${t('SAR', 'ر.س')}`, icon: DollarSign, color: 'text-red-500' },
   ];
   
   // Activity Handlers

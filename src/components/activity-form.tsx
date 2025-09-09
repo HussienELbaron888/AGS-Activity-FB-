@@ -244,7 +244,7 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
                     name="cost"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>{t('Cost ($)', 'التكلفة (بالدولار)')}</FormLabel>
+                        <FormLabel>{t('Cost (SAR)', 'التكلفة (ر.س)')}</FormLabel>
                         <FormControl>
                             <Input type="number" placeholder="0" {...field} />
                         </FormControl>

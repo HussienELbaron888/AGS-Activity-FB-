@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -69,7 +70,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
                 </div>
                  {activity.cost && activity.cost > 0 && (
                     <div className="p-3 bg-muted/50 rounded-lg text-center">
-                        <p className="font-semibold">{t('Total Cost', 'التكلفة الإجمالية')}: ${activity.cost}</p>
+                        <p className="font-semibold">{t('Total Cost', 'التكلفة الإجمالية')}: {activity.cost} {t('SAR', 'ر.س')}</p>
                         <p className="text-xs text-muted-foreground">{t('Payment details will be sent via email.', 'سيتم إرسال تفاصيل الدفع عبر البريد الإلكتروني.')}</p>
                     </div>
                 )}
