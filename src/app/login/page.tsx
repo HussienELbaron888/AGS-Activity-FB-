@@ -33,13 +33,14 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push(email === 'admin@ags.edu' ? '/admin' : '/');
+      // AuthProvider will handle the redirect
     } catch (error: any) {
+      // If admin user doesn't exist, create it
       if (error.code === 'auth/user-not-found' && email === 'admin@ags.edu') {
         try {
           await createUserWithEmailAndPassword(auth, email, password);
+          // Re-attempt sign in, AuthProvider will redirect
           await signInWithEmailAndPassword(auth, email, password);
-          router.push('/admin');
         } catch (creationError: any) {
            toast({
             title: "Admin Creation Failed",

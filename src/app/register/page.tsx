@@ -42,7 +42,7 @@ export default function RegisterPage() {
         title: "Account Created",
         description: "You have successfully created an account. Redirecting...",
       });
-      router.push('/');
+      // AuthProvider will handle the redirect
     } catch (error: any) {
       toast({
         title: "Registration Failed",

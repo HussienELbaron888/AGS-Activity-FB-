@@ -30,24 +30,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, [auth]);
 
+  const isAdmin = useMemo(() => !!user && user.email === 'admin@ags.edu', [user]);
+
   useEffect(() => {
     if (loading) return;
 
-    const isAdminPage = pathname.startsWith('/admin');
     const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/forgot-password');
-    const isAdmin = user?.email === 'admin@ags.edu';
-
-    if (isAdminPage && !isAdmin) {
-      router.push('/login');
-    }
-
-    if (isAuthPage && user) {
+    
+    // If on an auth page and logged in, redirect away
+    if (user && isAuthPage) {
       router.push(isAdmin ? '/admin' : '/');
+      return;
     }
 
-  }, [user, loading, pathname, router]);
+    // If trying to access admin page but not an admin, redirect to login
+    if (pathname.startsWith('/admin') && !isAdmin) {
+      router.push('/login');
+      return;
+    }
 
-  const isAdmin = useMemo(() => !!user && user.email === 'admin@ags.edu', [user]);
+  }, [user, loading, pathname, router, isAdmin]);
 
   const value = useMemo(() => ({
     user,
