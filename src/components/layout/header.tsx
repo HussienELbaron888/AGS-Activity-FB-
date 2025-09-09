@@ -13,7 +13,7 @@ const Header = () => {
   const { toggleLanguage } = useLanguage();
 
   return (
-    <header className="sticky top-0 z-10 flex h-20 items-center gap-4 border-b bg-background px-4 md:px-6">
+    <header className="sticky top-0 z-10 flex h-24 items-center gap-4 border-b bg-background px-4 md:px-6">
       <div className="flex items-center">
         <SidebarTrigger className="md:hidden" />
       </div>
