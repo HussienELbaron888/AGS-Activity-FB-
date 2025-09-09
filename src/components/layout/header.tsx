@@ -19,7 +19,7 @@ const Header = () => {
       </div>
       <div className="flex-1 flex justify-center">
         <Link href="/" className="flex items-center gap-2 text-foreground">
-          <Image src="/logo.png" alt="AGS Activities Hub Logo" width={150} height={40} priority />
+          <Image src="/aclogo.png" alt="AGS Activities Hub Logo" width={150} height={40} priority />
         </Link>
       </div>
       <div className="flex items-center gap-2">

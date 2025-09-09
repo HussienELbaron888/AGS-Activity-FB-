@@ -2,6 +2,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { getAuth, signOut } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
@@ -56,9 +57,12 @@ const AppSidebar = () => {
   return (
     <Sidebar side={language === 'ar' ? 'right' : 'left'}>
       <SidebarHeader>
-        <div className="flex items-center gap-2 p-2">
+        <div className="flex items-center gap-2 p-2 justify-center">
             <div className="flex flex-col group-data-[collapsible=icon]:hidden transition-opacity duration-200 opacity-100 group-data-[collapsible=icon]:opacity-0">
-                <h1 className="font-headline font-bold text-lg text-sidebar-foreground">AGS ACTIVITY</h1>
+                <Image src="/aclogo.png" alt="AGS Activity Logo" width={120} height={32} />
+            </div>
+             <div className="hidden group-data-[collapsible=icon]:flex">
+                <Image src="/aclogo.png" alt="AGS Activity Logo" width={32} height={32} />
             </div>
         </div>
       </SidebarHeader>
