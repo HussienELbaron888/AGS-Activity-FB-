@@ -3,7 +3,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { getAuth, signOut } from "firebase/auth"
+import { getAuth, signOut, onAuthStateChanged, type User } from "firebase/auth"
 import { firebaseApp } from "@/lib/firebase"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -18,14 +18,25 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useLanguage } from "@/contexts/language-provider"
 import { useToast } from "@/hooks/use-toast"
-import { LayoutDashboard, LogOut } from "lucide-react"
+import { LayoutDashboard, LogOut, LogIn } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Skeleton } from "../ui/skeleton"
 
 export function UserNav() {
-  const isAuthenticated = true; // Placeholder for authentication status
   const { t } = useLanguage();
   const router = useRouter();
   const { toast } = useToast();
   const auth = getAuth(firebaseApp);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, [auth]);
 
   const handleLogout = async () => {
     try {
@@ -34,7 +45,7 @@ export function UserNav() {
         title: "Logged Out",
         description: "You have been successfully logged out.",
       });
-      router.push('/login');
+      router.push('/');
     } catch (error: any) {
       toast({
         title: "Error",
@@ -44,42 +55,52 @@ export function UserNav() {
     }
   };
 
+  if (isLoading) {
+    return <Skeleton className="h-8 w-8 rounded-full" />;
+  }
 
-  if (!isAuthenticated) {
+  if (!user) {
     return (
       <Button asChild variant="outline">
-        <Link href="/login">{t('Login', 'تسجيل الدخول')}</Link>
+        <Link href="/login">
+          <LogIn className="mr-2 h-4 w-4" />
+          {t('Login', 'تسجيل الدخول')}
+        </Link>
       </Button>
     )
   }
+  
+  const isAdmin = user.email === 'admin@ags.edu';
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="https://picsum.photos/100" alt="@shadcn" data-ai-hint="user avatar" />
-            <AvatarFallback>A</AvatarFallback>
+            <AvatarImage src={user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`} alt={user.displayName || user.email || ''} data-ai-hint="user avatar" />
+            <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0) || 'U'}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{t('Admin', 'مسؤول')}</p>
+            <p className="text-sm font-medium leading-none">{user.displayName || t('User', 'مستخدم')}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              admin@ags.edu
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-           <DropdownMenuItem asChild>
-             <Link href="/admin">
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                <span>{t('Dashboard', 'لوحة التحكم')}</span>
-             </Link>
-          </DropdownMenuItem>
+           {isAdmin && (
+            <DropdownMenuItem asChild>
+              <Link href="/admin">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  <span>{t('Dashboard', 'لوحة التحكم')}</span>
+              </Link>
+            </DropdownMenuItem>
+           )}
           <DropdownMenuItem>
             {t('Profile', 'الملف الشخصي')}
           </DropdownMenuItem>

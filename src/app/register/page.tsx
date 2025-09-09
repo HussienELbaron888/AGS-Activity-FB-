@@ -36,13 +36,13 @@ export default function RegisterPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, {
-        displayName: `${firstName} ${lastName}`
+        displayName: `${firstName} ${lastName}`.trim()
       });
       toast({
         title: "Account Created",
-        description: "You have successfully created an account. Please log in.",
+        description: "You have successfully created an account. Redirecting to home...",
       });
-      router.push('/login');
+      router.push('/');
     } catch (error: any) {
       toast({
         title: "Registration Failed",
@@ -116,13 +116,11 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading} 
+                  minLength={6}
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Creating account...' : 'Create an account'}
-              </Button>
-              <Button variant="outline" className="w-full" disabled>
-                Sign up with Google
               </Button>
             </div>
           </form>

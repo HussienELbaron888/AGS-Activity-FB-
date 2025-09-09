@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
 
 
@@ -39,27 +39,31 @@ export default function LoginPage() {
       });
       router.push('/admin');
     } catch (error: any) {
-      // If default admin doesn't exist, create it.
-      if (error.code === 'auth/user-not-found') {
+      if (error.code === 'auth/user-not-found' && email === 'admin@ags.edu') {
+        // If the default admin account does not exist, create it.
         try {
-          const { createUserWithEmailAndPassword } = await import("firebase/auth");
           await createUserWithEmailAndPassword(auth, email, password);
+          await signInWithEmailAndPassword(auth, email, password); // Log in after creating
           toast({
             title: "Admin Account Created",
             description: "Default admin account created. Logging you in...",
           });
-          // Retry login
-          await signInWithEmailAndPassword(auth, email, password);
           router.push('/admin');
-
         } catch (creationError: any) {
            toast({
-            title: "Login Failed",
+            title: "Admin Creation Failed",
             description: creationError.message,
             variant: "destructive",
           });
         }
-      } else {
+      } else if (error.code === 'auth/invalid-credential') {
+         toast({
+          title: "Login Failed",
+          description: "Invalid email or password. Please try again.",
+          variant: "destructive",
+        });
+      }
+      else {
         toast({
           title: "Login Failed",
           description: error.message,
