@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-provider";
 import { activities as initialActivities, registrations as initialRegistrations } from "@/lib/data";
 import type { Activity, Registration } from "@/lib/types";
-import { Users, BarChart2, DollarSign, PlusCircle, Edit, Trash2, Mail } from "lucide-react";
+import { Users, BarChart2, DollarSign, PlusCircle, Edit, Trash2, Mail, Send } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -82,6 +82,11 @@ export default function AdminDashboardPage() {
     const activity = activities.find(a => a.id === id);
     if (!activity) return 'Unknown Activity';
     return language === 'en' ? activity.title : activity.titleAr;
+  };
+  
+  const handleEmailAll = () => {
+    const allEmails = registrations.map(r => r.email).join(',');
+    window.location.href = `mailto:?bcc=${allEmails}`;
   };
 
 
@@ -202,9 +207,15 @@ export default function AdminDashboardPage() {
         </div>
         <div>
             <Card>
-                <CardHeader>
-                    <CardTitle>{t('Recent Registrations', 'التسجيلات الأخيرة')}</CardTitle>
-                    <CardDescription>{t('A list of recent student registrations for activities.', 'قائمة بآخر تسجيلات الطلاب في الأنشطة.')}</CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>{t('Recent Registrations', 'التسجيلات الأخيرة')}</CardTitle>
+                        <CardDescription>{t('A list of recent student registrations for activities.', 'قائمة بآخر تسجيلات الطلاب في الأنشطة.')}</CardDescription>
+                    </div>
+                     <Button variant="outline" size="sm" onClick={handleEmailAll}>
+                        <Send className="mr-2 h-4 w-4" />
+                        {t('Email All', 'إرسال للكل')}
+                    </Button>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {registrations.slice(0, 5).map((registration) => (
