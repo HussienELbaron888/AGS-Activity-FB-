@@ -3,7 +3,6 @@
 
 import Link from "next/link"
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -16,31 +15,28 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { School } from "lucide-react"
 import { useToast } from "@/hooks/use-toast";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
 
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
   const { toast } = useToast();
   const auth = getAuth(firebaseApp);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await sendPasswordResetEmail(auth, email);
       toast({
-        title: "Login Successful",
-        description: "Redirecting to the admin dashboard...",
+        title: "Password Reset Email Sent",
+        description: "Please check your inbox to reset your password.",
       });
-      router.push('/admin');
     } catch (error: any) {
       toast({
-        title: "Login Failed",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -61,13 +57,13 @@ export default function LoginPage() {
                     <span className="text-xl font-bold font-headline">AGS Activities Hub</span>
                 </Link>
             </div>
-          <CardTitle className="text-2xl font-headline">Admin Login</CardTitle>
+          <CardTitle className="text-2xl font-headline">Forgot Password</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your email and we&apos;ll send you a link to reset your password.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleResetPassword}>
             <div className="grid gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
@@ -81,37 +77,15 @@ export default function LoginPage() {
                   disabled={isLoading}
                 />
               </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="/forgot-password"
-                    className="ml-auto inline-block text-sm underline"
-                  >
-                    Forgot your password?
-                  </Link>
-                </div>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  required 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
-                />
-              </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Logging in...' : 'Login'}
-              </Button>
-              <Button variant="outline" className="w-full" disabled>
-                Login with Google
+                {isLoading ? 'Sending...' : 'Send Reset Link'}
               </Button>
             </div>
           </form>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <Link href="/register" className="underline">
-              Sign up
+            Remember your password?{" "}
+            <Link href="/login" className="underline">
+              Sign in
             </Link>
           </div>
         </CardContent>
