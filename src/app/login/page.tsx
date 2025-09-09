@@ -4,7 +4,6 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -18,29 +17,35 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
+import { useAuth } from "@/contexts/auth-provider";
+import { useRouter } from "next/navigation";
 
 
 export default function LoginPage() {
   const [email, setEmail] = useState('admin@ags.edu');
   const [password, setPassword] = useState('123456');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
   const { toast } = useToast();
   const auth = getAuth(firebaseApp);
+  const { user } = useAuth();
+  const router = useRouter();
+  
+  if (user) {
+    // router.replace('/'); // AuthProvider already handles this, but as a fallback.
+    return null; // Render nothing while redirecting
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // AuthProvider will handle the redirect
+      // AuthProvider will handle the redirect, no need to push here.
     } catch (error: any) {
-      // If admin user doesn't exist, create it
       if (error.code === 'auth/user-not-found' && email === 'admin@ags.edu') {
         try {
           await createUserWithEmailAndPassword(auth, email, password);
-          // Re-attempt sign in, AuthProvider will redirect
-          await signInWithEmailAndPassword(auth, email, password);
+          // Don't need to sign in again, onAuthStateChanged will handle it.
         } catch (creationError: any) {
            toast({
             title: "Admin Creation Failed",

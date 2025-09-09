@@ -6,6 +6,7 @@ import { getAuth, onAuthStateChanged, type User } from 'firebase/auth';
 import { firebaseApp } from '@/lib/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
+import Image from 'next/image';
 
 interface AuthContextType {
   user: User | null;
@@ -14,6 +15,21 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// A loading component to show while auth state is being determined
+const AuthLoadingScreen = () => (
+  <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+    <Image src="/aclogo.png" alt="AGS Activities Hub Logo" width={200} height={60} className="mb-8" />
+    <div className="flex items-center space-x-2">
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-[250px]" />
+        <Skeleton className="h-4 w-[200px]" />
+      </div>
+    </div>
+    <p className="mt-4 text-muted-foreground">Loading user session...</p>
+  </div>
+);
+
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -35,17 +51,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loading) return;
 
-    const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/forgot-password');
+    const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password';
     
     // If on an auth page and logged in, redirect away
     if (user && isAuthPage) {
-      router.push(isAdmin ? '/admin' : '/');
+      router.replace(isAdmin ? '/admin' : '/');
       return;
     }
 
-    // If trying to access admin page but not an admin, redirect to login
+    // If trying to access admin page but not logged in as admin, redirect to login
     if (pathname.startsWith('/admin') && !isAdmin) {
-      router.push('/login');
+      router.replace('/login');
       return;
     }
 
@@ -58,15 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }), [user, loading, isAdmin]);
 
   if (loading) {
-    return (
-       <div className="flex items-center justify-center min-h-screen">
-          <div className="p-4 space-y-4">
-              <Skeleton className="h-10 w-[250px]" />
-              <Skeleton className="h-8 w-[200px]" />
-              <Skeleton className="h-8 w-[200px]" />
-          </div>
-       </div>
-    );
+    return <AuthLoadingScreen />;
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
