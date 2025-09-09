@@ -26,14 +26,14 @@ const ConfirmationEmailInputSchema = z.object({
   activityLocation: z.string().describe('The location of the activity.'),
   cost: z.number().optional().describe('The cost of the activity, if any.'),
 });
-export type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema>;
+type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema>;
 
 // Output schema for the email flow
 const ConfirmationEmailOutputSchema = z.object({
   success: z.boolean().describe('Whether the email was sent successfully.'),
   message: z.string().describe('A message indicating the status of the email sending process.'),
 });
-export type ConfirmationEmailOutput = z.infer<typeof ConfirmationEmailOutputSchema>;
+type ConfirmationEmailOutput = z.infer<typeof ConfirmationEmailOutputSchema>;
 
 
 /**
