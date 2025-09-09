@@ -17,9 +17,11 @@ const Header = () => {
       <div className="flex items-center">
         <SidebarTrigger className="md:hidden" />
       </div>
-      <div className="flex-1 flex justify-center">
-        <Link href="/" className="flex items-center gap-2 text-foreground">
-          <Image src="/aclogo.png" alt="AGS Activities Hub Logo" width={150} height={40} priority />
+      <div className="flex-1 flex justify-center items-center gap-4">
+        <Link href="/" className="flex items-center gap-4 text-foreground">
+          <Image src="/mainlogo.png" alt="AGS Main Logo" width={180} height={50} priority />
+          <div className="border-l h-10 border-gray-300"></div>
+          <Image src="/aclogo.png" alt="AGS Activities Hub Logo" width={180} height={50} priority />
         </Link>
       </div>
       <div className="flex items-center gap-2">

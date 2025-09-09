@@ -9,7 +9,6 @@ import { firebaseApp } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import {
   Sidebar,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
@@ -56,17 +55,6 @@ const AppSidebar = () => {
 
   return (
     <Sidebar side={language === 'ar' ? 'right' : 'left'}>
-      <SidebarHeader>
-        <div className="flex items-center gap-2 p-2 justify-center">
-            <div className="flex flex-col group-data-[collapsible=icon]:hidden transition-opacity duration-200 opacity-100 group-data-[collapsible=icon]:opacity-0">
-                <Image src="/aclogo.png" alt="AGS Activity Logo" width={120} height={32} />
-            </div>
-             <div className="hidden group-data-[collapsible=icon]:flex">
-                <Image src="/aclogo.png" alt="AGS Activity Logo" width={32} height={32} />
-            </div>
-        </div>
-      </SidebarHeader>
-
       <SidebarMenu>
         {menuItems.map((item) => (
           <SidebarMenuItem key={item.href}>
