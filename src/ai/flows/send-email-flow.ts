@@ -7,33 +7,16 @@
  * It requires a RESEND_API_KEY to be set in the environment variables.
  *
  * - sendConfirmationEmail - A function that handles the email sending process.
- * - ConfirmationEmailInput - The input type for the sendConfirmationEmail function.
- * - ConfirmationEmailOutput - The return type for the sendConfirmationEmail function.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
 import { Resend } from 'resend';
-
-// Input schema for the email flow
-const ConfirmationEmailInputSchema = z.object({
-  to: z.string().email().describe('The recipient\'s email address.'),
-  parentName: z.string().describe('The name of the parent.'),
-  studentName: z.string().describe('The name of the student.'),
-  activityTitle: z.string().describe('The title of the activity.'),
-  activityDate: z.string().describe('The date of the activity.'),
-  activityTime: z.string().describe('The time of the activity.'),
-  activityLocation: z.string().describe('The location of the activity.'),
-  cost: z.number().optional().describe('The cost of the activity, if any.'),
-});
-type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema>;
-
-// Output schema for the email flow
-const ConfirmationEmailOutputSchema = z.object({
-  success: z.boolean().describe('Whether the email was sent successfully.'),
-  message: z.string().describe('A message indicating the status of the email sending process.'),
-});
-type ConfirmationEmailOutput = z.infer<typeof ConfirmationEmailOutputSchema>;
+import {
+  ConfirmationEmailInputSchema,
+  type ConfirmationEmailInput,
+  ConfirmationEmailOutputSchema,
+  type ConfirmationEmailOutput
+} from './email-types';
 
 
 /**
