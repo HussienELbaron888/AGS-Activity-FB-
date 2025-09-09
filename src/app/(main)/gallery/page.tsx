@@ -51,7 +51,6 @@ export default function GalleryPage() {
             <Button
               variant={selectedCategory === 'All' ? 'default' : 'outline'}
               onClick={() => setSelectedCategory('All')}
-              className="bg-accent text-accent-foreground hover:bg-accent/90 data-[variant=outline]:bg-card"
             >
               {t('All', 'الكل')}
             </Button>
@@ -60,7 +59,6 @@ export default function GalleryPage() {
                 key={category}
                 variant={selectedCategory === category ? 'default' : 'outline'}
                 onClick={() => setSelectedCategory(category)}
-                className="bg-accent text-accent-foreground hover:bg-accent/90 data-[variant=outline]:bg-card"
               >
                 {language === 'en' ? categoryTranslations[category].en : categoryTranslations[category].ar}
               </Button>

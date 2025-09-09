@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from '@/components/ui/sidebar';
-import { LayoutGrid, Calendar, MessageCircleQuestion, School, LogOut, Images } from 'lucide-react';
+import { LayoutGrid, Calendar, MessageCircleQuestion, School, LogOut, Images, DollarSign, Gift, Plane, Star } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-provider';
 
 const AppSidebar = () => {
@@ -19,7 +19,11 @@ const AppSidebar = () => {
 
   const menuItems = [
     { href: '/', label: t('Activities', 'أنشطة'), icon: LayoutGrid },
-    { href: '/calendar', label: t('Calendar', 'تقويم'), icon: Calendar },
+    { href: '/paid-activities', label: t('Paid Activities', 'أنشطة مدفوعة'), icon: DollarSign },
+    { href: '/free-activities', label: t('Free Activities', 'أنشطة مجانية'), icon: Gift },
+    { href: '/events', label: t('Events', 'فعاليات'), icon: Calendar },
+    { href: '/trips', label: t('Trips', 'رحلات'), icon: Plane },
+    { href: '/talented', label: t('Talented', 'موهوبين'), icon: Star },
     { href: '/gallery', label: t('Gallery', 'معرض الصور'), icon: Images },
     { href: '/faq', label: t('FAQ', 'أسئلة'), icon: MessageCircleQuestion },
   ];
