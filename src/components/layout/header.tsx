@@ -18,13 +18,12 @@ const Header = () => {
       </div>
       <div className="flex-1 flex justify-center">
         <Link href="/">
-            <Image 
+            <img 
                 src="https://storage.googleapis.com/studiogpt-config-metadata/agsl-logo-removbg.png" 
                 alt="AGS Logo" 
                 width={180} 
                 height={60} 
-                className="object-contain" 
-                priority
+                className="object-contain"
             />
         </Link>
       </div>
