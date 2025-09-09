@@ -3,6 +3,7 @@ import './globals.css';
 import { LanguageProvider } from '@/contexts/language-provider';
 import { AppLayout } from './app-layout';
 import { DataProvider } from '@/contexts/data-provider';
+import { AuthProvider } from '@/contexts/auth-provider';
 
 export const metadata: Metadata = {
   title: 'AGS Activities Hub',
@@ -16,9 +17,11 @@ export default function RootLayout({
 }>) {
   return (
     <LanguageProvider>
-      <DataProvider>
-        <AppLayout>{children}</AppLayout>
-      </DataProvider>
+      <AuthProvider>
+        <DataProvider>
+          <AppLayout>{children}</AppLayout>
+        </DataProvider>
+      </AuthProvider>
     </LanguageProvider>
   );
 }

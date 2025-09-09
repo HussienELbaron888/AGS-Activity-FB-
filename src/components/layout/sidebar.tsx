@@ -12,10 +12,13 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  SidebarContent,
+  SidebarHeader,
 } from '@/components/ui/sidebar';
 import { LayoutGrid, Calendar, Mail, School, LogOut, Images, DollarSign, Gift, Plane, Star, Home, Shield, User as UserIcon } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-provider';
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 const AppSidebar = () => {
   const pathname = usePathname();
@@ -66,8 +69,13 @@ const AppSidebar = () => {
 
   return (
     <Sidebar side={language === 'ar' ? 'right' : 'left'}>
-      <div className="flex flex-col h-full">
-        <SidebarMenu className="flex-1">
+      <SidebarHeader className="p-4 items-center flex justify-center">
+        <Link href="/" className="flex items-center gap-2 text-foreground">
+            <Image src="/aclogo.png" alt="AGS Activities Hub Logo" width={150} height={40} className="min-w-[150px]" />
+        </Link>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
@@ -99,21 +107,20 @@ const AppSidebar = () => {
             </SidebarMenuItem>
           )}
         </SidebarMenu>
+      </SidebarContent>
         
-        <SidebarFooter>
-          {user && (
-            <SidebarMenu>
-               <SidebarMenuItem>
-                 <SidebarMenuButton onClick={handleLogout} className="justify-start">
-                    <LogOut />
-                    <span>{t('Log out', 'تسجيل الخروج')}</span>
-                 </SidebarMenuButton>
-               </SidebarMenuItem>
-            </SidebarMenu>
-          )}
-        </SidebarFooter>
-      </div>
-
+      <SidebarFooter>
+        {user && (
+          <SidebarMenu>
+             <SidebarMenuItem>
+               <SidebarMenuButton onClick={handleLogout} className="justify-start">
+                  <LogOut />
+                  <span>{t('Log out', 'تسجيل الخروج')}</span>
+               </SidebarMenuButton>
+             </SidebarMenuItem>
+          </SidebarMenu>
+        )}
+      </SidebarFooter>
     </Sidebar>
   );
 };
