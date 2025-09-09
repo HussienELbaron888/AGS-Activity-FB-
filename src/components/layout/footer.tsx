@@ -75,7 +75,7 @@ export function AppFooter() {
 
         </div>
         <div className="mt-10 pt-8 border-t border-primary-foreground/20 text-center text-sm">
-          <p>{t('© 2025 - 2026 AGS School Activities Platform. All rights reserved.', '© 2025 - 2026 منصة أنشطة AGS المدرسية. جميع الحقوق محفوظة.')}</p>
+          <p>{t('AGS© Activities Platform - All rights reserved 2025 - 2026', 'منصة انشطة مدارس الأجيال المتطورة العالمية© - جميع الحقوق محفوظة 2025 - 2026')}</p>
         </div>
       </div>
     </footer>
