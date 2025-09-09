@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/language-provider";
 import { Mail, Phone, MapPin, Send, Building, School, User, Baby } from "lucide-react";
-import { FaYoutube, FaInstagram, FaTwitter } from 'react-icons/fa';
+import { FaYoutube, FaInstagram, FaTwitter, FaFacebook } from 'react-icons/fa';
 
 export default function ContactPage() {
   const { t } = useLanguage();
@@ -32,6 +32,7 @@ export default function ContactPage() {
   };
 
   const socialLinks = [
+    { icon: FaFacebook, href: 'https://www.facebook.com/agsjed/', 'aria-label': 'Facebook' },
     { icon: FaYoutube, href: 'https://www.youtube.com/channel/UCQBuf0VTJ6qApRQFqxdJHVQ', 'aria-label': 'YouTube' },
     { icon: FaTwitter, href: 'https://x.com/ags_jeddah', 'aria-label': 'X (Twitter) - Main' },
     { icon: FaTwitter, href: 'https://x.com/ags_events', 'aria-label': 'X (Twitter) - Events' },

@@ -4,12 +4,13 @@
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-provider';
 import Link from 'next/link';
-import { FaYoutube, FaInstagram, FaTwitter } from 'react-icons/fa';
+import { FaYoutube, FaInstagram, FaTwitter, FaFacebook } from 'react-icons/fa';
 
 export function AppFooter() {
   const { t } = useLanguage();
 
   const socialLinks = [
+    { icon: FaFacebook, href: 'https://www.facebook.com/agsjed/', 'aria-label': 'Facebook' },
     { icon: FaYoutube, href: 'https://www.youtube.com/channel/UCQBuf0VTJ6qApRQFqxdJHVQ', 'aria-label': 'YouTube' },
     { icon: FaTwitter, href: 'https://x.com/ags_jeddah', 'aria-label': 'X (Twitter) - Main' },
     { icon: FaTwitter, href: 'https://x.com/ags_events', 'aria-label': 'X (Twitter) - Events' },
