@@ -33,21 +33,12 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      toast({
-        title: "Login Successful",
-        description: "Redirecting to the admin dashboard...",
-      });
-      router.push('/admin');
+      router.push(email === 'admin@ags.edu' ? '/admin' : '/');
     } catch (error: any) {
       if (error.code === 'auth/user-not-found' && email === 'admin@ags.edu') {
-        // If the default admin account does not exist, create it.
         try {
           await createUserWithEmailAndPassword(auth, email, password);
-          await signInWithEmailAndPassword(auth, email, password); // Log in after creating
-          toast({
-            title: "Admin Account Created",
-            description: "Default admin account created. Logging you in...",
-          });
+          await signInWithEmailAndPassword(auth, email, password);
           router.push('/admin');
         } catch (creationError: any) {
            toast({
@@ -56,17 +47,10 @@ export default function LoginPage() {
             variant: "destructive",
           });
         }
-      } else if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
-         toast({
-          title: "Login Failed",
-          description: "Invalid email or password. Please try again.",
-          variant: "destructive",
-        });
-      }
-      else {
+      } else {
         toast({
           title: "Login Failed",
-          description: error.message,
+          description: "Invalid email or password.",
           variant: "destructive",
         });
       }
@@ -84,7 +68,7 @@ export default function LoginPage() {
                     <Image src="/aclogo.png" alt="AGS Activities Hub Logo" width={150} height={40} />
                 </Link>
             </div>
-          <CardTitle className="text-2xl font-headline">Admin Login</CardTitle>
+          <CardTitle className="text-2xl font-headline">Login</CardTitle>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>
@@ -132,9 +116,9 @@ export default function LoginPage() {
             </div>
           </form>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an admin account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/register" className="underline">
-              Sign up as a user
+              Sign up
             </Link>
           </div>
         </CardContent>

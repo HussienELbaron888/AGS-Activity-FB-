@@ -40,7 +40,7 @@ export default function RegisterPage() {
       });
       toast({
         title: "Account Created",
-        description: "You have successfully created an account. Redirecting to home...",
+        description: "You have successfully created an account. Redirecting...",
       });
       router.push('/');
     } catch (error: any) {

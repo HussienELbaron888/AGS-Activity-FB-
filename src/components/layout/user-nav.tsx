@@ -3,7 +3,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { getAuth, signOut, onAuthStateChanged, type User } from "firebase/auth"
+import { getAuth, signOut } from "firebase/auth"
 import { firebaseApp } from "@/lib/firebase"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -19,24 +19,15 @@ import {
 import { useLanguage } from "@/contexts/language-provider"
 import { useToast } from "@/hooks/use-toast"
 import { LayoutDashboard, LogOut, LogIn } from "lucide-react"
-import { useEffect, useState } from "react"
 import { Skeleton } from "../ui/skeleton"
+import { useAuth } from "@/contexts/auth-provider"
 
 export function UserNav() {
   const { t } = useLanguage();
   const router = useRouter();
   const { toast } = useToast();
+  const { user, loading, isAdmin } = useAuth();
   const auth = getAuth(firebaseApp);
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setIsLoading(false);
-    });
-    return () => unsubscribe();
-  }, [auth]);
 
   const handleLogout = async () => {
     try {
@@ -55,7 +46,7 @@ export function UserNav() {
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return <Skeleton className="h-8 w-8 rounded-full" />;
   }
 
@@ -70,8 +61,6 @@ export function UserNav() {
     )
   }
   
-  const isAdmin = user.email === 'admin@ags.edu';
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

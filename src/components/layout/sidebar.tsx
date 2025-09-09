@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { getAuth, signOut, onAuthStateChanged, type User } from "firebase/auth";
+import { getAuth, signOut } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -17,25 +17,17 @@ import {
 } from '@/components/ui/sidebar';
 import { LayoutGrid, Calendar, Mail, School, LogOut, Images, DollarSign, Gift, Plane, Star, Home, Shield, User as UserIcon } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-provider';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
+import { useAuth } from '@/contexts/auth-provider';
 
 const AppSidebar = () => {
   const pathname = usePathname();
   const { t, language } = useLanguage();
   const router = useRouter();
   const { toast } = useToast();
+  const { user, isAdmin } = useAuth();
   const auth = getAuth(firebaseApp);
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, [auth]);
-  
-  const isAdmin = user?.email === 'admin@ags.edu';
 
   const menuItems = [
     { href: '/', label: t('Home', 'الرئيسية'), icon: Home },
@@ -95,7 +87,7 @@ const AppSidebar = () => {
              <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === adminMenuItem.href}
+                isActive={pathname.startsWith(adminMenuItem.href)}
                 tooltip={adminMenuItem.label}
                 className="justify-start"
               >
