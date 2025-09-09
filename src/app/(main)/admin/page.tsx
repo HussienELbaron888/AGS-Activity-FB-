@@ -234,7 +234,7 @@ export default function AdminDashboardPage() {
                         <div key={registration.id} className="flex items-center gap-4">
                             <Avatar className="h-10 w-10">
                                 <AvatarImage 
-                                    src={registration.photoURL || `https://i.pravatar.cc/150?u=${registration.email}`} 
+                                    src={registration.photoURL || undefined}
                                     alt={registration.name}
                                     data-ai-hint="user avatar" />
                                 <AvatarFallback>{registration.name.charAt(0)}</AvatarFallback>

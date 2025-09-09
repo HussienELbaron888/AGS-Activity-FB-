@@ -106,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       uid: `mock_${Date.now()}`,
       email: email,
       displayName: name,
+      photoURL: null, // Ensure new users don't have a placeholder photo
     };
     users[email] = newUser;
     setMockUsers(users);

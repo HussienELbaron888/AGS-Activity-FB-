@@ -60,7 +60,7 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`} alt={user.displayName || user.email || ''} data-ai-hint="user avatar" />
+            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || user.email || ''} data-ai-hint="user avatar" />
             <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0) || 'U'}</AvatarFallback>
           </Avatar>
         </Button>
