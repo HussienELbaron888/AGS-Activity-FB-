@@ -2,13 +2,14 @@
 'use client';
 
 import type { Activity } from '@/lib/types';
-import { activities } from '@/lib/data';
 import { ActivityCard } from '@/components/activity-card';
 import { HeroSlider } from '@/components/hero-slider';
 import { useLanguage } from '@/contexts/language-provider';
+import { useData } from '@/contexts/data-provider';
 
 function HomePageContent() {
   const { t } = useLanguage();
+  const { activities } = useData();
   const sliderActivities = activities.filter(a => a.showInSlider);
 
   return (

@@ -7,7 +7,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-provider";
-import { activities as initialActivities, registrations as initialRegistrations, talentedStudents as initialTalentedStudents } from "@/lib/data";
 import type { Activity, Registration, TalentedStudent } from "@/lib/types";
 import { Users, BarChart2, DollarSign, PlusCircle, Edit, Trash2, Mail, Send, UserCog, Star, CheckSquare, XSquare } from "lucide-react";
 import {
@@ -31,14 +30,21 @@ import {
 import { ActivityForm } from "@/components/activity-form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TalentedStudentForm } from "@/components/talented-student-form";
+import { useData } from "@/contexts/data-provider";
 
-// NOTE: In a real application, this state would be managed in a database.
-// For this prototype, we're managing it in component state.
 export default function AdminDashboardPage() {
   const { t, language } = useLanguage();
-  const [activities, setActivities] = useState<Activity[]>(initialActivities);
-  const [registrations, setRegistrations] = useState<Registration[]>(initialRegistrations);
-  const [talentedStudents, setTalentedStudents] = useState<TalentedStudent[]>(initialTalentedStudents);
+  const {
+    activities,
+    registrations,
+    talentedStudents,
+    addActivity,
+    updateActivity,
+    deleteActivity,
+    addTalentedStudent,
+    updateTalentedStudent,
+    deleteTalentedStudent,
+  } = useData();
   
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [isActivityFormOpen, setIsActivityFormOpen] = useState(false);
@@ -63,14 +69,13 @@ export default function AdminDashboardPage() {
     setIsActivityFormOpen(true);
   };
   const handleDeleteActivity = (id: string) => {
-    setActivities(activities.filter(a => a.id !== id));
+    deleteActivity(id);
   };
   const handleActivityFormSubmit = (values: Omit<Activity, 'id'>) => {
      if (selectedActivity) {
-      setActivities(activities.map(a => a.id === selectedActivity.id ? { ...a, ...values } : a));
+      updateActivity(selectedActivity.id, values);
     } else {
-      const newActivity: Activity = { id: `act-${Date.now()}`, ...values };
-      setActivities([...activities, newActivity]);
+      addActivity(values);
     }
     setIsActivityFormOpen(false);
   };
@@ -85,14 +90,13 @@ export default function AdminDashboardPage() {
     setIsTalentedStudentFormOpen(true);
   };
   const handleDeleteTalentedStudent = (id: string) => {
-    setTalentedStudents(talentedStudents.filter(s => s.id !== id));
+    deleteTalentedStudent(id);
   };
   const handleTalentedStudentFormSubmit = (values: Omit<TalentedStudent, 'id'>) => {
     if (selectedTalentedStudent) {
-      setTalentedStudents(talentedStudents.map(s => s.id === selectedTalentedStudent.id ? { ...s, ...values } : s));
+      updateTalentedStudent(selectedTalentedStudent.id, values);
     } else {
-      const newStudent: TalentedStudent = { id: `ts-${Date.now()}`, ...values };
-      setTalentedStudents([...talentedStudents, newStudent]);
+      addTalentedStudent(values);
     }
     setIsTalentedStudentFormOpen(false);
   };

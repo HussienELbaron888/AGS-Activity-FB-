@@ -1,14 +1,16 @@
+
 'use client';
 
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/language-provider';
-import { talentedStudents } from '@/lib/data';
 import { Star } from 'lucide-react';
+import { useData } from '@/contexts/data-provider';
 
 export default function TalentedPage() {
   const { t, language } = useLanguage();
+  const { talentedStudents } = useData();
 
   return (
     <div className="space-y-8">

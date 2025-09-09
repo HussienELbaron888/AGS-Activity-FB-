@@ -2,12 +2,13 @@
 'use client';
 
 import type { Activity } from '@/lib/types';
-import { activities } from '@/lib/data';
 import { ActivityCard } from '@/components/activity-card';
 import { useLanguage } from '@/contexts/language-provider';
+import { useData } from '@/contexts/data-provider';
 
 function PaidActivitiesPageContent() {
   const { t } = useLanguage();
+  const { activities } = useData();
 
   const paidActivities = activities.filter((activity) => activity.category === 'Paid');
 
