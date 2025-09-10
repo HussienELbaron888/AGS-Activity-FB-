@@ -91,15 +91,3 @@ export async function sendConfirmationEmail(input: ConfirmationEmailInput): Prom
       return { success: false, message: `An unexpected error occurred: ${error.message}` };
   }
 }
-
-// Define the flow, although the direct export function is used now for simplicity and reliability.
-const sendConfirmationEmailFlow = ai.defineFlow(
-  {
-    name: 'sendConfirmationEmailFlow',
-    inputSchema: ConfirmationEmailInputSchema,
-    outputSchema: EmailOutputSchema,
-  },
-  async (input) => {
-    return sendConfirmationEmail(input);
-  }
-);
