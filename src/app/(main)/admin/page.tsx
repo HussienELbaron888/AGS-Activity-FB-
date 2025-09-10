@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-provider";
 import type { Activity, Registration, TalentedStudent } from "@/lib/types";
-import { Users, BarChart2, DollarSign, PlusCircle, Edit, Trash2, Mail, Send, UserCog, Star, CheckSquare, XSquare } from "lucide-react";
+import { Users, BarChart2, DollarSign, PlusCircle, Edit, Trash2, Mail, Send, UserCog, Star, CheckSquare, XSquare, UserPlus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +32,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TalentedStudentForm } from "@/components/talented-student-form";
 import { useData } from "@/contexts/data-provider";
 import { useAuth } from "@/contexts/auth-provider";
+import { EmailTemplates } from "@/lib/email-service";
+import Link from "next/link";
+
 
 export default function AdminDashboardPage() {
   const { t, language } = useLanguage();
@@ -46,18 +49,21 @@ export default function AdminDashboardPage() {
     updateTalentedStudent,
     deleteTalentedStudent,
   } = useData();
+  const { getAllUsers } = useAuth();
   
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [isActivityFormOpen, setIsActivityFormOpen] = useState(false);
   
   const [selectedTalentedStudent, setSelectedTalentedStudent] = useState<TalentedStudent | null>(null);
   const [isTalentedStudentFormOpen, setIsTalentedStudentFormOpen] = useState(false);
+  
+  const allUsers = getAllUsers();
 
   const stats = [
     { title: t('Total Activities', 'إجمالي الأنشطة'), value: activities.length, icon: PlusCircle, color: 'text-blue-500' },
     { title: t('Total Registrations', 'إجمالي التسجيلات'), value: registrations.length, icon: Users, color: 'text-green-500' },
+    { title: t('Site Members', 'أعضاء الموقع'), value: allUsers.length, icon: UserPlus, color: 'text-indigo-500' },
     { title: t('Talented Students', 'الطلاب الموهوبون'), value: talentedStudents.length, icon: Star, color: 'text-yellow-500' },
-    { title: t('Total Revenue', 'إجمالي الإيرادات'), value: `${activities.reduce((sum, a) => sum + (a.cost || 0) * registrations.filter(r => r.activityId === a.id).length, 0)} ${t('SAR', 'ر.س')}`, icon: DollarSign, color: 'text-red-500' },
   ];
   
   // Activity Handlers
@@ -108,9 +114,30 @@ export default function AdminDashboardPage() {
     return language === 'en' ? activity.title : activity.titleAr;
   };
   
-  const handleEmailAll = () => {
-    const allEmails = registrations.map(r => r.email).join(',');
-    window.location.href = `mailto:?bcc=${allEmails}`;
+  const generateMailtoLink = (to: string, subject: string, body: string) => {
+    return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+  
+  const handleWelcomeEmail = (user: { displayName: string | null; email: string | null; }) => {
+    if (!user.email || !user.displayName) return;
+    const template = EmailTemplates.welcome[language]({ userName: user.displayName });
+    window.location.href = generateMailtoLink(user.email, template.subject, template.body);
+  };
+  
+  const handleConfirmationEmail = (registration: Registration) => {
+     const activity = activities.find(a => a.id === registration.activityId);
+     if (!activity) return;
+     
+     const template = EmailTemplates.confirmation[language]({
+         parentName: registration.parentName,
+         studentName: registration.name,
+         activityTitle: language === 'en' ? activity.title : activity.titleAr,
+         activityDate: activity.date,
+         activityTime: activity.time,
+         activityLocation: language === 'en' ? activity.location : activity.locationAr,
+         cost: activity.cost,
+     });
+     window.location.href = generateMailtoLink(registration.email, template.subject, template.body);
   };
 
 
@@ -139,9 +166,9 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* Activities and Registrations Section */}
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      {/* Activities and Talented Students */}
+       <div className="grid gap-8 lg:grid-cols-2">
+        <div>
             <Dialog open={isActivityFormOpen} onOpenChange={setIsActivityFormOpen}>
                 <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
@@ -217,118 +244,166 @@ export default function AdminDashboardPage() {
                 </DialogContent>
             </Dialog>
         </div>
-        <div className="space-y-8">
-            <Card>
+         <div>
+            <Dialog open={isTalentedStudentFormOpen} onOpenChange={setIsTalentedStudentFormOpen}>
+                <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div>
-                        <CardTitle>{t('Recent Registrations', 'التسجيلات الأخيرة')}</CardTitle>
-                        <CardDescription>{t('A list of recent student registrations.', 'قائمة بآخر تسجيلات الطلاب.')}</CardDescription>
+                    <CardTitle>{t('Manage Talented Students', 'إدارة الطلاب الموهوبين')}</CardTitle>
+                    <CardDescription>{t('Add, edit, or remove talented students.', 'إضافة أو تعديل أو حذف الطلاب الموهوبين.')}</CardDescription>
                     </div>
-                     <Button variant="outline" size="sm" onClick={handleEmailAll}>
-                        <Send className="mr-2 h-4 w-4" />
-                        {t('Email All', 'إرسال للكل')}
+                    <Button onClick={handleAddNewTalentedStudent}>
+                    <Star className="mr-2 h-4 w-4" />
+                    {t('Add Talented Student', 'إضافة طالب موهوب')}
                     </Button>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    {registrations.slice(0, 5).map((registration) => (
-                        <div key={registration.id} className="flex items-center gap-4">
-                            <Avatar className="h-10 w-10">
-                                <AvatarImage 
-                                    src={registration.photoURL || undefined}
-                                    alt={registration.name}
-                                    data-ai-hint="user avatar" />
-                                <AvatarFallback>{registration.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                                <p className="font-medium text-sm">{registration.name}</p>
-                                <p className="text-xs text-muted-foreground">{findActivityTitle(registration.activityId)}</p>
+                <CardContent>
+                    <Table>
+                    <TableHeader>
+                        <TableRow>
+                        <TableHead>{t('Student Name', 'اسم الطالب')}</TableHead>
+                        <TableHead>{t('Talent', 'الموهبة')}</TableHead>
+                        <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {talentedStudents.map((student) => (
+                        <TableRow key={student.id}>
+                            <TableCell className="font-medium flex items-center gap-3">
+                                <Avatar className="h-9 w-9"><AvatarImage src={student.imageUrl} data-ai-hint={student.imageHint}/><AvatarFallback>{language === 'en' ? student.name.charAt(0) : student.nameAr.charAt(0)}</AvatarFallback></Avatar>
+                                {language === 'en' ? student.name : student.nameAr}
+                            </TableCell>
+                            <TableCell><Badge variant="secondary">{language === 'en' ? student.talent : student.talentAr}</Badge></TableCell>
+                            <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                                <Button variant="ghost" size="icon" onClick={() => handleEditTalentedStudent(student)}>
+                                <Edit className="h-4 w-4" />
+                                </Button>
+                                <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                                    <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                    <AlertDialogTitle>{t('Are you sure?', 'هل أنت متأكد؟')}</AlertDialogTitle>
+                                    <AlertDialogDescription>{t('This will permanently remove the student from the talented list.', 'سيؤدي هذا إلى إزالة الطالب نهائيًا من قائمة الموهوبين.')}</AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                    <AlertDialogCancel>{t('Cancel', 'إلغاء')}</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteTalentedStudent(student.id)} className="bg-destructive hover:bg-destructive/90">{t('Delete', 'حذف')}</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                                </AlertDialog>
                             </div>
-                            <Button variant="ghost" size="icon" asChild><a href={`mailto:${registration.email}`}><Mail className="h-4 w-4" /></a></Button>
-                        </div>
-                    ))}
+                            </TableCell>
+                        </TableRow>
+                        ))}
+                    </TableBody>
+                    </Table>
                 </CardContent>
-            </Card>
+                </Card>
+                <DialogContent className="sm:max-w-2xl">
+                <DialogHeader>
+                    <DialogTitle className="font-headline text-2xl">
+                    {selectedTalentedStudent ? t('Edit Talented Student', 'تعديل طالب موهوب') : t('Add New Talented Student', 'إضافة طالب موهوب جديد')}
+                    </DialogTitle>
+                    <DialogDescription>
+                    {t('Fill in the details for the talented student.', 'املأ التفاصيل الخاصة بالطالب الموهوب.')}
+                    </DialogDescription>
+                </DialogHeader>
+                <TalentedStudentForm 
+                    student={selectedTalentedStudent} 
+                    onSubmit={handleTalentedStudentFormSubmit} 
+                    onCancel={() => setIsTalentedStudentFormOpen(false)}
+                />
+                </DialogContent>
+            </Dialog>
         </div>
       </div>
       
-      {/* Talented Students Section */}
-      <Dialog open={isTalentedStudentFormOpen} onOpenChange={setIsTalentedStudentFormOpen}>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>{t('Manage Talented Students', 'إدارة الطلاب الموهوبين')}</CardTitle>
-              <CardDescription>{t('Add, edit, or remove talented students.', 'إضافة أو تعديل أو حذف الطلاب الموهوبين.')}</CardDescription>
-            </div>
-            <Button onClick={handleAddNewTalentedStudent}>
-              <Star className="mr-2 h-4 w-4" />
-              {t('Add Talented Student', 'إضافة طالب موهوب')}
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('Student Name', 'اسم الطالب')}</TableHead>
-                  <TableHead>{t('Grade', 'المرحلة')}</TableHead>
-                  <TableHead>{t('Talent', 'الموهبة')}</TableHead>
-                  <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {talentedStudents.map((student) => (
-                  <TableRow key={student.id}>
-                    <TableCell className="font-medium flex items-center gap-3">
-                        <Avatar className="h-9 w-9"><AvatarImage src={student.imageUrl} data-ai-hint={student.imageHint}/><AvatarFallback>{language === 'en' ? student.name.charAt(0) : student.nameAr.charAt(0)}</AvatarFallback></Avatar>
-                        {language === 'en' ? student.name : student.nameAr}
-                    </TableCell>
-                    <TableCell>{language === 'en' ? student.grade : student.gradeAr}</TableCell>
-                    <TableCell><Badge variant="secondary">{language === 'en' ? student.talent : student.talentAr}</Badge></TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditTalentedStudent(student)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>{t('Are you sure?', 'هل أنت متأكد؟')}</AlertDialogTitle>
-                              <AlertDialogDescription>{t('This will permanently remove the student from the talented list.', 'سيؤدي هذا إلى إزالة الطالب نهائيًا من قائمة الموهوبين.')}</AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>{t('Cancel', 'إلغاء')}</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteTalentedStudent(student.id)} className="bg-destructive hover:bg-destructive/90">{t('Delete', 'حذف')}</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="font-headline text-2xl">
-              {selectedTalentedStudent ? t('Edit Talented Student', 'تعديل طالب موهوب') : t('Add New Talented Student', 'إضافة طالب موهوب جديد')}
-            </DialogTitle>
-            <DialogDescription>
-              {t('Fill in the details for the talented student.', 'املأ التفاصيل الخاصة بالطالب الموهوب.')}
-            </DialogDescription>
-          </DialogHeader>
-          <TalentedStudentForm 
-            student={selectedTalentedStudent} 
-            onSubmit={handleTalentedStudentFormSubmit} 
-            onCancel={() => setIsTalentedStudentFormOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Site Members and Registrations */}
+       <div className="grid gap-8 lg:grid-cols-2">
+            <Card>
+                <CardHeader>
+                    <CardTitle>{t('Site Members', 'أعضاء الموقع')}</CardTitle>
+                    <CardDescription>{t('Users who have created an account on the platform.', 'المستخدمون الذين أنشأوا حسابًا على المنصة.')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                   <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>{t('User', 'المستخدم')}</TableHead>
+                                <TableHead>{t('Email', 'البريد الإلكتروني')}</TableHead>
+                                <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {allUsers.map((user) => (
+                                <TableRow key={user.uid}>
+                                    <TableCell className="font-medium flex items-center gap-3">
+                                        <Avatar className="h-9 w-9">
+                                            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || ''} />
+                                            <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        {user.displayName}
+                                    </TableCell>
+                                    <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="outline" size="sm" onClick={() => handleWelcomeEmail(user)}>
+                                            <Mail className="mr-2 h-4 w-4" />
+                                            {t('Welcome Email', 'ترحيب')}
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                   </Table>
+                </CardContent>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <CardTitle>{t('Activity Registrations', 'التسجيل في الأنشطة')}</CardTitle>
+                    <CardDescription>{t('Students who have registered for activities.', 'الطلاب المسجلون في الأنشطة.')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                   <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>{t('Student', 'الطالب')}</TableHead>
+                                <TableHead>{t('Activity', 'النشاط')}</TableHead>
+                                <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {registrations.map((reg) => (
+                                <TableRow key={reg.id}>
+                                    <TableCell className="font-medium flex items-center gap-3">
+                                        <Avatar className="h-9 w-9">
+                                            <AvatarImage src={reg.photoURL || undefined} alt={reg.name} />
+                                            <AvatarFallback>{reg.name.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <p>{reg.name}</p>
+                                            <p className="text-xs text-muted-foreground">{reg.parentName}</p>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-muted-foreground">{findActivityTitle(reg.activityId)}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="outline" size="sm" onClick={() => handleConfirmationEmail(reg)}>
+                                            <Send className="mr-2 h-4 w-4" />
+                                            {t('Confirmation', 'تأكيد')}
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                   </Table>
+                </CardContent>
+            </Card>
+       </div>
+
     </div>
   );
 }

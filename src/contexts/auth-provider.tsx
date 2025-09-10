@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
@@ -7,11 +6,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from './language-provider';
-import type { GenerateEmailInput, WelcomeEmailPayload, ConfirmationEmailPayload } from '@/lib/types';
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { firebaseApp } from '@/lib/firebase';
-import { generateEmailContent } from '@/lib/email-service';
-
 
 // Mock User type, mirrors Firebase User but simplified
 interface MockUser {
@@ -28,6 +22,7 @@ interface AuthContextType {
   login: (email: string) => void;
   logout: () => void;
   register: (name: string, email: string) => Promise<void>;
+  getAllUsers: () => MockUser[];
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -37,6 +32,7 @@ const AuthContext = createContext<AuthContextType>({
   login: () => {},
   logout: () => {},
   register: async () => {},
+  getAllUsers: () => [],
 });
 
 const AuthLoadingScreen = () => (
@@ -71,8 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
-  const { t, language } = useLanguage();
-  const functions = getFunctions(firebaseApp);
+  const { t } = useLanguage();
 
   useEffect(() => {
     // Simulate checking auth state on load
@@ -88,31 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     setLoading(false);
   }, []);
-
-  const sendWelcomeEmail = async (payload: WelcomeEmailPayload) => {
-    try {
-        const emailInput: GenerateEmailInput = {
-            type: 'welcome',
-            language: language,
-            payload: payload
-        };
-        
-        const { subject, body } = generateEmailContent(emailInput);
-
-        const sendEmail = httpsCallable(functions, "sendCustomActionEmail");
-        await sendEmail({
-          to: payload.to,
-          subject: subject,
-          html: body,
-        });
-
-    } catch (error) {
-        console.error('Email sending failed via Firebase Function:', error);
-        // We show a toast to the user on success, so maybe we just log the error here
-        // to avoid double-toasting on failure.
-    }
-  };
-
 
   const login = (email: string) => {
     const users = getMockUsers();
@@ -140,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       uid: `mock_${Date.now()}`,
       email: email,
       displayName: name,
-      photoURL: null, // Ensure new users don't have a placeholder photo
+      photoURL: `https://i.pravatar.cc/150?u=${email}`,
     };
     users[email] = newUser;
     setMockUsers(users);
@@ -149,12 +119,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('loggedInUser', email);
     setUser(newUser);
     
-    // Send welcome email via Firebase Function
-    await sendWelcomeEmail({ name, to: email });
-
     toast({
-      title: t("Account Created!", "!تم إنشاء الحساب"),
-      description: t("A welcome email has been sent to you.", ".تم إرسال رسالة ترحيب إليك"),
+      title: t("Account Created Successfully!", "!تم إنشاء الحساب بنجاح"),
+      description: t("You will receive a welcome email within 24 hours.", "سوف يصلك بريد إلكتروني ترحيبي خلال 24 ساعة."),
     });
 
     if (isAdminUser) {
@@ -162,6 +129,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
         router.push('/');
     }
+  };
+  
+  const getAllUsers = (): MockUser[] => {
+      const users = getMockUsers();
+      // Exclude admin from the list of 'site members'
+      const { 'admin@ags.edu': admin, ...otherUsers } = users;
+      return Object.values(otherUsers);
   };
 
   const logout = () => {
@@ -199,6 +173,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     logout,
     register,
+    getAllUsers,
   }), [user, loading, isAdmin]);
 
 

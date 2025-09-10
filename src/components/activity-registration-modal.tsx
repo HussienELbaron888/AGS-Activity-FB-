@@ -2,21 +2,17 @@
 'use client';
 
 import { useState } from 'react';
-import type { Activity, GenerateEmailInput, ConfirmationEmailPayload } from '@/lib/types';
+import type { Activity } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/contexts/language-provider';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, PartyPopper } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 import { useData } from '@/contexts/data-provider';
 import { useAuth } from '@/contexts/auth-provider';
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { firebaseApp } from '@/lib/firebase';
-import { generateEmailContent } from '@/lib/email-service';
-
 
 interface ActivityRegistrationModalProps {
   activity: Activity;
@@ -31,7 +27,6 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
   const { user } = useAuth();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const functions = getFunctions(firebaseApp);
 
   const title = language === 'en' ? activity.title : activity.titleAr;
 
@@ -48,43 +43,20 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         studentClass: formData.get('class') as string,
     };
     
-    // 1. Send Confirmation Email via Firebase Function
-    const emailPayload: ConfirmationEmailPayload = {
-      parentName: registrationData.parentName,
-      studentName: registrationData.studentName,
-      activityTitle: language === 'en' ? activity.title : activity.titleAr,
-      activityDate: activity.date,
-      activityTime: activity.time,
-      activityLocation: language === 'en' ? activity.location : activity.locationAr,
-      cost: activity.cost,
-      to: registrationData.email,
-    };
-
-    const emailInput: GenerateEmailInput = {
-      type: 'confirmation',
-      language: language,
-      payload: emailPayload,
-    };
-
     try {
-      const { subject, body } = generateEmailContent(emailInput);
-      const sendEmail = httpsCallable(functions, "sendCustomActionEmail");
+      // Simulate a short delay for a better user experience
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      await sendEmail({
-        to: emailPayload.to,
-        subject,
-        html: body,
-      });
-      
-      // 2. Add registration to local data if email sends successfully
       addRegistration({
         name: registrationData.studentName,
+        parentName: registrationData.parentName,
         email: registrationData.email,
+        mobile: registrationData.mobile,
+        studentClass: registrationData.studentClass,
         activityId: activity.id,
-        photoURL: user?.photoURL || null,
+        photoURL: `https://i.pravatar.cc/150?u=${registrationData.email}`,
       });
 
-      // 3. Show success screen
       setIsSubmitted(true);
 
     } catch (error) {
@@ -161,9 +133,11 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
             </>
         ) : (
             <div className="flex flex-col items-center justify-center text-center p-8 space-y-4">
-                <CheckCircle className="h-16 w-16 text-green-500" />
+                <PartyPopper className="h-16 w-16 text-primary animate-bounce" />
                 <h2 className="text-2xl font-bold font-headline">{t('Registration Successful!', 'تم التسجيل بنجاح!')}</h2>
-                <p className="text-muted-foreground">{t('Your registration for', 'تسجيلك في')} {title} {t('has been confirmed. A confirmation email has been sent to you.', 'قد تم تأكيده. تم إرسال بريد إلكتروني للتأكيد إليك.')}</p>
+                <p className="text-muted-foreground">
+                    {t('Your booking for', 'لقد تم تسجيل الحجز في')} <strong>{title}</strong> {t('is confirmed. You will receive a confirmation email within 24 hours.', 'بنجاح. سوف تصلك رسالة تأكيد خلال 24 ساعة.')}
+                </p>
                 <Button onClick={handleClose}>{t('Done', 'تم')}</Button>
             </div>
         )}
