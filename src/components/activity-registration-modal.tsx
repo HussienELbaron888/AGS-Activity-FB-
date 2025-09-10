@@ -13,6 +13,10 @@ import { CheckCircle } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 import { useData } from '@/contexts/data-provider';
 import { useAuth } from '@/contexts/auth-provider';
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { firebaseApp } from '@/lib/firebase';
+import { generateEmailContent } from '@/lib/email-service';
+
 
 interface ActivityRegistrationModalProps {
   activity: Activity;
@@ -27,6 +31,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
   const { user } = useAuth();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const functions = getFunctions(firebaseApp);
 
   const title = language === 'en' ? activity.title : activity.titleAr;
 
@@ -43,7 +48,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         studentClass: formData.get('class') as string,
     };
     
-    // 1. Send Confirmation Email
+    // 1. Send Confirmation Email via Firebase Function
     const emailPayload: ConfirmationEmailPayload = {
       parentName: registrationData.parentName,
       studentName: registrationData.studentName,
@@ -62,17 +67,15 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
     };
 
     try {
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(emailInput),
+      const { subject, body } = generateEmailContent(emailInput);
+      const sendEmail = httpsCallable(functions, "sendCustomActionEmail");
+      
+      await sendEmail({
+        to: emailPayload.to,
+        subject,
+        html: body,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || t("Failed to send confirmation email.", "فشل إرسال بريد التأكيد."));
-      }
-
+      
       // 2. Add registration to local data if email sends successfully
       addRegistration({
         name: registrationData.studentName,

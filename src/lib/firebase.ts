@@ -1,8 +1,8 @@
 
-// THIS FILE IS NO LONGER USED BY THE MOCK AUTHENTICATION SYSTEM.
-// It is kept for when the real Firebase authentication is restored.
 
+// THIS FILE IS NOW USED TO INITIALIZE FIREBASE FOR THE APP AND FUNCTIONS
 import { initializeApp, getApps, getApp } from "firebase/app";
+import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
   "projectId": "ags-activities-hub",
@@ -15,8 +15,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-// Note: This initialization is currently not being used by the mock auth system.
-// The app will not connect to Firebase until the mock system is removed.
 const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const functions = getFunctions(firebaseApp);
 
-export { firebaseApp };
+export { firebaseApp, functions };
