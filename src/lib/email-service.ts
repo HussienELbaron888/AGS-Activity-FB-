@@ -84,8 +84,9 @@ export const EmailTemplates = {
     };
   },
   confirmation: (args: ConfirmationEmailTemplateArgs) => {
-    const subject = `Confirmation for: ${args.activityTitleEn} / تأكيد التسجيل في: ${args.activityTitleAr}`;
-    const body = generateConfirmationBody(args);
-    return { subject, body };
+    return {
+      subject: `Confirmation for: ${args.activityTitleEn} / تأكيد التسجيل في: ${args.activityTitleAr}`,
+      body: generateConfirmationBody(args),
+    };
   },
 };
