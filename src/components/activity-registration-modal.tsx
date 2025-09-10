@@ -14,8 +14,7 @@ import { ScrollArea } from './ui/scroll-area';
 import { useData } from '@/contexts/data-provider';
 import { useAuth } from '@/contexts/auth-provider';
 import { generateEmail } from '@/ai/flows/generate-email-flow';
-import type { ConfirmationEmailPayloadSchema } from '@/lib/types';
-import type { z } from 'zod';
+import type { ConfirmationEmailPayload } from '@/lib/types';
 
 interface ActivityRegistrationModalProps {
   activity: Activity;
@@ -46,7 +45,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         studentClass: formData.get('class') as string,
     };
 
-    const emailPayload: z.infer<typeof ConfirmationEmailPayloadSchema> = {
+    const emailPayload: ConfirmationEmailPayload = {
       to: registrationData.email,
       parentName: registrationData.parentName,
       studentName: registrationData.studentName,
@@ -58,24 +57,26 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
     };
 
     try {
-      // 1. Generate the email content using the AI flow
+      // 1. Generate the email content using the flow
       const emailContent = await generateEmail({
           type: 'confirmation',
           language,
           payload: emailPayload
       });
       
-      // 2. Create and open the mailto link
-      const mailtoHref = `mailto:${emailContent.to}?subject=${encodeURIComponent(emailContent.subject)}&body=${encodeURIComponent(emailContent.body)}`;
-      window.open(mailtoHref, '_self');
-
-      // 3. Add registration to local data after user is prompted to send email.
-      addRegistration({
+      // 2. Add registration to local data.
+       addRegistration({
         name: registrationData.studentName,
         email: registrationData.email,
         activityId: activity.id,
         photoURL: user?.photoURL || null,
       });
+
+      // 3. Create and open the mailto link in a new tab
+      // The body needs to be decoded first, then re-encoded for the mailto link
+      const decodedBody = new DOMParser().parseFromString(emailContent.body, "text/html").documentElement.textContent;
+      const mailtoHref = `mailto:${emailContent.to}?subject=${encodeURIComponent(emailContent.subject)}&body=${encodeURIComponent(decodedBody || '')}`;
+      window.open(mailtoHref, '_blank');
       
       // 4. Show success screen
       setIsSubmitted(true);
@@ -109,7 +110,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
             <DialogHeader>
                 <DialogTitle className="font-headline text-2xl">{t('Register for', 'التسجيل في')}: {title}</DialogTitle>
                 <DialogDescription>
-                {t('Please fill out the form below to register.', 'يرجى ملء النموذج أدناه للتسجيل.')}
+                {t('Please fill out the form below to register. You will be asked to send a confirmation email from your own mail client.', 'يرجى ملء النموذج أدناه للتسجيل. سيُطلب منك إرسال بريد إلكتروني للتأكيد من عميل البريد الخاص بك.')}
                 </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit}>
@@ -146,7 +147,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
               <DialogFooter className="pt-6">
                   <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>{t('Cancel', 'إلغاء')}</Button>
                   <Button type="submit" disabled={isLoading}>
-                  {isLoading ? t('Processing...', '...جارٍ التنفيذ') : t('Confirm Registration', 'تأكيد التسجيل')}
+                  {isLoading ? t('Processing...', '...جارٍ التنفيذ') : t('Open Email to Confirm', 'افتح البريد للتأكيد')}
                   </Button>
               </DialogFooter>
             </form>
@@ -154,11 +155,11 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         ) : (
             <div className="flex flex-col items-center justify-center text-center p-8 space-y-4">
                 <CheckCircle className="h-16 w-16 text-green-500" />
-                <h2 className="text-2xl font-bold font-headline">{t('Registration Complete!', 'اكتمل التسجيل!')}</h2>
-                <p className="text-muted-foreground">{t('Your registration for', 'تسجيلك في')} {title} {t('is complete. Your email client should now open for you to send the confirmation.', 'قد اكتمل. يجب أن يفتح عميل البريد الإلكتروني لديك الآن لإرسال رسالة التأكيد.')}</p>
-                <div className="flex items-center gap-2 p-3 text-sm bg-yellow-100/50 text-yellow-800 border border-yellow-200/80 rounded-md">
+                <h2 className="text-2xl font-bold font-headline">{t('Registration Submitted!', 'تم تقديم التسجيل!')}</h2>
+                <p className="text-muted-foreground">{t('Your registration for', 'تسجيلك في')} {title} {t('has been submitted. Please check your email client.', 'قد تم تقديمه. يرجى التحقق من عميل البريد الإلكتروني الخاص بك.')}</p>
+                <div className="flex items-center gap-3 p-3 text-sm bg-yellow-100/50 text-yellow-800 border border-yellow-200/80 rounded-md">
                     <MailWarning className="h-5 w-5 shrink-0"/>
-                    <span>{t('Please ensure you send the generated email.', 'يرجى التأكد من إرسال البريد الإلكتروني الذي تم إنشاؤه.')}</span>
+                    <span>{t('Important: You must now click "Send" in the email draft that has been opened to complete your confirmation.', 'هام: يجب عليك الآن الضغط على "إرسال" في مسودة البريد الإلكتروني التي تم فتحها لإكمال تأكيدك.')}</span>
                 </div>
                 <Button onClick={handleClose}>{t('Done', 'تم')}</Button>
             </div>

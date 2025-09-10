@@ -8,8 +8,7 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { generateEmail } from '@/ai/flows/generate-email-flow';
 import { useLanguage } from './language-provider';
-import type { z } from 'zod';
-import type { WelcomeEmailPayloadSchema } from '@/lib/types';
+import type { WelcomeEmailPayload } from '@/lib/types';
 
 
 // Mock User type, mirrors Firebase User but simplified
@@ -123,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(newUser);
 
     try {
-        const welcomePayload: z.infer<typeof WelcomeEmailPayloadSchema> = {
+        const welcomePayload: WelcomeEmailPayload = {
             name: name,
             to: email,
         };
@@ -132,8 +131,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             language: language,
             payload: welcomePayload,
         });
-        const mailtoHref = `mailto:${emailContent.to}?subject=${encodeURIComponent(emailContent.subject)}&body=${encodeURIComponent(emailContent.body)}`;
-        window.open(mailtoHref, '_self');
+        
+        const decodedBody = new DOMParser().parseFromString(emailContent.body, "text/html").documentElement.textContent;
+        const mailtoHref = `mailto:${emailContent.to}?subject=${encodeURIComponent(emailContent.subject)}&body=${encodeURIComponent(decodedBody || '')}`;
+        window.open(mailtoHref, '_blank');
 
     } catch (error) {
         const e = error as Error;
@@ -143,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     toast({
       title: "Account Created!",
-      description: "Your email client should now open with a welcome message. Please send it to complete the process.",
+      description: "Please check your email client and send the generated welcome message.",
     });
 
     if (isAdminUser) {
