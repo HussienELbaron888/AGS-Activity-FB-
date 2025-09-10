@@ -68,15 +68,9 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         body: JSON.stringify({ type: 'confirmation', payload: emailPayload }),
       });
 
-      if (!response.ok) {
-        let errorMessage = `Server error: ${response.status}`;
-        try {
-          const errorBody = await response.text(); // Get raw error response
-          errorMessage = `${errorMessage} - ${errorBody || 'No response body'}`;
-        } catch (e) {
-            // Ignore if can't read body
-        }
-        throw new Error(errorMessage);
+       if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || `Server error: ${response.status}`);
       }
 
       const result = await response.json();
@@ -138,7 +132,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
                         <Input id="email" name="email" type="email" placeholder={t('your.email@example.com', 'email@example.com')} required defaultValue={user?.email || ''} />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="Mobile Number', 'رقم الموبايل')}</Label>
+                        <Label htmlFor="mobile">{t('Mobile Number', 'رقم الموبايل')}</Label>
                         <Input id="mobile" name="mobile" type="tel" placeholder={t('e.g. 05XXXXXXXX', 'مثال: 05XXXXXXXX')} required />
                     </div>
                     <div className="space-y-2">
