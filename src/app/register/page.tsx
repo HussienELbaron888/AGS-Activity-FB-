@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth-provider";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { useLanguage } from "@/contexts/language-provider";
 
 export default function RegisterPage() {
   const [firstName, setFirstName] = useState('');
@@ -27,6 +28,7 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { register, user, loading } = useAuth();
+  const { t } = useLanguage();
 
   // If user is already logged in, redirect them.
   if (loading || user) {
@@ -61,20 +63,20 @@ export default function RegisterPage() {
                     <Image src="/aclogo.png" alt="AGS Activities Hub Logo" width={150} height={40} />
                 </Link>
             </div>
-          <CardTitle className="text-2xl font-headline">Sign Up</CardTitle>
+          <CardTitle className="text-2xl font-headline">{t('Sign Up', 'إنشاء حساب')}</CardTitle>
           <CardDescription>
-            Enter your information to create an account
+            {t('Enter your information to create an account', 'أدخل معلوماتك لإنشاء حساب')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleRegister}>
-            <div className="grid gap-4">
+            <div className="grid gap-4 text-left">
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="first-name">First name</Label>
+                  <Label htmlFor="first-name">{t('First name', 'الاسم الأول')}</Label>
                   <Input 
                     id="first-name" 
-                    placeholder="Max" 
+                    placeholder={t('Max', 'ماكس')} 
                     required 
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
@@ -82,10 +84,10 @@ export default function RegisterPage() {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="last-name">Last name</Label>
+                  <Label htmlFor="last-name">{t('Last name', 'اسم العائلة')}</Label>
                   <Input 
                     id="last-name" 
-                    placeholder="Robinson" 
+                    placeholder={t('Robinson', 'روبنسون')} 
                     required 
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
@@ -94,11 +96,11 @@ export default function RegisterPage() {
                 </div>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('Email', 'البريد الإلكتروني')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder={t('m@example.com', 'm@example.com')}
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -106,7 +108,7 @@ export default function RegisterPage() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('Password', 'كلمة المرور')}</Label>
                 <Input 
                   id="password" 
                   type="password"
@@ -118,14 +120,14 @@ export default function RegisterPage() {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Creating Account...' : 'Create an account'}
+                {isLoading ? t('Creating Account...', '...جارٍ إنشاء الحساب') : t('Create an account', 'إنشاء حساب')}
               </Button>
             </div>
           </form>
           <div className="mt-4 text-center text-sm">
-            Already have an account?{" "}
+            {t('Already have an account?', 'هل لديك حساب بالفعل؟')}{" "}
             <Link href="/login" className="underline">
-              Sign in
+              {t('Sign in', 'تسجيل الدخول')}
             </Link>
           </div>
         </CardContent>

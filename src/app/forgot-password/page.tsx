@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { firebaseApp } from "@/lib/firebase";
+import { useLanguage } from "@/contexts/language-provider";
 
 
 export default function ForgotPasswordPage() {
@@ -24,6 +25,7 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const auth = getAuth(firebaseApp);
+  const { t } = useLanguage();
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,8 +33,8 @@ export default function ForgotPasswordPage() {
     try {
       await sendPasswordResetEmail(auth, email);
       toast({
-        title: "Password Reset Email Sent",
-        description: "Please check your inbox to reset your password.",
+        title: t("Password Reset Email Sent", "تم إرسال بريد إعادة تعيين كلمة المرور"),
+        description: t("Please check your inbox to reset your password.", "يرجى التحقق من بريدك الوارد لإعادة تعيين كلمة المرور."),
       });
     } catch (error: any) {
       toast({
@@ -54,16 +56,16 @@ export default function ForgotPasswordPage() {
                     <Image src="/aclogo.png" alt="AGS Activities Hub Logo" width={150} height={40} />
                 </Link>
             </div>
-          <CardTitle className="text-2xl font-headline">Forgot Password</CardTitle>
+          <CardTitle className="text-2xl font-headline">{t('Forgot Password', 'نسيت كلمة المرور')}</CardTitle>
           <CardDescription>
-            Enter your email and we&apos;ll send you a link to reset your password.
+            {t("Enter your email and we'll send you a link to reset your password.", "أدخل بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور.")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleResetPassword}>
             <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+              <div className="grid gap-2 text-left">
+                <Label htmlFor="email">{t('Email', 'البريد الإلكتروني')}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -75,14 +77,14 @@ export default function ForgotPasswordPage() {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Sending...' : 'Send Reset Link'}
+                {isLoading ? t('Sending...', '...جار الإرسال') : t('Send Reset Link', 'إرسال رابط إعادة التعيين')}
               </Button>
             </div>
           </form>
           <div className="mt-4 text-center text-sm">
-            Remember your password?{" "}
+            {t('Remember your password?', 'تذكرت كلمة مرورك؟')}{" "}
             <Link href="/login" className="underline">
-              Sign in
+              {t('Sign in', 'تسجيل الدخول')}
             </Link>
           </div>
         </CardContent>
