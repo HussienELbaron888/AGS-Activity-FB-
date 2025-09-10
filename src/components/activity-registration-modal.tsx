@@ -62,16 +62,29 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
       });
 
       let result;
-      try {
-        result = await response.json();
-      } catch (e) {
-        // If parsing fails, it's not a JSON response.
-        const errorText = await response.text();
-        throw new Error(`Server error (${response.status}): ${errorText || 'No response from server'}`);
+      // Check if the response is ok, otherwise try to get error details
+      if (!response.ok) {
+          let errorText = `Server error (${response.status})`;
+          try {
+              // Try to parse the error response as JSON
+              const errorResult = await response.json();
+              errorText = errorResult.message || JSON.stringify(errorResult.errors) || errorText;
+          } catch (e) {
+              // If it's not JSON, read it as text
+              try {
+                  errorText = (await response.text()) || errorText;
+              } catch (textErr) {
+                 // Fallback if reading text also fails
+              }
+          }
+          throw new Error(errorText);
       }
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || 'An unknown error occurred while sending the email.');
+      // If response is ok, parse the success result
+      result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.message || 'An unknown error occurred.');
       }
       
       console.log('Email send API result:', result.message);

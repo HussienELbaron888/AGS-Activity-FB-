@@ -129,15 +129,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
 
         // Robust error handling
-        let result;
-        try {
-            result = await response.json();
-        } catch (e) {
-            const errorText = await response.text();
-            throw new Error(`Server error (${response.status}): ${errorText || 'No response from server'}`);
+        if (!response.ok) {
+            let errorText = `Server error (${response.status})`;
+            try {
+                const errorResult = await response.json();
+                errorText = errorResult.message || JSON.stringify(errorResult.errors) || errorText;
+            } catch (e) {
+                try {
+                    errorText = (await response.text()) || errorText;
+                } catch (textErr) {
+                  // Fallback
+                }
+            }
+            throw new Error(errorText);
         }
+        
+        const result = await response.json();
 
-        if (!response.ok || !result.success) {
+        if (!result.success) {
             // Log the error but don't prevent user login, as registration was successful
             console.error('Failed to send welcome email:', result.message || 'Unknown error');
         } else {
