@@ -5,7 +5,6 @@ import React, { createContext, useContext, useState, useEffect, useMemo } from '
 import { usePathname, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
-import { sendWelcomeEmail } from '@/ai/flows/send-welcome-email-flow';
 import { useToast } from '@/hooks/use-toast';
 
 // Mock User type, mirrors Firebase User but simplified
@@ -117,10 +116,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('loggedInUser', email);
     setUser(newUser);
 
-    // Send welcome email (fire and forget)
-    sendWelcomeEmail({ to: email, name: name })
-      .then(result => console.log('Welcome email result:', result.message))
-      .catch(error => console.error('Failed to send welcome email:', error));
+    // Send welcome email via API route (fire and forget)
+    fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'welcome',
+          payload: { to: email, name: name },
+        }),
+      })
+      .then(response => response.json())
+      .then(result => console.log('Welcome email API result:', result.message))
+      .catch(error => console.error('Failed to call send welcome email API:', error));
     
     toast({
       title: "Account Created!",

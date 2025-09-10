@@ -11,7 +11,6 @@ import { useLanguage } from '@/contexts/language-provider';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
-import { sendConfirmationEmail } from '@/ai/flows/send-email-flow';
 import { useData } from '@/contexts/data-provider';
 import { useAuth } from '@/contexts/auth-provider';
 
@@ -45,7 +44,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
     };
 
     try {
-      // Add registration to local data, including user's photoURL if available
+      // Add registration to local data
       addRegistration({
         name: registrationData.studentName,
         email: registrationData.email,
@@ -53,19 +52,36 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         photoURL: user?.photoURL || null,
       });
 
-      // Call the server action to "send" the email
-      const emailResult = await sendConfirmationEmail({
-          to: registrationData.email,
-          parentName: registrationData.parentName,
-          studentName: registrationData.studentName,
-          activityTitle: title,
-          activityDate: activity.date,
-          activityTime: activity.time,
-          activityLocation: language === 'en' ? activity.location : activity.locationAr,
-          cost: activity.cost,
+      const emailPayload = {
+        to: registrationData.email,
+        parentName: registrationData.parentName,
+        studentName: registrationData.studentName,
+        activityTitle: title,
+        activityDate: activity.date,
+        activityTime: activity.time,
+        activityLocation: language === 'en' ? activity.location : activity.locationAr,
+        cost: activity.cost,
+      };
+
+      // Call the new API route
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'confirmation',
+          payload: emailPayload,
+        }),
       });
+
+      const result = await response.json();
       
-      console.log('Email send simulation result:', emailResult.message);
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Failed to send email.');
+      }
+      
+      console.log('Email send API result:', result.message);
       
       setIsSubmitted(true);
       toast({
@@ -75,10 +91,11 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
       });
 
     } catch (error) {
-        console.error("Registration failed:", error);
+        const e = error as Error;
+        console.error("Registration failed:", e);
         toast({
             title: t("Registration Failed", "فشل التسجيل"),
-            description: t("Something went wrong. Please try again.", "حدث خطأ ما. يرجى المحاولة مرة أخرى."),
+            description: e.message || t("Something went wrong. Please try again.", "حدث خطأ ما. يرجى المحاولة مرة أخرى."),
             variant: "destructive",
         });
     } finally {
