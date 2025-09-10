@@ -67,7 +67,7 @@ const AppSidebar = () => {
             </Button>
         </SidebarHeader>
       )}
-      <SidebarContent className={!user ? 'pt-4' : ''}>
+      <SidebarContent className={cn('flex flex-col', { 'pt-4': !user, 'justify-center': user })}>
         <SidebarMenu className="gap-2 px-2">
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
