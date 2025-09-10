@@ -1,14 +1,10 @@
-
-'use server';
 /**
- * @fileOverview A flow to generate email content using hardcoded templates.
- * This is a temporary solution to bypass a suspended API key issue.
+ * @fileOverview A service to generate email content using hardcoded templates.
  *
- * - generateEmail - A function that generates email subject and body.
+ * - generateEmailContent - A function that generates email subject and body.
  */
 
 import type { GenerateEmailInput, GenerateEmailOutput, WelcomeEmailPayload, ConfirmationEmailPayload } from '@/lib/types';
-import { z } from 'genkit';
 
 // --- English Templates ---
 const enTemplates = {
@@ -86,7 +82,7 @@ const arTemplates = {
     },
   };
 
-export async function generateEmail(input: GenerateEmailInput): Promise<GenerateEmailOutput> {
+export function generateEmailContent(input: GenerateEmailInput): GenerateEmailOutput {
   const templates = input.language === 'ar' ? arTemplates : enTemplates;
   let subject = '';
   let body = '';

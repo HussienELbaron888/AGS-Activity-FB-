@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import type { GenerateEmailInput, WelcomeEmailPayload, ConfirmationEmailPayload } from '@/lib/types';
-import { generateEmail } from '@/ai/flows/generate-email-flow';
+import type { GenerateEmailInput } from '@/lib/types';
+import { generateEmailContent } from '@/lib/email-service';
 
 // Force Node.js runtime for Resend SDK compatibility
 export const runtime = 'nodejs';
@@ -21,8 +21,8 @@ export async function POST(req: NextRequest) {
   try {
     const input: GenerateEmailInput = await req.json();
 
-    // Generate the email content using the same flow (which now uses templates)
-    const { subject, body, to } = await generateEmail(input);
+    // Generate the email content using the new direct service
+    const { subject, body, to } = generateEmailContent(input);
 
     const { data, error } = await resend.emails.send({
       from: 'AGS Activities Hub <onboarding@resend.dev>',
