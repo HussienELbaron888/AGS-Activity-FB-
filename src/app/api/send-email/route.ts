@@ -7,19 +7,16 @@ import { generateEmail } from '@/ai/flows/generate-email-flow';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const resendApiKey = process.env.RESEND_API_KEY;
-
-let resend: Resend | null = null;
-if (resendApiKey) {
-  resend = new Resend(resendApiKey);
-} else {
-  console.warn("RESEND_API_KEY is not set. Email sending will be disabled.");
-}
 
 export async function POST(req: NextRequest) {
-  if (!resend) {
+  const resendApiKey = process.env.RESEND_API_KEY;
+
+  if (!resendApiKey) {
+    console.error("RESEND_API_KEY is not set. Email sending is disabled.");
     return NextResponse.json({ error: 'Email sending is disabled due to missing API key.' }, { status: 500 });
   }
+  
+  const resend = new Resend(resendApiKey);
 
   try {
     const input: GenerateEmailInput = await req.json();
