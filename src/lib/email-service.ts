@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview A service to generate email content for mailto links.
  */
@@ -7,15 +8,18 @@ import type { WelcomeEmailTemplateArgs, ConfirmationEmailTemplateArgs } from '@/
 const APP_NAME = "AGS Activities Hub";
 const APP_NAME_AR = "منصة أنشطة مدارس الأجيال المتطورة";
 
-function generateEmailBody(title: string, content: string, lang: 'en' | 'ar'): string {
+function generateMailtoBody(title: string, content: string): string {
     // For mailto links, we should use plain text. We will strip HTML for reliability.
-    const plainTextContent = content.replace(/<[^>]*>/g, '\n').replace(/\n\n+/g, '\n').trim();
-    const plainTitle = title.replace(/<[^>]*>/g, '');
+    const plainTextContent = content
+        .replace(/<br\s*\/?>/gi, '\n') // Convert <br> to newlines
+        .replace(/<p>/gi, '')         // Remove <p> tags
+        .replace(/<\/p>/gi, '\n')     // Replace </p> with newlines
+        .replace(/<li>/gi, '- ')      // Make list items look like a list
+        .replace(/<[^>]*>/g, '')      // Strip all other HTML tags
+        .replace(/\n\n+/g, '\n')      // Collapse multiple newlines
+        .trim();
     
-    let body = `Subject: ${plainTitle}\n\n`;
-    body += plainTextContent;
-
-    return body;
+    return plainTextContent;
 }
 
 
@@ -23,35 +27,33 @@ export const EmailTemplates = {
   welcome: {
     en: (args: WelcomeEmailTemplateArgs) => ({
       subject: "Welcome to AGS Activities Hub!",
-      body: generateEmailBody(
+      body: generateMailtoBody(
         "Welcome!",
         `<h3>Hi ${args.userName},</h3>
          <p>Welcome to the AGS Activities Hub! We're thrilled to have you with us.</p>
          <p>You can now browse and register for all our exciting school activities, events, and trips.</p>
          <br/>
          <p>Thank you,</p>
-         <p><strong>The AGS Activities Team</strong></p>`,
-        'en'
+         <p><strong>The AGS Activities Team</strong></p>`
       ),
     }),
     ar: (args: WelcomeEmailTemplateArgs) => ({
       subject: `أهلاً بك في ${APP_NAME_AR}!`,
-      body: generateEmailBody(
+      body: generateMailtoBody(
         "أهلاً بك!",
         `<h3>مرحباً ${args.userName},</h3>
          <p>أهلاً بك في ${APP_NAME_AR}! يسعدنا انضمامك إلينا.</p>
          <p>يمكنك الآن تصفح جميع أنشطتنا وفعالياتنا ورحلاتنا المدرسية المثيرة والتسجيل فيها.</p>
          <br/>
          <p>شكراً لك،</p>
-         <p><strong>فريق أنشطة مدارس الأجيال المتطورة</strong></p>`,
-        'ar'
+         <p><strong>فريق أنشطة مدارس الأجيال المتطورة</strong></p>`
       ),
     }),
   },
   confirmation: {
     en: (args: ConfirmationEmailTemplateArgs) => ({
       subject: `Confirmation for ${args.activityTitle}`,
-      body: generateEmailBody(
+      body: generateMailtoBody(
         "Registration Confirmation",
         `<p>Dear ${args.parentName},</p>
          <p>Thank you for registering your child, <strong>${args.studentName}</strong>, for an upcoming activity.</p>
@@ -67,13 +69,12 @@ export const EmailTemplates = {
          <p>We look forward to seeing you there!</p>
          <br/>
          <p>Thank you,</p>
-         <p><strong>The AGS Activities Team</strong></p>`,
-        'en'
+         <p><strong>The AGS Activities Team</strong></p>`
       ),
     }),
     ar: (args: ConfirmationEmailTemplateArgs) => ({
       subject: `تأكيد التسجيل في: ${args.activityTitle}`,
-      body: generateEmailBody(
+      body: generateMailtoBody(
         "تأكيد التسجيل",
         `<p>عزيزي ولي الأمر ${args.parentName},</p>
          <p>نشكركم على تسجيل ابنكم/ابنتكم، <strong>${args.studentName}</strong>, في النشاط القادم.</p>
@@ -89,8 +90,7 @@ export const EmailTemplates = {
          <p>نتطلع لرؤيتكم هناك!</p>
          <br/>
          <p>شكراً لكم،</p>
-         <p><strong>فريق أنشطة مدارس الأجيال المتطورة</strong></p>`,
-        'ar'
+         <p><strong>فريق أنشطة مدارس الأجيال المتطورة</strong></p>`
       ),
     }),
   },
