@@ -56,6 +56,7 @@ export default function AdminDashboardPage() {
   const [selectedTalentedStudent, setSelectedTalentedStudent] = useState<TalentedStudent | null>(null);
   const [isTalentedStudentFormOpen, setIsTalentedStudentFormOpen] = useState(false);
   const [confirmedRegistrations, setConfirmedRegistrations] = useState<string[]>([]);
+  const [welcomedUsers, setWelcomedUsers] = useState<string[]>([]);
   
   const allUsers = getAllUsers();
 
@@ -112,10 +113,11 @@ export default function AdminDashboardPage() {
     return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
   
-  const handleWelcomeEmail = (user: { displayName: string | null; email: string | null; }) => {
+  const handleWelcomeEmail = (user: { uid: string; displayName: string | null; email: string | null; }) => {
     if (!user.email || !user.displayName) return;
     const template = EmailTemplates.welcome({ userName: user.displayName });
     window.location.href = generateMailtoLink(user.email, template.subject, template.body);
+    setWelcomedUsers(prev => [...prev, user.uid]);
   };
 
   const handleConfirmationEmail = (registration: Registration) => {
@@ -393,7 +395,9 @@ export default function AdminDashboardPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {allUsers.map((user) => (
+                        {allUsers.map((user) => {
+                            const isWelcomed = welcomedUsers.includes(user.uid);
+                            return (
                             <TableRow key={user.uid}>
                                 <TableCell className="font-medium flex items-center gap-3">
                                     <Avatar className="h-9 w-9">
@@ -404,13 +408,27 @@ export default function AdminDashboardPage() {
                                 </TableCell>
                                 <TableCell className="text-muted-foreground">{user.email}</TableCell>
                                 <TableCell className="text-right">
-                                    <Button variant="outline" size="sm" onClick={() => handleWelcomeEmail(user)}>
-                                        <Mail className="mr-2 h-4 w-4" />
-                                        {t('Welcome Email', 'ترحيب')}
+                                     <Button 
+                                        variant={isWelcomed ? "secondary" : "outline"}
+                                        size="sm" 
+                                        onClick={() => handleWelcomeEmail(user)}
+                                        disabled={isWelcomed}
+                                    >
+                                        {isWelcomed ? (
+                                            <>
+                                                <CheckCircle className="mr-2 h-4 w-4" />
+                                                {t('Welcomed', 'تم الترحيب')}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Mail className="mr-2 h-4 w-4" />
+                                                {t('Welcome Email', 'ترحيب')}
+                                            </>
+                                        )}
                                     </Button>
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )})}
                     </TableBody>
                 </Table>
             </CardContent>
@@ -419,3 +437,5 @@ export default function AdminDashboardPage() {
 
     </div>
   );
+
+    
