@@ -1,5 +1,4 @@
 
-
 /**
  * @fileOverview A service to generate plain text email content for mailto links.
  */
@@ -78,9 +77,9 @@ The AGS Activities Team
 
 
 export const EmailTemplates = {
-  welcome: (lang: 'en' | 'ar', args: WelcomeEmailTemplateArgs) => {
+  welcome: (args: WelcomeEmailTemplateArgs) => {
     return {
-      subject: lang === 'ar' ? `أهلاً بك في ${APP_NAME_AR}!` : `Welcome to ${APP_NAME_EN}!`,
+      subject: `أهلاً بك في ${APP_NAME_AR}! / Welcome to ${APP_NAME_EN}!`,
       body: generateWelcomeBody(args),
     };
   },

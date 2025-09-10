@@ -120,7 +120,7 @@ export default function AdminDashboardPage() {
   
   const handleWelcomeEmail = (user: { displayName: string | null; email: string | null; }) => {
     if (!user.email || !user.displayName) return;
-    const template = EmailTemplates.welcome(language, { userName: user.displayName });
+    const template = EmailTemplates.welcome({ userName: user.displayName });
     window.location.href = generateMailtoLink(user.email, template.subject, template.body);
   };
   
@@ -128,7 +128,6 @@ export default function AdminDashboardPage() {
      const activity = activities.find(a => a.id === registration.activityId);
      if (!activity) return;
      
-     // This function now returns a bilingual template directly.
      const template = EmailTemplates.confirmation({
          parentName: registration.parentName,
          studentName: registration.name,
