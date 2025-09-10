@@ -128,7 +128,8 @@ export default function AdminDashboardPage() {
      const activity = activities.find(a => a.id === registration.activityId);
      if (!activity) return;
      
-     const template = EmailTemplates.confirmation(language, {
+     // This function now returns a bilingual template directly.
+     const template = EmailTemplates.confirmation({
          parentName: registration.parentName,
          studentName: registration.name,
          activityTitleEn: activity.title,
@@ -409,5 +410,3 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
-
-    

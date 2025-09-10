@@ -1,4 +1,5 @@
 
+
 /**
  * @fileOverview A service to generate plain text email content for mailto links.
  */
@@ -7,6 +8,7 @@ import type { WelcomeEmailTemplateArgs, ConfirmationEmailTemplateArgs } from '@/
 
 const APP_NAME_EN = "AGS Activities Hub";
 const APP_NAME_AR = "منصة أنشطة مدارس الأجيال المتطورة";
+
 
 const generateWelcomeBody = (args: WelcomeEmailTemplateArgs): string => {
     return `
@@ -34,6 +36,7 @@ const generateConfirmationBody = (args: ConfirmationEmailTemplateArgs): string =
     const paymentNoteAr = args.cost && args.cost > 0 ? 'ملاحظة: سيتم إرسال تفاصيل الدفع في رسالة منفصلة. يتم تأكيد مكانكم عند إتمام الدفع.' : '';
     const paymentNoteEn = args.cost && args.cost > 0 ? 'Please note: Payment details will be sent to you separately. Your spot is confirmed upon payment.' : '';
 
+    // Simple, reliable, plain text output.
     return `
 عزيزي ولي الأمر ${args.parentName}،
 
@@ -52,7 +55,7 @@ ${paymentNoteAr}
 شكراً لكم،
 فريق أنشطة مدارس الأجيال المتطورة
 
-------------------------------------
+--------------------------------------------------
 
 Dear ${args.parentName},
 
@@ -81,10 +84,9 @@ export const EmailTemplates = {
       body: generateWelcomeBody(args),
     };
   },
-  confirmation: (lang: 'en' | 'ar', args: ConfirmationEmailTemplateArgs) => {
-    return {
-      subject: lang === 'ar' ? `تأكيد التسجيل في: ${args.activityTitleAr}` : `Confirmation for: ${args.activityTitleEn}`,
-      body: generateConfirmationBody(args),
-    };
+  confirmation: (args: ConfirmationEmailTemplateArgs) => {
+    const subject = `Confirmation for: ${args.activityTitleEn} / تأكيد التسجيل في: ${args.activityTitleAr}`;
+    const body = generateConfirmationBody(args);
+    return { subject, body };
   },
 };
