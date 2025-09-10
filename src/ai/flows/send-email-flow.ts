@@ -87,6 +87,7 @@ const sendConfirmationEmailFlow = ai.defineFlow(
     `;
 
     try {
+        console.log(`Attempting to send email from: noreply@ags-activities.com to: ${input.to}`);
         const { data, error } = await resend.emails.send({
             from: 'AGS Activities Hub <noreply@ags-activities.com>',
             to: [input.to],
@@ -96,7 +97,7 @@ const sendConfirmationEmailFlow = ai.defineFlow(
         });
 
         if (error) {
-            console.error('Resend API error:', error);
+            console.error('Resend API error response:', JSON.stringify(error, null, 2));
             return { success: false, message: `Failed to send email: ${error.message}` };
         }
 
@@ -105,7 +106,7 @@ const sendConfirmationEmailFlow = ai.defineFlow(
 
     } catch (e) {
         const error = e as Error;
-        console.error('Failed to send email:', error);
+        console.error('An unexpected exception occurred while sending email:', error);
         return { success: false, message: `An unexpected error occurred: ${error.message}` };
     }
   }
