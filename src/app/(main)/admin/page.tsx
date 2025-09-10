@@ -7,8 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-provider";
-import type { Activity, Registration, TalentedStudent } from "@/lib/types";
-import { Users, BarChart2, DollarSign, PlusCircle, Edit, Trash2, Mail, Send, UserCog, Star, CheckSquare, XSquare, UserPlus } from "lucide-react";
+import type { Activity, TalentedStudent } from "@/lib/types";
+import { Users, PlusCircle, Edit, Trash2, Mail, Star, CheckSquare, XSquare, UserPlus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,7 +33,6 @@ import { TalentedStudentForm } from "@/components/talented-student-form";
 import { useData } from "@/contexts/data-provider";
 import { useAuth } from "@/contexts/auth-provider";
 import { EmailTemplates } from "@/lib/email-service";
-import Link from "next/link";
 
 
 export default function AdminDashboardPage() {
@@ -107,12 +106,6 @@ export default function AdminDashboardPage() {
     }
     setIsTalentedStudentFormOpen(false);
   };
-
-  const findActivityTitle = (id: string) => {
-    const activity = activities.find(a => a.id === id);
-    if (!activity) return 'Unknown Activity';
-    return language === 'en' ? activity.title : activity.titleAr;
-  };
   
   const generateMailtoLink = (to: string, subject: string, body: string) => {
     return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -122,24 +115,6 @@ export default function AdminDashboardPage() {
     if (!user.email || !user.displayName) return;
     const template = EmailTemplates.welcome({ userName: user.displayName });
     window.location.href = generateMailtoLink(user.email, template.subject, template.body);
-  };
-  
-  const handleConfirmationEmail = (registration: Registration) => {
-     const activity = activities.find(a => a.id === registration.activityId);
-     if (!activity) return;
-     
-     const template = EmailTemplates.confirmation({
-         parentName: registration.parentName,
-         studentName: registration.name,
-         activityTitleEn: activity.title,
-         activityTitleAr: activity.titleAr,
-         activityDate: activity.date,
-         activityTime: activity.time,
-         activityLocationEn: activity.location,
-         activityLocationAr: activity.locationAr,
-         cost: activity.cost,
-     });
-     window.location.href = generateMailtoLink(registration.email, template.subject, template.body);
   };
 
 
@@ -326,7 +301,7 @@ export default function AdminDashboardPage() {
       </div>
       
       {/* Site Members and Registrations */}
-       <div className="grid gap-8 lg:grid-cols-2">
+       <div className="grid gap-8 lg:grid-cols-1">
             <Card>
                 <CardHeader>
                     <CardTitle>{t('Site Members', 'أعضاء الموقع')}</CardTitle>
@@ -356,46 +331,6 @@ export default function AdminDashboardPage() {
                                         <Button variant="outline" size="sm" onClick={() => handleWelcomeEmail(user)}>
                                             <Mail className="mr-2 h-4 w-4" />
                                             {t('Welcome Email', 'ترحيب')}
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                   </Table>
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader>
-                    <CardTitle>{t('Activity Registrations', 'التسجيل في الأنشطة')}</CardTitle>
-                    <CardDescription>{t('Students who have registered for activities.', 'الطلاب المسجلون في الأنشطة.')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                   <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>{t('Student', 'الطالب')}</TableHead>
-                                <TableHead>{t('Activity', 'النشاط')}</TableHead>
-                                <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {registrations.map((reg) => (
-                                <TableRow key={reg.id}>
-                                    <TableCell className="font-medium flex items-center gap-3">
-                                        <Avatar className="h-9 w-9">
-                                            <AvatarImage src={reg.photoURL || undefined} alt={reg.name} />
-                                            <AvatarFallback>{reg.name.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <div>
-                                            <p>{reg.name}</p>
-                                            <p className="text-xs text-muted-foreground">{reg.parentName}</p>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-muted-foreground">{findActivityTitle(reg.activityId)}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="outline" size="sm" onClick={() => handleConfirmationEmail(reg)}>
-                                            <Send className="mr-2 h-4 w-4" />
-                                            {t('Confirmation', 'تأكيد')}
                                         </Button>
                                     </TableCell>
                                 </TableRow>
