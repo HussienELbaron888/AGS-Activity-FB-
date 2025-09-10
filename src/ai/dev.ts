@@ -1,2 +1,3 @@
 import { config } from 'dotenv';
-config({ path: './src/app/.env' });
+// Load from the new standard location
+config({ path: './.env.local' });
