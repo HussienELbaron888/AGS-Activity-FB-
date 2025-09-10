@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       const welcomePayload = WelcomeEmailInputSchema.safeParse(payload);
       if (!welcomePayload.success) {
         console.error('[API ROUTE] Invalid welcome email payload:', welcomePayload.error);
-        const errorMessage = welcomePayload.error.errors.map(e => e.message).join(', ');
+        const errorMessage = welcomePayload.error.errors.map(e => `(${e.path.join('.')}) ${e.message}`).join('; ');
         return NextResponse.json({ success: false, message: `Invalid welcome email payload: ${errorMessage}` }, { status: 400 });
       }
       const result = await sendWelcomeEmail(welcomePayload.data);
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       const confirmationPayload = ConfirmationEmailInputSchema.safeParse(payload);
        if (!confirmationPayload.success) {
         console.error('[API ROUTE] Invalid confirmation email payload:', confirmationPayload.error);
-        const errorMessage = confirmationPayload.error.errors.map(e => e.message).join(', ');
+        const errorMessage = confirmationPayload.error.errors.map(e => `(${e.path.join('.')}) ${e.message}`).join('; ');
         return NextResponse.json({ success: false, message: `Invalid confirmation email payload: ${errorMessage}` }, { status: 400 });
       }
       const result = await sendConfirmationEmail(confirmationPayload.data);
@@ -58,3 +58,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, message: e.message || 'An unexpected server error occurred.' }, { status: 500 });
   }
 }
+
