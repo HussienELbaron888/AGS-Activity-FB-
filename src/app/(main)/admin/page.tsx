@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-provider";
-import type { Activity, TalentedStudent } from "@/lib/types";
+import type { Activity, TalentedStudent, Registration } from "@/lib/types";
 import { Users, PlusCircle, Edit, Trash2, Mail, Star, CheckSquare, XSquare, UserPlus } from "lucide-react";
 import {
   AlertDialog,
@@ -115,6 +115,18 @@ export default function AdminDashboardPage() {
     if (!user.email || !user.displayName) return;
     const template = EmailTemplates.welcome({ userName: user.displayName });
     window.location.href = generateMailtoLink(user.email, template.subject, template.body);
+  };
+
+  const handleConfirmationEmail = (registration: Registration) => {
+    const activity = activities.find(a => a.id === registration.activityId);
+    if (!activity) return;
+
+    const template = EmailTemplates.registrationConfirmation({
+      activityTitleEn: activity.title,
+      activityTitleAr: activity.titleAr
+    });
+    
+    window.location.href = generateMailtoLink(registration.email, template.subject, template.body);
   };
 
 
@@ -300,47 +312,95 @@ export default function AdminDashboardPage() {
         </div>
       </div>
       
-      {/* Site Members and Registrations */}
-       <div className="grid gap-8 lg:grid-cols-1">
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('Site Members', 'أعضاء الموقع')}</CardTitle>
-                    <CardDescription>{t('Users who have created an account on the platform.', 'المستخدمون الذين أنشأوا حسابًا على المنصة.')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                   <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>{t('User', 'المستخدم')}</TableHead>
-                                <TableHead>{t('Email', 'البريد الإلكتروني')}</TableHead>
-                                <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {allUsers.map((user) => (
-                                <TableRow key={user.uid}>
+       {/* New Activity Registrations Section */}
+      <div className="grid gap-8 lg:grid-cols-2">
+        <Card>
+            <CardHeader>
+                <CardTitle>{t('Activity Registrations', 'التسجيل في الأنشطة')}</CardTitle>
+                <CardDescription>{t('View and confirm student registrations for activities.', 'عرض وتأكيد تسجيل الطلاب في الأنشطة.')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>{t('Student', 'الطالب')}</TableHead>
+                            <TableHead>{t('Activity', 'النشاط')}</TableHead>
+                            <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {registrations.map((reg) => {
+                            const activity = activities.find(a => a.id === reg.activityId);
+                            const activityName = activity ? (language === 'en' ? activity.title : activity.titleAr) : 'Unknown Activity';
+                            return (
+                                <TableRow key={reg.id}>
                                     <TableCell className="font-medium flex items-center gap-3">
                                         <Avatar className="h-9 w-9">
-                                            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || ''} />
-                                            <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
+                                            <AvatarImage src={reg.photoURL || undefined} alt={reg.name} />
+                                            <AvatarFallback>{reg.name.charAt(0)}</AvatarFallback>
                                         </Avatar>
-                                        {user.displayName}
+                                        <div>
+                                            <div>{reg.name}</div>
+                                            <div className="text-xs text-muted-foreground">{reg.email}</div>
+                                        </div>
                                     </TableCell>
-                                    <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                                    <TableCell>{activityName}</TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="outline" size="sm" onClick={() => handleWelcomeEmail(user)}>
+                                        <Button variant="outline" size="sm" onClick={() => handleConfirmationEmail(reg)}>
                                             <Mail className="mr-2 h-4 w-4" />
-                                            {t('Welcome Email', 'ترحيب')}
+                                            {t('Confirm Email', 'تأكيد البريد')}
                                         </Button>
                                     </TableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                   </Table>
-                </CardContent>
-            </Card>
-       </div>
+                            );
+                        })}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+
+        {/* Site Members Section */}
+        <Card>
+            <CardHeader>
+                <CardTitle>{t('Site Members', 'أعضاء الموقع')}</CardTitle>
+                <CardDescription>{t('Users who have created an account on the platform.', 'المستخدمون الذين أنشأوا حسابًا على المنصة.')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>{t('User', 'المستخدم')}</TableHead>
+                            <TableHead>{t('Email', 'البريد الإلكتروني')}</TableHead>
+                            <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {allUsers.map((user) => (
+                            <TableRow key={user.uid}>
+                                <TableCell className="font-medium flex items-center gap-3">
+                                    <Avatar className="h-9 w-9">
+                                        <AvatarImage src={user.photoURL || undefined} alt={user.displayName || ''} />
+                                        <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    {user.displayName}
+                                </TableCell>
+                                <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="outline" size="sm" onClick={() => handleWelcomeEmail(user)}>
+                                        <Mail className="mr-2 h-4 w-4" />
+                                        {t('Welcome Email', 'ترحيب')}
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+      </div>
 
     </div>
   );
 }
+
+    

@@ -73,16 +73,11 @@ export interface WelcomeEmailTemplateArgs {
     userName: string;
 }
 
-export interface ConfirmationEmailTemplateArgs {
-    parentName: string;
-    studentName: string;
+export interface RegistrationConfirmationArgs {
     activityTitleEn: string;
     activityTitleAr: string;
-    activityDate: string;
-    activityTime: string;
-    activityLocationEn: string;
-    activityLocationAr: string;
-    cost?: number;
 }
+
+    
 
     

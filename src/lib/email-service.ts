@@ -3,11 +3,10 @@
  * @fileOverview A service to generate plain text email content for mailto links.
  */
 
-import type { WelcomeEmailTemplateArgs, ConfirmationEmailTemplateArgs } from '@/lib/types';
+import type { WelcomeEmailTemplateArgs, RegistrationConfirmationArgs } from '@/lib/types';
 
 const APP_NAME_EN = "AGS Activities Hub";
 const APP_NAME_AR = "منصة أنشطة مدارس الأجيال المتطورة";
-
 
 const generateWelcomeBody = (args: WelcomeEmailTemplateArgs): string => {
     return `
@@ -29,52 +28,15 @@ The AGS Activities Team
 `;
 };
 
-const generateConfirmationBody = (args: ConfirmationEmailTemplateArgs): string => {
-    const costTextAr = args.cost && args.cost > 0 ? `${args.cost} ر.س` : 'مجاني';
-    const costTextEn = args.cost && args.cost > 0 ? `${args.cost} SAR` : 'Free';
-    const paymentNoteAr = args.cost && args.cost > 0 ? 'ملاحظة: سيتم إرسال تفاصيل الدفع في رسالة منفصلة. يتم تأكيد مكانكم عند إتمام الدفع.' : '';
-    const paymentNoteEn = args.cost && args.cost > 0 ? 'Please note: Payment details will be sent to you separately. Your spot is confirmed upon payment.' : '';
-
-    // Simple, reliable, plain text output.
+const generateRegistrationConfirmationBody = (args: RegistrationConfirmationArgs): string => {
     return `
-عزيزي ولي الأمر ${args.parentName}،
+لقد تم الاشتراك في >${args.activityTitleAr}< بنجاح. يمكنك التواصل مع ادارة النشاط لمزيد من التفاصيل.
 
-نشكركم على تسجيل ابنكم/ابنتكم، ${args.studentName}، في النشاط القادم.
+------------------------------------
 
-تفاصيل التسجيل:
-- النشاط: ${args.activityTitleAr}
-- التاريخ: ${args.activityDate}
-- الوقت: ${args.activityTime}
-- الموقع: ${args.activityLocationAr}
-- التكلفة: ${costTextAr}
-
-${paymentNoteAr}
-
-نتطلع لرؤيتكم هناك!
-شكراً لكم،
-فريق أنشطة مدارس الأجيال المتطورة
-
---------------------------------------------------
-
-Dear ${args.parentName},
-
-Thank you for registering your child, ${args.studentName}, for an upcoming activity.
-
-Registration Details:
-- Activity: ${args.activityTitleEn}
-- Date: ${args.activityDate}
-- Time: ${args.activityTime}
-- Location: ${args.activityLocationEn}
-- Cost: ${costTextEn}
-
-${paymentNoteEn}
-
-We look forward to seeing you there!
-Thank you,
-The AGS Activities Team
+You have successfully subscribed to >${args.activityTitleEn}<. You can contact the activity management for more details.
 `;
 };
-
 
 export const EmailTemplates = {
   welcome: (args: WelcomeEmailTemplateArgs) => {
@@ -83,10 +45,12 @@ export const EmailTemplates = {
       body: generateWelcomeBody(args),
     };
   },
-  confirmation: (args: ConfirmationEmailTemplateArgs) => {
+  registrationConfirmation: (args: RegistrationConfirmationArgs) => {
     return {
-      subject: `Confirmation for: ${args.activityTitleEn} / تأكيد التسجيل في: ${args.activityTitleAr}`,
-      body: generateConfirmationBody(args),
+      subject: `Subscription Confirmed: ${args.activityTitleEn} / تأكيد الاشتراك: ${args.activityTitleAr}`,
+      body: generateRegistrationConfirmationBody(args),
     };
   },
 };
+
+    
