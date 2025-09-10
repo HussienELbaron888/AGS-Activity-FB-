@@ -13,11 +13,12 @@ import {
   SidebarContent,
   SidebarHeader,
 } from '@/components/ui/sidebar';
-import { LayoutGrid, Calendar, Mail, School, LogOut, Images, DollarSign, Gift, Plane, Star, Home, Shield, User as UserIcon } from 'lucide-react';
+import { LayoutGrid, Calendar, Mail, School, LogOut, Images, DollarSign, Gift, Plane, Star, Home, Shield, User as UserIcon, UserPlus } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-provider';
 import React from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/auth-provider';
+import { Button } from '../ui/button';
 
 const AppSidebar = () => {
   const pathname = usePathname();
@@ -60,7 +61,15 @@ const AppSidebar = () => {
         {/* Logo removed from here as requested */}
       </SidebarHeader>
       <SidebarContent>
-        <SidebarMenu className="gap-2">
+        <div className="p-4">
+            <Button asChild className="w-full">
+                <Link href="/register">
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    {t('Register Now', 'سجل الآن')}
+                </Link>
+            </Button>
+        </div>
+        <SidebarMenu className="gap-2 px-2">
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton

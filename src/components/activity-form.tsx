@@ -26,10 +26,16 @@ import {
 import type { Activity, ActivityCategory } from "@/lib/types";
 import { useLanguage } from "@/contexts/language-provider";
 import { ScrollArea } from "./ui/scroll-area";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Checkbox } from "./ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 const activityCategories: ActivityCategory[] = ['Event', 'Trip', 'Free', 'Paid'];
+
+const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
 
 const formSchema = z.object({
   title: z.string().min(3, { message: "English title must be at least 3 characters." }),
@@ -42,7 +48,7 @@ const formSchema = z.object({
   location: z.string().min(3, { message: "English location is required." }),
   locationAr: z.string().min(3, { message: "Arabic location is required." }),
   cost: z.coerce.number().min(0).optional(),
-  imageUrl: z.string().url({ message: "Please enter a valid image URL." }),
+  imageUrl: z.string().min(1, { message: "An image is required." }),
   imageHint: z.string().min(2, { message: "Image hint must be at least 2 characters." }),
   showInSlider: z.boolean().default(false).optional(),
   sliderUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
@@ -58,6 +64,9 @@ interface ActivityFormProps {
 
 export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps) {
   const { t } = useLanguage();
+  const { toast } = useToast();
+  const [imagePreview, setImagePreview] = useState<string | null>(activity?.imageUrl || null);
+
 
   const form = useForm<ActivityFormValues>({
     resolver: zodResolver(formSchema),
@@ -82,7 +91,7 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
   const showInSlider = form.watch("showInSlider");
 
   useEffect(() => {
-    form.reset(activity || {
+    const currentValues = activity || {
       title: "",
       titleAr: "",
       description: "",
@@ -97,8 +106,41 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
       imageHint: "",
       showInSlider: false,
       sliderUrl: "",
-    });
+    };
+    form.reset(currentValues);
+    setImagePreview(currentValues.imageUrl);
   }, [activity, form]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+            variant: "destructive",
+            title: t("File too large", "الملف كبير جدًا"),
+            description: t("Please select an image smaller than 4MB.", "يرجى اختيار صورة أصغر من 4 ميجابايت."),
+        });
+        return;
+      }
+      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+        toast({
+            variant: "destructive",
+            title: t("Invalid file type", "نوع الملف غير صالح"),
+            description: t("Please select a JPG, PNG, or WEBP image.", "يرجى اختيار صورة من نوع JPG أو PNG أو WEBP."),
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
+        form.setValue('imageUrl', dataUrl);
+        setImagePreview(dataUrl);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
 
   const handleSubmit = (values: ActivityFormValues) => {
     onSubmit(values);
@@ -259,16 +301,21 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
                     )}
                 />
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                     <FormField
                         control={form.control}
                         name="imageUrl"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>{t('Image URL', 'رابط الصورة')}</FormLabel>
+                            <FormLabel>{t('Activity Image', 'صورة النشاط')}</FormLabel>
                             <FormControl>
-                                <Input placeholder="https://picsum.photos/600/400" {...field} />
+                                <Input type="file" accept="image/*" onChange={handleImageChange} className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
                             </FormControl>
+                             {imagePreview && (
+                                <div className="mt-4 relative w-full h-40 rounded-md overflow-hidden border">
+                                    <Image src={imagePreview} alt="Image Preview" layout="fill" objectFit="cover" />
+                                </div>
+                            )}
                             <FormMessage />
                             </FormItem>
                         )}
