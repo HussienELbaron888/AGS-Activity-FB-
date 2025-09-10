@@ -19,6 +19,7 @@ import React from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/auth-provider';
 import { Button } from '../ui/button';
+import { cn } from '@/lib/utils';
 
 const AppSidebar = () => {
   const pathname = usePathname();
