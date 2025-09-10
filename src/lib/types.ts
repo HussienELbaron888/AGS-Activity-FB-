@@ -76,9 +76,13 @@ export interface WelcomeEmailTemplateArgs {
 export interface ConfirmationEmailTemplateArgs {
     parentName: string;
     studentName: string;
-    activityTitle: string;
+    activityTitleEn: string;
+    activityTitleAr: string;
     activityDate: string;
     activityTime: string;
-    activityLocation: string;
+    activityLocationEn: string;
+    activityLocationAr: string;
     cost?: number;
 }
+
+    

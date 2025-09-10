@@ -120,7 +120,7 @@ export default function AdminDashboardPage() {
   
   const handleWelcomeEmail = (user: { displayName: string | null; email: string | null; }) => {
     if (!user.email || !user.displayName) return;
-    const template = EmailTemplates.welcome[language]({ userName: user.displayName });
+    const template = EmailTemplates.welcome(language, { userName: user.displayName });
     window.location.href = generateMailtoLink(user.email, template.subject, template.body);
   };
   
@@ -128,13 +128,15 @@ export default function AdminDashboardPage() {
      const activity = activities.find(a => a.id === registration.activityId);
      if (!activity) return;
      
-     const template = EmailTemplates.confirmation[language]({
+     const template = EmailTemplates.confirmation(language, {
          parentName: registration.parentName,
          studentName: registration.name,
-         activityTitle: language === 'en' ? activity.title : activity.titleAr,
+         activityTitleEn: activity.title,
+         activityTitleAr: activity.titleAr,
          activityDate: activity.date,
          activityTime: activity.time,
-         activityLocation: language === 'en' ? activity.location : activity.locationAr,
+         activityLocationEn: activity.location,
+         activityLocationAr: activity.locationAr,
          cost: activity.cost,
      });
      window.location.href = generateMailtoLink(registration.email, template.subject, template.body);
