@@ -8,6 +8,8 @@
  *
  * - sendConfirmationEmail - A function that handles the email sending process.
  */
+import { config } from 'dotenv';
+config({ path: './src/app/.env' });
 
 import { ai } from '@/ai/genkit';
 import { Resend } from 'resend';
