@@ -96,9 +96,6 @@ export default function LoginPage() {
                   disabled={isLoading}
                 />
               </div>
-              <p className="px-1 text-center text-xs text-muted-foreground">
-                Use <span className="font-semibold text-foreground">admin@ags.edu</span> and password <span className="font-semibold text-foreground">123456</span> to sign in.
-              </p>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Logging in...' : 'Login'}
               </Button>
