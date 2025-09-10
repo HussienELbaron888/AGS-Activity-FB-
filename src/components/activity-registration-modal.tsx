@@ -43,40 +43,35 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         studentClass: formData.get('class') as string,
     };
 
-    try {
-      const emailPayload = {
-        to: registrationData.email,
-        parentName: registrationData.parentName,
-        studentName: registrationData.studentName,
-        activityTitle: title,
-        activityDate: activity.date,
-        activityTime: activity.time,
-        activityLocation: language === 'en' ? activity.location : activity.locationAr,
-        cost: activity.cost,
-      };
+    const emailPayload = {
+      to: registrationData.email,
+      parentName: registrationData.parentName,
+      studentName: registrationData.studentName,
+      activityTitle: title,
+      activityDate: activity.date,
+      activityTime: activity.time,
+      activityLocation: language === 'en' ? activity.location : activity.locationAr,
+      cost: activity.cost,
+    };
 
+    try {
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'confirmation', payload: emailPayload }),
       });
 
-      if (!response.ok) {
-        let errorText = await response.text();
-        try {
-          // Try to parse as JSON to get a more structured error message.
-          const errorJson = JSON.parse(errorText);
-          errorText = errorJson.message || errorText;
-        } catch (e) {
-          // It's not JSON, just use the raw text.
-        }
-        throw new Error(`Server error (${response.status}): ${errorText}`);
+      let result;
+      try {
+        result = await response.json();
+      } catch (e) {
+        // If parsing fails, it's not a JSON response.
+        const errorText = await response.text();
+        throw new Error(`Server error (${response.status}): ${errorText || 'No response from server'}`);
       }
 
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.message || 'An unknown error occurred.');
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'An unknown error occurred while sending the email.');
       }
       
       console.log('Email send API result:', result.message);
@@ -90,11 +85,6 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
       });
       
       setIsSubmitted(true);
-      toast({
-        title: t("Registration Successful!", "تم التسجيل بنجاح!"),
-        description: t(`You will receive a confirmation email shortly.`, `سوف تتلقى رسالة تأكيد بالبريد الإلكتروني قريبا.`),
-        variant: 'default',
-      });
 
     } catch (error) {
         const e = error as Error;
@@ -171,7 +161,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
             <div className="flex flex-col items-center justify-center text-center p-8 space-y-4">
                 <CheckCircle className="h-16 w-16 text-green-500" />
                 <h2 className="text-2xl font-bold font-headline">{t('Registration Confirmed!', 'تم تأكيد التسجيل!')}</h2>
-                <p className="text-muted-foreground">{t('Thank you for registering for', 'شكرًا لتسجيلك في')} {title}. {t('A confirmation email is on its way.', 'رسالة التأكيد في طريقها إليك.')}</p>
+                <p className="text-muted-foreground">{t('Thank you for registering for', 'شكرًا لتسجيلك في')} {title}. {t('A confirmation email has been sent.', 'تم إرسال رسالة تأكيد بالبريد الإلكتروني.')}</p>
                 <Button onClick={handleClose}>{t('Done', 'تم')}</Button>
             </div>
         )}

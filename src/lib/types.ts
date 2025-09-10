@@ -1,4 +1,5 @@
 
+
 export type ActivityCategory = 'Paid' | 'Free' | 'Trip' | 'Event';
 
 export interface Activity {
@@ -62,4 +63,22 @@ export interface TalentedStudent {
   detailsAr: string;
   imageUrl: string;
   imageHint: string;
+}
+
+
+// Specific types for email payloads
+export interface WelcomeEmailInput {
+  to: string;
+  name: string;
+}
+
+export interface ConfirmationEmailInput {
+  to: string;
+  parentName: string;
+  studentName: string;
+  activityTitle: string;
+  activityDate: string;
+  activityTime: string;
+  activityLocation: string;
+  cost?: number;
 }

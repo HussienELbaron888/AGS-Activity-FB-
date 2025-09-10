@@ -21,7 +21,7 @@ interface AuthContextType {
   isAdmin: boolean;
   login: (email: string) => void;
   logout: () => void;
-  register: (name: string, email: string) => void;
+  register: (name: string, email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -30,7 +30,7 @@ const AuthContext = createContext<AuthContextType>({
   isAdmin: false,
   login: () => {},
   logout: () => {},
-  register: () => {},
+  register: async () => {},
 });
 
 const AuthLoadingScreen = () => (
@@ -123,30 +123,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-            type: 'welcome',
-            payload: { to: email, name: name },
+              type: 'welcome',
+              payload: { to: email, name: name },
             }),
         });
 
-        if (!response.ok) {
-            let errorText = `Welcome email server error: ${response.status}`;
-            try {
-                const errorBody = await response.text();
-                errorText = `${errorMessage} - ${errorBody || 'No response body'}`;
-            } catch (e) {
-                // Ignore if parsing fails
-            }
-            console.error(errorText); // Log this error but don't throw, as registration itself was successful.
-        } else {
-            const result = await response.json();
-            if (result.success) {
-                console.log('Welcome email API result:', result.message);
-            } else {
-                console.error('Welcome email failed to send:', result.message);
-            }
+        // Robust error handling
+        let result;
+        try {
+            result = await response.json();
+        } catch (e) {
+            const errorText = await response.text();
+            throw new Error(`Server error (${response.status}): ${errorText || 'No response from server'}`);
         }
+
+        if (!response.ok || !result.success) {
+            // Log the error but don't prevent user login, as registration was successful
+            console.error('Failed to send welcome email:', result.message || 'Unknown error');
+        } else {
+            console.log('Welcome email API result:', result.message);
+        }
+
     } catch (error) {
-        console.error('Failed to call send welcome email API:', error);
+        const e = error as Error;
+        // Log the error but don't block the user experience
+        console.error('Failed to call send welcome email API:', e.message);
     }
     
     toast({
