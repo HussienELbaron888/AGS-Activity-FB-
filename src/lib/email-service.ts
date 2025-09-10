@@ -15,6 +15,7 @@ function generateMailtoBody(content: string): string {
         .replace(/<p>/gi, '')         // Remove <p> tags
         .replace(/<\/p>/gi, '\n')     // Replace </p> with newlines
         .replace(/<li>/gi, '- ')      // Make list items look like a list
+        .replace(/<hr\s*\/?>/gi, '\n------------------------------------\n') // Convert <hr> to a separator
         .replace(/<[^>]*>/g, '')      // Strip all other HTML tags
         .replace(/\n\n+/g, '\n')      // Collapse multiple newlines
         .trim();
@@ -27,13 +28,11 @@ export const EmailTemplates = {
   welcome: {
     en: (args: WelcomeEmailTemplateArgs) => {
       const html = `
-        <div style="direction: ltr;">
-          <p>Hi ${args.userName},</p>
-          <p>Welcome to the AGS Activities Hub! We're thrilled to have you with us. You can now browse and register for all our exciting school activities, events, and trips.</p>
-          <p>Thank you,<br>The AGS Activities Team</p>
-        </div>
-        <hr style="margin: 20px 0;">
-        <div style="direction: rtl; text-align: right;">
+        <p>Hi ${args.userName},</p>
+        <p>Welcome to the AGS Activities Hub! We're thrilled to have you with us. You can now browse and register for all our exciting school activities, events, and trips.</p>
+        <p>Thank you,<br>The AGS Activities Team</p>
+        <hr>
+        <div dir="rtl" style="text-align: right;">
           <p>مرحباً ${args.userName}،</p>
           <p>أهلاً بك في ${APP_NAME_AR}! يسعدنا انضمامك إلينا. يمكنك الآن تصفح جميع أنشطتنا وفعالياتنا ورحلاتنا المدرسية المثيرة والتسجيل فيها.</p>
           <p>شكراً لك،<br>فريق أنشطة مدارس الأجيال المتطورة</p>
@@ -46,17 +45,15 @@ export const EmailTemplates = {
     },
     ar: (args: WelcomeEmailTemplateArgs) => {
       const html = `
-        <div style="direction: rtl; text-align: right;">
+        <div dir="rtl" style="text-align: right;">
           <p>مرحباً ${args.userName}،</p>
           <p>أهلاً بك في ${APP_NAME_AR}! يسعدنا انضمامك إلينا. يمكنك الآن تصفح جميع أنشطتنا وفعالياتنا ورحلاتنا المدرسية المثيرة والتسجيل فيها.</p>
           <p>شكراً لك،<br>فريق أنشطة مدارس الأجيال المتطورة</p>
         </div>
-        <hr style="margin: 20px 0;">
-        <div style="direction: ltr;">
-          <p>Hi ${args.userName},</p>
-          <p>Welcome to the AGS Activities Hub! We're thrilled to have you with us. You can now browse and register for all our exciting school activities, events, and trips.</p>
-          <p>Thank you,<br>The AGS Activities Team</p>
-        </div>
+        <hr>
+        <p>Hi ${args.userName},</p>
+        <p>Welcome to the AGS Activities Hub! We're thrilled to have you with us. You can now browse and register for all our exciting school activities, events, and trips.</p>
+        <p>Thank you,<br>The AGS Activities Team</p>
       `;
       return {
         subject: `أهلاً بك في ${APP_NAME_AR}!`,
@@ -67,25 +64,23 @@ export const EmailTemplates = {
   confirmation: {
     en: (args: ConfirmationEmailTemplateArgs) => {
         const html = `
-            <div style="direction: ltr;">
-                <p>Dear ${args.parentName},</p>
-                <p>Thank you for registering your child, <strong>${args.studentName}</strong>, for an upcoming activity.</p>
-                <br>
-                <p><strong>Registration Details:</strong></p>
-                <ul>
-                    <li>Activity: ${args.activityTitle}</li>
-                    <li>Date: ${args.activityDate}</li>
-                    <li>Time: ${args.activityTime}</li>
-                    <li>Location: ${args.activityLocation}</li>
-                    <li>Cost: ${args.cost && args.cost > 0 ? `${args.cost} SAR` : 'Free'}</li>
-                </ul>
-                <p>${args.cost && args.cost > 0 ? 'Please note: Payment details will be sent to you separately. Your spot is confirmed upon payment.' : ''}</p>
-                <p>We look forward to seeing you there!</p>
-                <br>
-                <p>Thank you,<br>The AGS Activities Team</p>
-            </div>
-            <hr style="margin: 20px 0;">
-            <div style="direction: rtl; text-align: right;">
+            <p>Dear ${args.parentName},</p>
+            <p>Thank you for registering your child, <strong>${args.studentName}</strong>, for an upcoming activity.</p>
+            <br>
+            <p><strong>Registration Details:</strong></p>
+            <ul>
+                <li>Activity: ${args.activityTitle}</li>
+                <li>Date: ${args.activityDate}</li>
+                <li>Time: ${args.activityTime}</li>
+                <li>Location: ${args.activityLocation}</li>
+                <li>Cost: ${args.cost && args.cost > 0 ? `${args.cost} SAR` : 'Free'}</li>
+            </ul>
+            <p>${args.cost && args.cost > 0 ? 'Please note: Payment details will be sent to you separately. Your spot is confirmed upon payment.' : ''}</p>
+            <p>We look forward to seeing you there!</p>
+            <br>
+            <p>Thank you,<br>The AGS Activities Team</p>
+            <hr>
+            <div dir="rtl" style="text-align: right;">
                 <p>عزيزي ولي الأمر ${args.parentName}،</p>
                 <p>نشكركم على تسجيل ابنكم/ابنتكم، <strong>${args.studentName}</strong>، في النشاط القادم.</p>
                 <br>
@@ -110,7 +105,7 @@ export const EmailTemplates = {
     },
     ar: (args: ConfirmationEmailTemplateArgs) => {
         const html = `
-            <div style="direction: rtl; text-align: right;">
+            <div dir="rtl" style="text-align: right;">
                 <p>عزيزي ولي الأمر ${args.parentName}،</p>
                 <p>نشكركم على تسجيل ابنكم/ابنتكم، <strong>${args.studentName}</strong>، في النشاط القادم.</p>
                 <br>
@@ -127,24 +122,22 @@ export const EmailTemplates = {
                 <br>
                 <p>شكراً لكم،<br>فريق أنشطة مدارس الأجيال المتطورة</p>
             </div>
-            <hr style="margin: 20px 0;">
-            <div style="direction: ltr;">
-                <p>Dear ${args.parentName},</p>
-                <p>Thank you for registering your child, <strong>${args.studentName}</strong>, for an upcoming activity.</p>
-                <br>
-                <p><strong>Registration Details:</strong></p>
-                <ul>
-                    <li>Activity: ${args.activityTitle}</li>
-                    <li>Date: ${args.activityDate}</li>
-                    <li>Time: ${args.activityTime}</li>
-                    <li>Location: ${args.activityLocation}</li>
-                    <li>Cost: ${args.cost && args.cost > 0 ? `${args.cost} SAR` : 'Free'}</li>
-                </ul>
-                <p>${args.cost && args.cost > 0 ? 'Please note: Payment details will be sent to you separately. Your spot is confirmed upon payment.' : ''}</p>
-                <p>We look forward to seeing you there!</p>
-                <br>
-                <p>Thank you,<br>The AGS Activities Team</p>
-            </div>
+            <hr>
+            <p>Dear ${args.parentName},</p>
+            <p>Thank you for registering your child, <strong>${args.studentName}</strong>, for an upcoming activity.</p>
+            <br>
+            <p><strong>Registration Details:</strong></p>
+            <ul>
+                <li>Activity: ${args.activityTitle}</li>
+                <li>Date: ${args.activityDate}</li>
+                <li>Time: ${args.activityTime}</li>
+                <li>Location: ${args.activityLocation}</li>
+                <li>Cost: ${args.cost && args.cost > 0 ? `${args.cost} SAR` : 'Free'}</li>
+            </ul>
+            <p>${args.cost && args.cost > 0 ? 'Please note: Payment details will be sent to you separately. Your spot is confirmed upon payment.' : ''}</p>
+            <p>We look forward to seeing you there!</p>
+            <br>
+            <p>Thank you,<br>The AGS Activities Team</p>
         `;
         return {
             subject: `تأكيد التسجيل في: ${args.activityTitle}`,
