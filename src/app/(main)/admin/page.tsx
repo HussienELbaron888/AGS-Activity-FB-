@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-provider";
 import type { Activity, TalentedStudent, Registration } from "@/lib/types";
-import { Users, PlusCircle, Edit, Trash2, Mail, Star, CheckSquare, XSquare, UserPlus } from "lucide-react";
+import { Users, PlusCircle, Edit, Trash2, Mail, Star, CheckSquare, XSquare, UserPlus, CheckCircle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,6 +55,7 @@ export default function AdminDashboardPage() {
   
   const [selectedTalentedStudent, setSelectedTalentedStudent] = useState<TalentedStudent | null>(null);
   const [isTalentedStudentFormOpen, setIsTalentedStudentFormOpen] = useState(false);
+  const [confirmedRegistrations, setConfirmedRegistrations] = useState<string[]>([]);
   
   const allUsers = getAllUsers();
 
@@ -127,6 +128,7 @@ export default function AdminDashboardPage() {
     });
     
     window.location.href = generateMailtoLink(registration.email, template.subject, template.body);
+    setConfirmedRegistrations(prev => [...prev, registration.id]);
   };
 
 
@@ -332,6 +334,8 @@ export default function AdminDashboardPage() {
                         {registrations.map((reg) => {
                             const activity = activities.find(a => a.id === reg.activityId);
                             const activityName = activity ? (language === 'en' ? activity.title : activity.titleAr) : 'Unknown Activity';
+                            const isConfirmed = confirmedRegistrations.includes(reg.id);
+                            
                             return (
                                 <TableRow key={reg.id}>
                                     <TableCell className="font-medium flex items-center gap-3">
@@ -346,9 +350,23 @@ export default function AdminDashboardPage() {
                                     </TableCell>
                                     <TableCell>{activityName}</TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="outline" size="sm" onClick={() => handleConfirmationEmail(reg)}>
-                                            <Mail className="mr-2 h-4 w-4" />
-                                            {t('Confirm Email', 'تأكيد البريد')}
+                                        <Button 
+                                            variant={isConfirmed ? "secondary" : "outline"}
+                                            size="sm" 
+                                            onClick={() => handleConfirmationEmail(reg)}
+                                            disabled={isConfirmed}
+                                        >
+                                            {isConfirmed ? (
+                                                <>
+                                                    <CheckCircle className="mr-2 h-4 w-4" />
+                                                    {t('Confirmed', 'تم التأكيد')}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Mail className="mr-2 h-4 w-4" />
+                                                    {t('Confirm Email', 'تأكيد البريد')}
+                                                </>
+                                            )}
                                         </Button>
                                     </TableCell>
                                 </TableRow>
@@ -401,6 +419,3 @@ export default function AdminDashboardPage() {
 
     </div>
   );
-}
-
-    
