@@ -129,15 +129,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (!response.ok) {
-            let errorMessage = `Welcome email server error: ${response.status}`;
+            let errorText = `Welcome email server error: ${response.status}`;
             try {
                 const errorBody = await response.text();
-                errorMessage = `${errorMessage} - ${errorBody || 'No response body'}`;
+                errorText = `${errorMessage} - ${errorBody || 'No response body'}`;
             } catch (e) {
-                // Ignore
+                // Ignore if parsing fails
             }
-            // We log this error but don't throw, as registration itself was successful.
-            console.error(errorMessage);
+            console.error(errorText); // Log this error but don't throw, as registration itself was successful.
         } else {
             const result = await response.json();
             if (result.success) {

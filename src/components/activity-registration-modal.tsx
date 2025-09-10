@@ -44,13 +44,6 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
     };
 
     try {
-      addRegistration({
-        name: registrationData.studentName,
-        email: registrationData.email,
-        activityId: activity.id,
-        photoURL: user?.photoURL || null,
-      });
-
       const emailPayload = {
         to: registrationData.email,
         parentName: registrationData.parentName,
@@ -68,9 +61,16 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         body: JSON.stringify({ type: 'confirmation', payload: emailPayload }),
       });
 
-       if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(errorText || `Server error: ${response.status}`);
+      if (!response.ok) {
+        let errorText = await response.text();
+        try {
+          // Try to parse as JSON to get a more structured error message.
+          const errorJson = JSON.parse(errorText);
+          errorText = errorJson.message || errorText;
+        } catch (e) {
+          // It's not JSON, just use the raw text.
+        }
+        throw new Error(`Server error (${response.status}): ${errorText}`);
       }
 
       const result = await response.json();
@@ -80,6 +80,14 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
       }
       
       console.log('Email send API result:', result.message);
+      
+      // Add registration to local data only after successful email.
+      addRegistration({
+        name: registrationData.studentName,
+        email: registrationData.email,
+        activityId: activity.id,
+        photoURL: user?.photoURL || null,
+      });
       
       setIsSubmitted(true);
       toast({
