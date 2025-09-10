@@ -9,10 +9,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/contexts/language-provider';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, MailWarning } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 import { useData } from '@/contexts/data-provider';
 import { useAuth } from '@/contexts/auth-provider';
+import { generateEmail } from '@/ai/flows/generate-email-flow';
 
 interface ActivityRegistrationModalProps {
   activity: Activity;
@@ -55,41 +56,18 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
     };
 
     try {
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'confirmation', payload: emailPayload }),
+      // 1. Generate the email content using the AI flow
+      const emailContent = await generateEmail({
+          type: 'confirmation',
+          language,
+          payload: emailPayload
       });
-
-      let result;
-      // Check if the response is ok, otherwise try to get error details
-      if (!response.ok) {
-          let errorText = `Server error (${response.status})`;
-          try {
-              // Try to parse the error response as JSON
-              const errorResult = await response.json();
-              errorText = errorResult.message || JSON.stringify(errorResult.errors) || errorText;
-          } catch (e) {
-              // If it's not JSON, read it as text
-              try {
-                  errorText = (await response.text()) || errorText;
-              } catch (textErr) {
-                 // Fallback if reading text also fails
-              }
-          }
-          throw new Error(errorText);
-      }
-
-      // If response is ok, parse the success result
-      result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.message || 'An unknown error occurred.');
-      }
       
-      console.log('Email send API result:', result.message);
-      
-      // Add registration to local data only after successful email.
+      // 2. Create and open the mailto link
+      const mailtoHref = `mailto:${emailContent.to}?subject=${encodeURIComponent(emailContent.subject)}&body=${encodeURIComponent(emailContent.body)}`;
+      window.open(mailtoHref, '_self');
+
+      // 3. Add registration to local data after user is prompted to send email.
       addRegistration({
         name: registrationData.studentName,
         email: registrationData.email,
@@ -97,6 +75,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         photoURL: user?.photoURL || null,
       });
       
+      // 4. Show success screen
       setIsSubmitted(true);
 
     } catch (error) {
@@ -104,7 +83,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         console.error("Registration failed:", e);
         toast({
             title: t("Registration Failed", "فشل التسجيل"),
-            description: e.message || t("Something went wrong. Please try again.", "حدث خطأ ما. يرجى المحاولة مرة أخرى."),
+            description: e.message || t("Could not generate email. Please try again.", "لم يتمكن من إنشاء البريد الإلكتروني. يرجى المحاولة مرة أخرى."),
             variant: "destructive",
         });
     } finally {
@@ -157,7 +136,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
                     {activity.cost && activity.cost > 0 && (
                         <div className="p-3 bg-muted/50 rounded-lg text-center">
                             <p className="font-semibold">{t('Total Cost', 'التكلفة الإجمالية')}: {activity.cost} {t('SAR', 'ر.س')}</p>
-                            <p className="text-xs text-muted-foreground">{t('Payment details will be sent via email.', 'سيتم إرسال تفاصيل الدفع عبر البريد الإلكتروني.')}</p>
+                            <p className="text-xs text-muted-foreground">{t('Payment details will be sent separately.', 'سيتم إرسال تفاصيل الدفع بشكل منفصل.')}</p>
                         </div>
                     )}
                 </div>
@@ -165,7 +144,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
               <DialogFooter className="pt-6">
                   <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>{t('Cancel', 'إلغاء')}</Button>
                   <Button type="submit" disabled={isLoading}>
-                  {isLoading ? t('Submitting...', 'جارٍ الإرسال...') : t('Confirm Registration', 'تأكيد التسجيل')}
+                  {isLoading ? t('Processing...', '...جارٍ التنفيذ') : t('Confirm Registration', 'تأكيد التسجيل')}
                   </Button>
               </DialogFooter>
             </form>
@@ -173,8 +152,12 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         ) : (
             <div className="flex flex-col items-center justify-center text-center p-8 space-y-4">
                 <CheckCircle className="h-16 w-16 text-green-500" />
-                <h2 className="text-2xl font-bold font-headline">{t('Registration Confirmed!', 'تم تأكيد التسجيل!')}</h2>
-                <p className="text-muted-foreground">{t('Thank you for registering for', 'شكرًا لتسجيلك في')} {title}. {t('A confirmation email has been sent.', 'تم إرسال رسالة تأكيد بالبريد الإلكتروني.')}</p>
+                <h2 className="text-2xl font-bold font-headline">{t('Registration Complete!', 'اكتمل التسجيل!')}</h2>
+                <p className="text-muted-foreground">{t('Your registration for', 'تسجيلك في')} {title} {t('is complete. Your email client should now open for you to send the confirmation.', 'قد اكتمل. يجب أن يفتح عميل البريد الإلكتروني لديك الآن لإرسال رسالة التأكيد.')}</p>
+                <div className="flex items-center gap-2 p-3 text-sm bg-yellow-100/50 text-yellow-800 border border-yellow-200/80 rounded-md">
+                    <MailWarning className="h-5 w-5 shrink-0"/>
+                    <span>{t('Please ensure you send the generated email.', 'يرجى التأكد من إرسال البريد الإلكتروني الذي تم إنشاؤه.')}</span>
+                </div>
                 <Button onClick={handleClose}>{t('Done', 'تم')}</Button>
             </div>
         )}

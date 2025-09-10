@@ -6,6 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
+import { generateEmail } from '@/ai/flows/generate-email-flow';
+import { useLanguage } from './language-provider';
 
 // Mock User type, mirrors Firebase User but simplified
 interface MockUser {
@@ -65,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
+  const { language } = useLanguage();
 
   useEffect(() => {
     // Simulate checking auth state on load
@@ -117,51 +120,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(newUser);
 
     try {
-        const response = await fetch('/api/send-email', {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              type: 'welcome',
-              payload: { to: email, name: name },
-            }),
+        const emailContent = await generateEmail({
+            type: 'welcome',
+            language: language,
+            payload: { name: name, to: email }
         });
-
-        // Robust error handling
-        if (!response.ok) {
-            let errorText = `Server error (${response.status})`;
-            try {
-                const errorResult = await response.json();
-                errorText = errorResult.message || JSON.stringify(errorResult.errors) || errorText;
-            } catch (e) {
-                try {
-                    errorText = (await response.text()) || errorText;
-                } catch (textErr) {
-                  // Fallback
-                }
-            }
-            throw new Error(errorText);
-        }
-        
-        const result = await response.json();
-
-        if (!result.success) {
-            // Log the error but don't prevent user login, as registration was successful
-            console.error('Failed to send welcome email:', result.message || 'Unknown error');
-        } else {
-            console.log('Welcome email API result:', result.message);
-        }
+        const mailtoHref = `mailto:${emailContent.to}?subject=${encodeURIComponent(emailContent.subject)}&body=${encodeURIComponent(emailContent.body)}`;
+        window.open(mailtoHref, '_self');
 
     } catch (error) {
         const e = error as Error;
-        // Log the error but don't block the user experience
-        console.error('Failed to call send welcome email API:', e.message);
+        // Log the error but don't block the user experience, as local registration was successful.
+        console.error('Failed to generate welcome email:', e.message);
     }
     
     toast({
       title: "Account Created!",
-      description: "You have been successfully registered. A welcome email is on its way.",
+      description: "Your email client should now open with a welcome message. Please send it to complete the process.",
     });
 
     if (isAdminUser) {
