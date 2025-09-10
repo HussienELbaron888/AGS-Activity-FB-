@@ -8,6 +8,7 @@
 
 import {ai} from '@/ai/genkit';
 import { GenerateEmailInput, GenerateEmailOutput, GenerateEmailInputSchema, GenerateEmailOutputSchema, WelcomeEmailPayloadSchema, ConfirmationEmailPayloadSchema } from '@/lib/types';
+import {z} from 'genkit';
 
 
 export async function generateEmail(input: GenerateEmailInput): Promise<GenerateEmailOutput> {
@@ -16,7 +17,11 @@ export async function generateEmail(input: GenerateEmailInput): Promise<Generate
 
 const prompt = ai.definePrompt({
   name: 'generateEmailPrompt',
-  input: {schema: GenerateEmailInputSchema},
+  input: {schema: z.object({
+    type: z.enum(['welcome', 'confirmation']),
+    language: z.enum(['en', 'ar']),
+    payloadString: z.string(),
+  })},
   output: {schema: GenerateEmailOutputSchema},
   prompt: `
     You are an expert email copywriter for a prestigious international school called "AGS Activities Hub".
@@ -34,7 +39,7 @@ const prompt = ai.definePrompt({
 
     Here is the data for the email:
     Type: {{type}}
-    Payload: {{{jsonStringify payload}}}
+    Payload: {{{payloadString}}}
   `,
 });
 
@@ -47,16 +52,18 @@ const generateEmailFlow = ai.defineFlow(
   async (input) => {
     let recipientEmail = '';
     
-    // This is a workaround to extract the email since it's not part of the prompt's direct output schema
+    // Extract the recipient's email before it gets stringified
     if ('to' in input.payload) {
       recipientEmail = (input.payload as any).to;
-    } else if (input.type === 'welcome') {
-      // The Welcome payload doesn't have a 'to' field. This is a logic error.
-      // Let's assume for now it's passed in the payload for welcome too.
-      recipientEmail = (input.payload as any).email || '';
     }
 
-    const {output} = await prompt(input);
+    const payloadString = JSON.stringify(input.payload);
+
+    const {output} = await prompt({
+        type: input.type,
+        language: input.language,
+        payloadString: payloadString,
+    });
 
     if (!output) {
         throw new Error("AI failed to generate email content.");
@@ -66,7 +73,8 @@ const generateEmailFlow = ai.defineFlow(
     return {
       subject: output.subject,
       body: output.body,
-      to: recipientEmail
+      to: recipientEmail || (input.payload as any).to, // Fallback for welcome email
     };
   }
 );
+
