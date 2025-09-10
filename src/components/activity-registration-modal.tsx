@@ -14,6 +14,8 @@ import { ScrollArea } from './ui/scroll-area';
 import { useData } from '@/contexts/data-provider';
 import { useAuth } from '@/contexts/auth-provider';
 import { generateEmail } from '@/ai/flows/generate-email-flow';
+import type { ConfirmationEmailPayloadSchema } from '@/lib/types';
+import type { z } from 'zod';
 
 interface ActivityRegistrationModalProps {
   activity: Activity;
@@ -44,7 +46,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         studentClass: formData.get('class') as string,
     };
 
-    const emailPayload = {
+    const emailPayload: z.infer<typeof ConfirmationEmailPayloadSchema> = {
       to: registrationData.email,
       parentName: registrationData.parentName,
       studentName: registrationData.studentName,

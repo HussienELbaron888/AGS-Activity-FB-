@@ -1,5 +1,7 @@
 
 
+import {z} from 'genkit';
+
 export type ActivityCategory = 'Paid' | 'Free' | 'Trip' | 'Event';
 
 export interface Activity {
@@ -67,18 +69,34 @@ export interface TalentedStudent {
 
 
 // Specific types for email payloads
-export interface WelcomeEmailInput {
-  to: string;
-  name: string;
-}
+export const WelcomeEmailPayloadSchema = z.object({
+  name: z.string().describe('The name of the new user.'),
+  to: z.string().email().describe('The email of the new user.'),
+});
 
-export interface ConfirmationEmailInput {
-  to: string;
-  parentName: string;
-  studentName: string;
-  activityTitle: string;
-  activityDate: string;
-  activityTime: string;
-  activityLocation: string;
-  cost?: number;
-}
+export const ConfirmationEmailPayloadSchema = z.object({
+  parentName: z.string().describe("The name of the parent registering."),
+  studentName: z.string().describe("The name of the student being registered."),
+  activityTitle: z.string().describe("The title of the activity."),
+  activityDate: z.string().describe("The date of the activity."),
+  activityTime: z.string().describe("The time of the activity."),
+  activityLocation: z.string().describe("The location of the activity."),
+  cost: z.number().optional().describe("The cost of the activity in SAR. If 0 or undefined, it's free."),
+  to: z.string().email().describe("The recipient's email address (the parent's email)."),
+});
+
+
+export const GenerateEmailInputSchema = z.object({
+  type: z.enum(['welcome', 'confirmation']),
+  language: z.enum(['en', 'ar']).describe("The language for the email content."),
+  payload: z.union([WelcomeEmailPayloadSchema, ConfirmationEmailPayloadSchema]),
+});
+
+export type GenerateEmailInput = z.infer<typeof GenerateEmailInputSchema>;
+
+export const GenerateEmailOutputSchema = z.object({
+  subject: z.string().describe('The generated email subject line.'),
+  body: z.string().describe('The generated email body in HTML format.'),
+  to: z.string().email().describe('The recipient email address.'),
+});
+export type GenerateEmailOutput = z.infer<typeof GenerateEmailOutputSchema>;

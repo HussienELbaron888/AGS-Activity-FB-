@@ -8,6 +8,9 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { generateEmail } from '@/ai/flows/generate-email-flow';
 import { useLanguage } from './language-provider';
+import type { z } from 'zod';
+import type { WelcomeEmailPayloadSchema } from '@/lib/types';
+
 
 // Mock User type, mirrors Firebase User but simplified
 interface MockUser {
@@ -120,10 +123,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(newUser);
 
     try {
+        const welcomePayload: z.infer<typeof WelcomeEmailPayloadSchema> = {
+            name: name,
+            to: email,
+        };
         const emailContent = await generateEmail({
             type: 'welcome',
             language: language,
-            payload: { name: name, to: email }
+            payload: welcomePayload,
         });
         const mailtoHref = `mailto:${emailContent.to}?subject=${encodeURIComponent(emailContent.subject)}&body=${encodeURIComponent(emailContent.body)}`;
         window.open(mailtoHref, '_self');
