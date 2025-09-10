@@ -6,9 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
-import { generateEmail } from '@/ai/flows/generate-email-flow';
 import { useLanguage } from './language-provider';
-import type { WelcomeEmailPayload } from '@/lib/types';
 
 
 // Mock User type, mirrors Firebase User but simplified
@@ -69,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
-  const { language } = useLanguage();
+  const { t } = useLanguage();
 
   useEffect(() => {
     // Simulate checking auth state on load
@@ -120,31 +118,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Log in the new user immediately
     localStorage.setItem('loggedInUser', email);
     setUser(newUser);
-
-    try {
-        const welcomePayload: WelcomeEmailPayload = {
-            name: name,
-            to: email,
-        };
-        const emailContent = await generateEmail({
-            type: 'welcome',
-            language: language,
-            payload: welcomePayload,
-        });
-        
-        const decodedBody = new DOMParser().parseFromString(emailContent.body, "text/html").documentElement.textContent;
-        const mailtoHref = `mailto:${emailContent.to}?subject=${encodeURIComponent(emailContent.subject)}&body=${encodeURIComponent(decodedBody || '')}`;
-        window.open(mailtoHref, '_blank');
-
-    } catch (error) {
-        const e = error as Error;
-        // Log the error but don't block the user experience, as local registration was successful.
-        console.error('Failed to generate welcome email:', e.message);
-    }
     
     toast({
-      title: "Account Created!",
-      description: "Please check your email client and send the generated welcome message.",
+      title: t("Account Created!", "!تم إنشاء الحساب"),
+      description: t("You have successfully registered.", ".لقد سجلت بنجاح"),
     });
 
     if (isAdminUser) {

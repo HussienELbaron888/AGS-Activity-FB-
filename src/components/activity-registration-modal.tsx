@@ -9,12 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/contexts/language-provider';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, MailWarning } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 import { useData } from '@/contexts/data-provider';
 import { useAuth } from '@/contexts/auth-provider';
-import { generateEmail } from '@/ai/flows/generate-email-flow';
-import type { ConfirmationEmailPayload } from '@/lib/types';
 
 interface ActivityRegistrationModalProps {
   activity: Activity;
@@ -45,26 +43,8 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         studentClass: formData.get('class') as string,
     };
 
-    const emailPayload: ConfirmationEmailPayload = {
-      to: registrationData.email,
-      parentName: registrationData.parentName,
-      studentName: registrationData.studentName,
-      activityTitle: title,
-      activityDate: activity.date,
-      activityTime: activity.time,
-      activityLocation: language === 'en' ? activity.location : activity.locationAr,
-      cost: activity.cost,
-    };
-
     try {
-      // 1. Generate the email content using the flow
-      const emailContent = await generateEmail({
-          type: 'confirmation',
-          language,
-          payload: emailPayload
-      });
-      
-      // 2. Add registration to local data.
+      // Add registration to local data. This is the core action.
        addRegistration({
         name: registrationData.studentName,
         email: registrationData.email,
@@ -72,13 +52,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         photoURL: user?.photoURL || null,
       });
 
-      // 3. Create and open the mailto link in a new tab
-      // The body needs to be decoded first, then re-encoded for the mailto link
-      const decodedBody = new DOMParser().parseFromString(emailContent.body, "text/html").documentElement.textContent;
-      const mailtoHref = `mailto:${emailContent.to}?subject=${encodeURIComponent(emailContent.subject)}&body=${encodeURIComponent(decodedBody || '')}`;
-      window.open(mailtoHref, '_blank');
-      
-      // 4. Show success screen
+      // Show success screen
       setIsSubmitted(true);
 
     } catch (error) {
@@ -86,7 +60,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         console.error("Registration failed:", e);
         toast({
             title: t("Registration Failed", "فشل التسجيل"),
-            description: e.message || t("Could not generate email. Please try again.", "لم يتمكن من إنشاء البريد الإلكتروني. يرجى المحاولة مرة أخرى."),
+            description: e.message || t("An unexpected error occurred.", "حدث خطأ غير متوقع."),
             variant: "destructive",
         });
     } finally {
@@ -96,6 +70,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
   
   const handleClose = () => {
     onOpenChange(false);
+    // Reset state after the dialog closes
     setTimeout(() => {
         setIsSubmitted(false);
         setIsLoading(false);
@@ -110,7 +85,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
             <DialogHeader>
                 <DialogTitle className="font-headline text-2xl">{t('Register for', 'التسجيل في')}: {title}</DialogTitle>
                 <DialogDescription>
-                {t('Please fill out the form below to register. You will be asked to send a confirmation email from your own mail client.', 'يرجى ملء النموذج أدناه للتسجيل. سيُطلب منك إرسال بريد إلكتروني للتأكيد من عميل البريد الخاص بك.')}
+                {t('Please fill out the form below to register.', 'يرجى ملء النموذج أدناه للتسجيل.')}
                 </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit}>
@@ -147,7 +122,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
               <DialogFooter className="pt-6">
                   <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>{t('Cancel', 'إلغاء')}</Button>
                   <Button type="submit" disabled={isLoading}>
-                  {isLoading ? t('Processing...', '...جارٍ التنفيذ') : t('Open Email to Confirm', 'افتح البريد للتأكيد')}
+                  {isLoading ? t('Processing...', '...جارٍ التنفيذ') : t('Register', 'تسجيل')}
                   </Button>
               </DialogFooter>
             </form>
@@ -155,12 +130,8 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         ) : (
             <div className="flex flex-col items-center justify-center text-center p-8 space-y-4">
                 <CheckCircle className="h-16 w-16 text-green-500" />
-                <h2 className="text-2xl font-bold font-headline">{t('Registration Submitted!', 'تم تقديم التسجيل!')}</h2>
-                <p className="text-muted-foreground">{t('Your registration for', 'تسجيلك في')} {title} {t('has been submitted. Please check your email client.', 'قد تم تقديمه. يرجى التحقق من عميل البريد الإلكتروني الخاص بك.')}</p>
-                <div className="flex items-center gap-3 p-3 text-sm bg-yellow-100/50 text-yellow-800 border border-yellow-200/80 rounded-md">
-                    <MailWarning className="h-5 w-5 shrink-0"/>
-                    <span>{t('Important: You must now click "Send" in the email draft that has been opened to complete your confirmation.', 'هام: يجب عليك الآن الضغط على "إرسال" في مسودة البريد الإلكتروني التي تم فتحها لإكمال تأكيدك.')}</span>
-                </div>
+                <h2 className="text-2xl font-bold font-headline">{t('Registration Successful!', 'تم التسجيل بنجاح!')}</h2>
+                <p className="text-muted-foreground">{t('Your registration for', 'تسجيلك في')} {title} {t('has been confirmed. You will receive payment details soon if applicable.', 'قد تم تأكيده. ستصلك تفاصيل الدفع قريبًا إن وجدت.')}</p>
                 <Button onClick={handleClose}>{t('Done', 'تم')}</Button>
             </div>
         )}
