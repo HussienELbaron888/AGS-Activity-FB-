@@ -73,6 +73,8 @@ export const WelcomeEmailPayloadSchema = z.object({
   name: z.string().describe('The name of the new user.'),
   to: z.string().email().describe('The email of the new user.'),
 });
+export type WelcomeEmailPayload = z.infer<typeof WelcomeEmailPayloadSchema>;
+
 
 export const ConfirmationEmailPayloadSchema = z.object({
   parentName: z.string().describe("The name of the parent registering."),
@@ -84,6 +86,7 @@ export const ConfirmationEmailPayloadSchema = z.object({
   cost: z.number().optional().describe("The cost of the activity in SAR. If 0 or undefined, it's free."),
   to: z.string().email().describe("The recipient's email address (the parent's email)."),
 });
+export type ConfirmationEmailPayload = z.infer<typeof ConfirmationEmailPayloadSchema>;
 
 
 export const GenerateEmailInputSchema = z.object({

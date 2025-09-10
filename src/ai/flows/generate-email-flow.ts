@@ -1,80 +1,110 @@
 
 'use server';
 /**
- * @fileOverview An AI flow to generate email content.
+ * @fileOverview A flow to generate email content using hardcoded templates.
+ * This is a temporary solution to bypass a suspended API key issue.
  *
  * - generateEmail - A function that generates email subject and body.
  */
 
-import {ai} from '@/ai/genkit';
-import { GenerateEmailInput, GenerateEmailOutput, GenerateEmailInputSchema, GenerateEmailOutputSchema, WelcomeEmailPayloadSchema, ConfirmationEmailPayloadSchema } from '@/lib/types';
-import {z} from 'genkit';
+import type { GenerateEmailInput, GenerateEmailOutput, WelcomeEmailPayload, ConfirmationEmailPayload } from '@/lib/types';
+import { z } from 'genkit';
 
+// --- English Templates ---
+const enTemplates = {
+  welcome: {
+    subject: "Welcome to AGS Activities Hub!",
+    body: (payload: WelcomeEmailPayload) => `
+      <h1>Hi ${payload.name},</h1>
+      <p>Welcome to the AGS Activities Hub! We're thrilled to have you with us.</p>
+      <p>You can now browse and register for all our exciting school activities, events, and trips.</p>
+      <br/>
+      <p>Thank you!</p>
+      <p><strong>AGS Activities Hub</strong></p>
+    `,
+  },
+  confirmation: {
+    subject: (payload: ConfirmationEmailPayload) => `Confirmation for ${payload.activityTitle}`,
+    body: (payload: ConfirmationEmailPayload) => `
+      <p>Dear ${payload.parentName},</p>
+      <p>Thank you for registering your child, <strong>${payload.studentName}</strong>, for the upcoming activity.</p>
+      
+      <h3>Registration Details:</h3>
+      <ul>
+        <li><strong>Activity:</strong> ${payload.activityTitle}</li>
+        <li><strong>Date:</strong> ${payload.activityDate}</li>
+        <li><strong>Time:</strong> ${payload.activityTime}</li>
+        <li><strong>Location:</strong> ${payload.activityLocation}</li>
+        <li><strong>Cost:</strong> ${payload.cost && payload.cost > 0 ? `${payload.cost} SAR` : 'Free'}</li>
+      </ul>
+      
+      ${payload.cost && payload.cost > 0 ? '<p>Payment details will be sent to you in a separate email. Please ensure payment is made to confirm your spot.</p>' : ''}
+      
+      <p>We look forward to seeing you there!</p>
+      <br/>
+      <p>Thank you!</p>
+      <p><strong>AGS Activities Hub</strong></p>
+    `,
+  },
+};
+
+// --- Arabic Templates ---
+const arTemplates = {
+    welcome: {
+      subject: "أهلاً بك في منصة أنشطة مدارس الأجيال المتطورة!",
+      body: (payload: WelcomeEmailPayload) => `
+        <h1 style="text-align: right;">مرحباً ${payload.name},</h1>
+        <p style="text-align: right;">أهلاً بك في منصة أنشطة مدارس الأجيال المتطورة! يسعدنا انضمامك إلينا.</p>
+        <p style="text-align: right;">يمكنك الآن تصفح جميع أنشطتنا وفعالياتنا ورحلاتنا المدرسية المثيرة والتسجيل فيها.</p>
+        <br/>
+        <p style="text-align: right;">شكراً لك!</p>
+        <p style="text-align: right;"><strong>منصة أنشطة مدارس الأجيال المتطورة</strong></p>
+      `,
+    },
+    confirmation: {
+      subject: (payload: ConfirmationEmailPayload) => `تأكيد التسجيل في ${payload.activityTitle}`,
+      body: (payload: ConfirmationEmailPayload) => `
+        <p style="text-align: right;">عزيزي ولي الأمر ${payload.parentName},</p>
+        <p style="text-align: right;">نشكركم على تسجيل ابنكم/ابنتكم، <strong>${payload.studentName}</strong>, في النشاط القادم.</p>
+        
+        <h3 style="text-align: right;">تفاصيل التسجيل:</h3>
+        <ul style="text-align: right; padding-right: 20px;">
+          <li><strong>النشاط:</strong> ${payload.activityTitle}</li>
+          <li><strong>التاريخ:</strong> ${payload.activityDate}</li>
+          <li><strong>الوقت:</strong> ${payload.activityTime}</li>
+          <li><strong>الموقع:</strong> ${payload.activityLocation}</li>
+          <li><strong>التكلفة:</strong> ${payload.cost && payload.cost > 0 ? `${payload.cost} ر.س` : 'مجاني'}</li>
+        </ul>
+        
+        ${payload.cost && payload.cost > 0 ? '<p style="text-align: right;">سيتم إرسال تفاصيل الدفع في رسالة منفصلة. يرجى التأكد من إتمام الدفع لتأكيد مكانكم.</p>' : ''}
+        
+        <p style="text-align: right;">نتطلع لرؤيتكم هناك!</p>
+        <br/>
+        <p style="text-align: right;">شكراً لكم!</p>
+        <p style="text-align: right;"><strong>منصة أنشطة مدارس الأجيال المتطورة</strong></p>
+      `,
+    },
+  };
 
 export async function generateEmail(input: GenerateEmailInput): Promise<GenerateEmailOutput> {
-  return generateEmailFlow(input);
-}
+  const templates = input.language === 'ar' ? arTemplates : enTemplates;
+  let subject = '';
+  let body = '';
+  let to = '';
 
-const prompt = ai.definePrompt({
-  name: 'generateEmailPrompt',
-  input: {schema: z.object({
-    type: z.enum(['welcome', 'confirmation']),
-    language: z.enum(['en', 'ar']),
-    payloadString: z.string(),
-  })},
-  output: {schema: GenerateEmailOutputSchema},
-  prompt: `
-    You are an expert email copywriter for a prestigious international school called "AGS Activities Hub".
-    Your task is to generate a polite, professional, and well-formatted HTML email based on the requested type and payload.
-    The language for the email must be {{language}}.
-
-    If the type is 'welcome', use the WelcomeEmailPayloadSchema. The recipient is the new user.
-    If the type is 'confirmation', use the ConfirmationEmailPayloadSchema. The recipient is the parent.
-
-    When generating the HTML body, use basic inline styles for professional formatting (e.g., <p>, <strong>, <ul>, <li>).
-    The tone should be warm and welcoming. Start the confirmation email by addressing the parent.
-    For confirmation emails, clearly list all the activity details in a list.
-    If the cost is provided and is greater than 0, mention that payment details will be sent separately. If it's free, state that clearly.
-    End the email with "Thank you!" and "AGS Activities Hub".
-
-    Here is the data for the email:
-    Type: {{type}}
-    Payload: {{{payloadString}}}
-  `,
-});
-
-const generateEmailFlow = ai.defineFlow(
-  {
-    name: 'generateEmailFlow',
-    inputSchema: GenerateEmailInputSchema,
-    outputSchema: GenerateEmailOutputSchema,
-  },
-  async (input) => {
-    let recipientEmail = '';
-    
-    // Extract the recipient's email before it gets stringified
-    if ('to' in input.payload) {
-      recipientEmail = (input.payload as any).to;
-    }
-
-    const payloadString = JSON.stringify(input.payload);
-
-    const {output} = await prompt({
-        type: input.type,
-        language: input.language,
-        payloadString: payloadString,
-    });
-
-    if (!output) {
-        throw new Error("AI failed to generate email content.");
-    }
-    
-    // Add the recipient's email to the final output, as it's needed by the client.
-    return {
-      subject: output.subject,
-      body: output.body,
-      to: recipientEmail || (input.payload as any).to, // Fallback for welcome email
-    };
+  if (input.type === 'welcome') {
+    const payload = input.payload as WelcomeEmailPayload;
+    subject = templates.welcome.subject;
+    body = templates.welcome.body(payload);
+    to = payload.to;
+  } else if (input.type === 'confirmation') {
+    const payload = input.payload as ConfirmationEmailPayload;
+    subject = templates.confirmation.subject(payload);
+    body = templates.confirmation.body(payload);
+    to = payload.to;
+  } else {
+    throw new Error('Invalid email type specified.');
   }
-);
 
+  return { subject, body, to };
+}
