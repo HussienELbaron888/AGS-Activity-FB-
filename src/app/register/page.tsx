@@ -39,8 +39,8 @@ export default function RegisterPage() {
     try {
       const fullName = `${firstName} ${lastName}`.trim();
       // With mock auth, password is not used.
-      register(fullName, email);
-      // The provider will handle redirect.
+      await register(fullName, email);
+      // The provider will handle redirect and toast.
     } catch (error: any) {
       toast({
         title: "Registration Failed",

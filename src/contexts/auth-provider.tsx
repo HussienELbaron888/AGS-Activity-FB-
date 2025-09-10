@@ -5,6 +5,8 @@ import React, { createContext, useContext, useState, useEffect, useMemo } from '
 import { usePathname, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
+import { sendWelcomeEmail } from '@/ai/flows/send-welcome-email-flow';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock User type, mirrors Firebase User but simplified
 interface MockUser {
@@ -46,7 +48,6 @@ const AuthLoadingScreen = () => (
 );
 
 // This is a temporary, insecure mock user storage.
-// Replace with real authentication once API key issue is resolved.
 const getMockUsers = () => {
   if (typeof window === 'undefined') return {};
   const users = localStorage.getItem('mockUsers');
@@ -64,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Simulate checking auth state on load
@@ -97,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = (name: string, email: string, isAdminUser = false) => {
+  const register = async (name: string, email: string, isAdminUser = false) => {
     const users = getMockUsers();
     if (users[email]) {
       throw new Error("User already exists.");
@@ -114,6 +116,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Log in the new user immediately
     localStorage.setItem('loggedInUser', email);
     setUser(newUser);
+
+    // Send welcome email (fire and forget)
+    sendWelcomeEmail({ to: email, name: name })
+      .then(result => console.log('Welcome email result:', result.message))
+      .catch(error => console.error('Failed to send welcome email:', error));
+    
+    toast({
+      title: "Account Created!",
+      description: "You have been successfully registered. A welcome email is on its way.",
+    });
 
     if (isAdminUser) {
         router.push('/admin');

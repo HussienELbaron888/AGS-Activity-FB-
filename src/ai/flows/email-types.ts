@@ -8,9 +8,9 @@
 
 import { z } from 'zod';
 
-// Input schema for the email flow
+// Input schema for the activity confirmation email flow
 export const ConfirmationEmailInputSchema = z.object({
-  to: z.string().email().describe('The recipient\'s email address.'),
+  to: z.string().email().describe("The recipient's email address."),
   parentName: z.string().describe('The name of the parent.'),
   studentName: z.string().describe('The name of the student.'),
   activityTitle: z.string().describe('The title of the activity.'),
@@ -21,9 +21,17 @@ export const ConfirmationEmailInputSchema = z.object({
 });
 export type ConfirmationEmailInput = z.infer<typeof ConfirmationEmailInputSchema>;
 
-// Output schema for the email flow
-export const ConfirmationEmailOutputSchema = z.object({
+// Input schema for the welcome email flow
+export const WelcomeEmailInputSchema = z.object({
+  to: z.string().email().describe("The recipient's email address."),
+  name: z.string().describe('The name of the new user.'),
+});
+export type WelcomeEmailInput = z.infer<typeof WelcomeEmailInputSchema>;
+
+
+// Generic output schema for all email flows
+export const EmailOutputSchema = z.object({
   success: z.boolean().describe('Whether the email was sent successfully.'),
   message: z.string().describe('A message indicating the status of the email sending process.'),
 });
-export type ConfirmationEmailOutput = z.infer<typeof ConfirmationEmailOutputSchema>;
+export type EmailOutput = z.infer<typeof EmailOutputSchema>;
