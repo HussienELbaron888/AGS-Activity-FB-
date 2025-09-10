@@ -26,14 +26,38 @@ function generateMailtoBody(content: string): string {
 export const EmailTemplates = {
   welcome: {
     en: (args: WelcomeEmailTemplateArgs) => {
-      const html = `Hi ${args.userName},<br><br>Welcome to the AGS Activities Hub! We're thrilled to have you with us.<br>You can now browse and register for all our exciting school activities, events, and trips.<br><br>Thank you,<br>The AGS Activities Team`;
+      const html = `
+        <div style="direction: ltr;">
+          <p>Hi ${args.userName},</p>
+          <p>Welcome to the AGS Activities Hub! We're thrilled to have you with us. You can now browse and register for all our exciting school activities, events, and trips.</p>
+          <p>Thank you,<br>The AGS Activities Team</p>
+        </div>
+        <hr style="margin: 20px 0;">
+        <div style="direction: rtl; text-align: right;">
+          <p>مرحباً ${args.userName}،</p>
+          <p>أهلاً بك في ${APP_NAME_AR}! يسعدنا انضمامك إلينا. يمكنك الآن تصفح جميع أنشطتنا وفعالياتنا ورحلاتنا المدرسية المثيرة والتسجيل فيها.</p>
+          <p>شكراً لك،<br>فريق أنشطة مدارس الأجيال المتطورة</p>
+        </div>
+      `;
       return {
         subject: "Welcome to AGS Activities Hub!",
         body: generateMailtoBody(html),
       }
     },
     ar: (args: WelcomeEmailTemplateArgs) => {
-      const html = `مرحباً ${args.userName},<br><br>أهلاً بك في ${APP_NAME_AR}! يسعدنا انضمامك إلينا.<br>يمكنك الآن تصفح جميع أنشطتنا وفعالياتنا ورحلاتنا المدرسية المثيرة والتسجيل فيها.<br><br>شكراً لك،<br>فريق أنشطة مدارس الأجيال المتطورة`;
+      const html = `
+        <div style="direction: rtl; text-align: right;">
+          <p>مرحباً ${args.userName}،</p>
+          <p>أهلاً بك في ${APP_NAME_AR}! يسعدنا انضمامك إلينا. يمكنك الآن تصفح جميع أنشطتنا وفعالياتنا ورحلاتنا المدرسية المثيرة والتسجيل فيها.</p>
+          <p>شكراً لك،<br>فريق أنشطة مدارس الأجيال المتطورة</p>
+        </div>
+        <hr style="margin: 20px 0;">
+        <div style="direction: ltr;">
+          <p>Hi ${args.userName},</p>
+          <p>Welcome to the AGS Activities Hub! We're thrilled to have you with us. You can now browse and register for all our exciting school activities, events, and trips.</p>
+          <p>Thank you,<br>The AGS Activities Team</p>
+        </div>
+      `;
       return {
         subject: `أهلاً بك في ${APP_NAME_AR}!`,
         body: generateMailtoBody(html),
@@ -42,14 +66,86 @@ export const EmailTemplates = {
   },
   confirmation: {
     en: (args: ConfirmationEmailTemplateArgs) => {
-        const html = `Dear ${args.parentName},<br><br>Thank you for registering your child, ${args.studentName}, for an upcoming activity.<br><br><strong>Registration Details:</strong><br>- Activity: ${args.activityTitle}<br>- Date: ${args.activityDate}<br>- Time: ${args.activityTime}<br>- Location: ${args.activityLocation}<br>- Cost: ${args.cost && args.cost > 0 ? `${args.cost} SAR` : 'Free'}<br><br>${args.cost && args.cost > 0 ? 'Please note: Payment details will be sent to you separately. Your spot is confirmed upon payment.' : ''}<br><br>We look forward to seeing you there!<br><br>Thank you,<br>The AGS Activities Team`;
+        const html = `
+            <div style="direction: ltr;">
+                <p>Dear ${args.parentName},</p>
+                <p>Thank you for registering your child, <strong>${args.studentName}</strong>, for an upcoming activity.</p>
+                <br>
+                <p><strong>Registration Details:</strong></p>
+                <ul>
+                    <li>Activity: ${args.activityTitle}</li>
+                    <li>Date: ${args.activityDate}</li>
+                    <li>Time: ${args.activityTime}</li>
+                    <li>Location: ${args.activityLocation}</li>
+                    <li>Cost: ${args.cost && args.cost > 0 ? `${args.cost} SAR` : 'Free'}</li>
+                </ul>
+                <p>${args.cost && args.cost > 0 ? 'Please note: Payment details will be sent to you separately. Your spot is confirmed upon payment.' : ''}</p>
+                <p>We look forward to seeing you there!</p>
+                <br>
+                <p>Thank you,<br>The AGS Activities Team</p>
+            </div>
+            <hr style="margin: 20px 0;">
+            <div style="direction: rtl; text-align: right;">
+                <p>عزيزي ولي الأمر ${args.parentName}،</p>
+                <p>نشكركم على تسجيل ابنكم/ابنتكم، <strong>${args.studentName}</strong>، في النشاط القادم.</p>
+                <br>
+                <p><strong>تفاصيل التسجيل:</strong></p>
+                <ul>
+                    <li>النشاط: ${args.activityTitle}</li>
+                    <li>التاريخ: ${args.activityDate}</li>
+                    <li>الوقت: ${args.activityTime}</li>
+                    <li>الموقع: ${args.activityLocation}</li>
+                    <li>التكلفة: ${args.cost && args.cost > 0 ? `${args.cost} ر.س` : 'مجاني'}</li>
+                </ul>
+                <p>${args.cost && args.cost > 0 ? 'ملاحظة: سيتم إرسال تفاصيل الدفع في رسالة منفصلة. يتم تأكيد مكانكم عند إتمام الدفع.' : ''}</p>
+                <p>نتطلع لرؤيتكم هناك!</p>
+                <br>
+                <p>شكراً لكم،<br>فريق أنشطة مدارس الأجيال المتطورة</p>
+            </div>
+        `;
         return {
             subject: `Confirmation for ${args.activityTitle}`,
             body: generateMailtoBody(html)
         }
     },
     ar: (args: ConfirmationEmailTemplateArgs) => {
-        const html = `عزيزي ولي الأمر ${args.parentName},<br><br>نشكركم على تسجيل ابنكم/ابنتكم، ${args.studentName}, في النشاط القادم.<br><br><strong>تفاصيل التسجيل:</strong><br>- النشاط: ${args.activityTitle}<br>- التاريخ: ${args.activityDate}<br>- الوقت: ${args.activityTime}<br>- الموقع: ${args.activityLocation}<br>- التكلفة: ${args.cost && args.cost > 0 ? `${args.cost} ر.س` : 'مجاني'}<br><br>${args.cost && args.cost > 0 ? 'ملاحظة: سيتم إرسال تفاصيل الدفع في رسالة منفصلة. يتم تأكيد مكانكم عند إتمام الدفع.' : ''}<br><br>نتطلع لرؤيتكم هناك!<br><br>شكراً لكم،<br>فريق أنشطة مدارس الأجيال المتطورة`;
+        const html = `
+            <div style="direction: rtl; text-align: right;">
+                <p>عزيزي ولي الأمر ${args.parentName}،</p>
+                <p>نشكركم على تسجيل ابنكم/ابنتكم، <strong>${args.studentName}</strong>، في النشاط القادم.</p>
+                <br>
+                <p><strong>تفاصيل التسجيل:</strong></p>
+                <ul>
+                    <li>النشاط: ${args.activityTitle}</li>
+                    <li>التاريخ: ${args.activityDate}</li>
+                    <li>الوقت: ${args.activityTime}</li>
+                    <li>الموقع: ${args.activityLocation}</li>
+                    <li>التكلفة: ${args.cost && args.cost > 0 ? `${args.cost} ر.س` : 'مجاني'}</li>
+                </ul>
+                <p>${args.cost && args.cost > 0 ? 'ملاحظة: سيتم إرسال تفاصيل الدفع في رسالة منفصلة. يتم تأكيد مكانكم عند إتمام الدفع.' : ''}</p>
+                <p>نتطلع لرؤيتكم هناك!</p>
+                <br>
+                <p>شكراً لكم،<br>فريق أنشطة مدارس الأجيال المتطورة</p>
+            </div>
+            <hr style="margin: 20px 0;">
+            <div style="direction: ltr;">
+                <p>Dear ${args.parentName},</p>
+                <p>Thank you for registering your child, <strong>${args.studentName}</strong>, for an upcoming activity.</p>
+                <br>
+                <p><strong>Registration Details:</strong></p>
+                <ul>
+                    <li>Activity: ${args.activityTitle}</li>
+                    <li>Date: ${args.activityDate}</li>
+                    <li>Time: ${args.activityTime}</li>
+                    <li>Location: ${args.activityLocation}</li>
+                    <li>Cost: ${args.cost && args.cost > 0 ? `${args.cost} SAR` : 'Free'}</li>
+                </ul>
+                <p>${args.cost && args.cost > 0 ? 'Please note: Payment details will be sent to you separately. Your spot is confirmed upon payment.' : ''}</p>
+                <p>We look forward to seeing you there!</p>
+                <br>
+                <p>Thank you,<br>The AGS Activities Team</p>
+            </div>
+        `;
         return {
             subject: `تأكيد التسجيل في: ${args.activityTitle}`,
             body: generateMailtoBody(html)
