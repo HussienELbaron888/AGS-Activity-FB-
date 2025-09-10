@@ -40,35 +40,21 @@ const sendConfirmationEmailFlow = ai.defineFlow(
   async (input) => {
     const resendApiKey = process.env.RESEND_API_KEY;
 
-    if (!resendApiKey) {
-        console.error('Resend API key is not configured. Set RESEND_API_KEY in your .env file.');
+    console.log('--- Email Flow Started ---');
+
+    if (!resendApiKey || resendApiKey.trim() === '') {
+        console.error('[EMAIL FLOW ERROR] RESEND_API_KEY is not configured or is empty.');
+        console.log('--- Email Flow Ended with Error ---');
         return {
             success: false,
-            message: 'Email service is not configured on the server. Please contact support.',
+            message: 'Email service is not configured on the server. API key is missing.',
         };
     }
 
+    console.log('[EMAIL FLOW INFO] Resend API Key found.');
+
     const resend = new Resend(resendApiKey);
 
-    const emailBody = `
-        Dear ${input.parentName},
-
-        Thank you for registering your child, ${input.studentName}, for the upcoming activity:
-
-        Activity: ${input.activityTitle}
-        Date: ${input.activityDate}
-        Time: ${input.activityTime}
-        Location: ${input.activityLocation}
-        Cost: ${input.cost ? `${input.cost} SAR` : 'Free'}
-
-        ${input.cost && input.cost > 0 ? 'Payment instructions will be sent in a separate email.' : ''}
-        
-        We look forward to seeing ${input.studentName} there!
-
-        Best regards,
-        AGS Activities Hub
-    `;
-    
     const emailHtmlBody = `
         <div style="font-family: Arial, sans-serif; line-height: 1.6;">
             <p>Dear ${input.parentName},</p>
@@ -86,27 +72,32 @@ const sendConfirmationEmailFlow = ai.defineFlow(
         </div>
     `;
 
+    const payload = {
+        from: 'AGS Activities Hub <noreply@ags-activities.com>',
+        to: [input.to],
+        subject: `Confirmation for ${input.activityTitle}`,
+        html: emailHtmlBody,
+        text: `Dear ${input.parentName},\n\nThank you for registering your child, ${input.studentName}, for the upcoming activity: Activity: ${input.activityTitle}, Date: ${input.activityDate}, Time: ${input.activityTime}, Location: ${input.activityLocation}, Cost: ${input.cost ? `${input.cost} SAR` : 'Free'}.\n\nWe look forward to seeing ${input.studentName} there!\n\nBest regards,\nAGS Activities Hub`
+    };
+
     try {
-        console.log(`Attempting to send email from: noreply@ags-activities.com to: ${input.to}`);
-        const { data, error } = await resend.emails.send({
-            from: 'AGS Activities Hub <noreply@ags-activities.com>',
-            to: [input.to],
-            subject: `Confirmation for ${input.activityTitle}`,
-            text: emailBody,
-            html: emailHtmlBody,
-        });
+        console.log('[EMAIL FLOW INFO] Attempting to send email with payload:', JSON.stringify(payload, null, 2));
+        const { data, error } = await resend.emails.send(payload);
 
         if (error) {
-            console.error('Resend API error response:', JSON.stringify(error, null, 2));
+            console.error('[EMAIL FLOW ERROR] Resend API returned an error:', JSON.stringify(error, null, 2));
+            console.log('--- Email Flow Ended with API Error ---');
             return { success: false, message: `Failed to send email: ${error.message}` };
         }
 
-        console.log('Email sent successfully:', data);
+        console.log('[EMAIL FLOW SUCCESS] Email sent successfully. Response:', JSON.stringify(data, null, 2));
+        console.log('--- Email Flow Ended Successfully ---');
         return { success: true, message: `Email successfully sent to ${input.to}.` };
 
     } catch (e) {
+        console.error('[EMAIL FLOW CRITICAL] An unexpected exception occurred:', e);
         const error = e as Error;
-        console.error('An unexpected exception occurred while sending email:', error);
+        console.log('--- Email Flow Ended with Exception ---');
         return { success: false, message: `An unexpected error occurred: ${error.message}` };
     }
   }
