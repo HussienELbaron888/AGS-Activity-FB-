@@ -114,14 +114,14 @@ export default function AdminDashboardPage() {
     return language === 'en' ? activity.title : activity.titleAr;
   };
   
-  const generateMailtoLink = (to: string, subject: string, body: string) => {
-    return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const generateMailtoLink = (to: string, body: string) => {
+    return `mailto:${to}?body=${encodeURIComponent(body)}`;
   };
   
   const handleWelcomeEmail = (user: { displayName: string | null; email: string | null; }) => {
     if (!user.email || !user.displayName) return;
     const template = EmailTemplates.welcome[language]({ userName: user.displayName });
-    window.location.href = generateMailtoLink(user.email, template.subject, template.body);
+    window.location.href = generateMailtoLink(user.email, template.body);
   };
   
   const handleConfirmationEmail = (registration: Registration) => {
@@ -137,7 +137,7 @@ export default function AdminDashboardPage() {
          activityLocation: language === 'en' ? activity.location : activity.locationAr,
          cost: activity.cost,
      });
-     window.location.href = generateMailtoLink(registration.email, template.subject, template.body);
+     window.location.href = generateMailtoLink(registration.email, template.body);
   };
 
 
