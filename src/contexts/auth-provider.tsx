@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from './language-provider';
+import type { GenerateEmailInput, WelcomeEmailPayload } from '@/lib/types';
 
 
 // Mock User type, mirrors Firebase User but simplified
@@ -67,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     // Simulate checking auth state on load
@@ -83,6 +84,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     setLoading(false);
   }, []);
+
+  const sendWelcomeEmail = async (payload: WelcomeEmailPayload) => {
+    try {
+        const input: GenerateEmailInput = {
+            type: 'welcome',
+            language: language,
+            payload: payload
+        };
+        const response = await fetch('/api/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(input),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to send welcome email');
+        }
+    } catch (error) {
+        console.error('Email sending failed:', error);
+        // We show a toast to the user on success, so maybe we just log the error here
+        // to avoid double-toasting on failure.
+    }
+  };
+
 
   const login = (email: string) => {
     const users = getMockUsers();
@@ -119,9 +147,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('loggedInUser', email);
     setUser(newUser);
     
+    // Send welcome email
+    await sendWelcomeEmail({ name, to: email });
+
     toast({
       title: t("Account Created!", "!تم إنشاء الحساب"),
-      description: t("You have successfully registered.", ".لقد سجلت بنجاح"),
+      description: t("A welcome email has been sent to you.", ".تم إرسال رسالة ترحيب إليك"),
     });
 
     if (isAdminUser) {
