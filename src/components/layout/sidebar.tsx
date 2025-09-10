@@ -58,18 +58,15 @@ const AppSidebar = () => {
   return (
     <Sidebar side={language === 'ar' ? 'right' : 'left'}>
       <SidebarHeader className="p-4 items-center flex justify-center h-24 border-b">
-        {/* Logo removed from here as requested */}
+        <Button asChild className="w-full">
+            <Link href="/register">
+                <UserPlus className="mr-2 h-4 w-4" />
+                {t('Register Now', 'سجل الآن')}
+            </Link>
+        </Button>
       </SidebarHeader>
       <SidebarContent>
-        <div className="p-4">
-            <Button asChild className="w-full">
-                <Link href="/register">
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    {t('Register Now', 'سجل الآن')}
-                </Link>
-            </Button>
-        </div>
-        <SidebarMenu className="gap-2 px-2">
+        <SidebarMenu className="gap-2 px-2 pt-4">
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
