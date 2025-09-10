@@ -116,20 +116,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('loggedInUser', email);
     setUser(newUser);
 
-    // Send welcome email via API route (fire and forget)
-    fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'welcome',
-          payload: { to: email, name: name },
-        }),
-      })
-      .then(response => response.json())
-      .then(result => console.log('Welcome email API result:', result.message))
-      .catch(error => console.error('Failed to call send welcome email API:', error));
+    try {
+        const response = await fetch('/api/send-email', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+            type: 'welcome',
+            payload: { to: email, name: name },
+            }),
+        });
+
+        if (!response.ok) {
+            let errorMessage = `Welcome email server error: ${response.status}`;
+            try {
+                const errorBody = await response.text();
+                errorMessage = `${errorMessage} - ${errorBody || 'No response body'}`;
+            } catch (e) {
+                // Ignore
+            }
+            // We log this error but don't throw, as registration itself was successful.
+            console.error(errorMessage);
+        } else {
+            const result = await response.json();
+            if (result.success) {
+                console.log('Welcome email API result:', result.message);
+            } else {
+                console.error('Welcome email failed to send:', result.message);
+            }
+        }
+    } catch (error) {
+        console.error('Failed to call send welcome email API:', error);
+    }
     
     toast({
       title: "Account Created!",

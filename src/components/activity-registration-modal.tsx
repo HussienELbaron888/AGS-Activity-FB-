@@ -44,7 +44,6 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
     };
 
     try {
-      // Add registration to local data
       addRegistration({
         name: registrationData.studentName,
         email: registrationData.email,
@@ -63,22 +62,27 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
         cost: activity.cost,
       };
 
-      // Call the new API route
       const response = await fetch('/api/send-email', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'confirmation',
-          payload: emailPayload,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'confirmation', payload: emailPayload }),
       });
 
+      if (!response.ok) {
+        let errorMessage = `Server error: ${response.status}`;
+        try {
+          const errorBody = await response.text(); // Get raw error response
+          errorMessage = `${errorMessage} - ${errorBody || 'No response body'}`;
+        } catch (e) {
+            // Ignore if can't read body
+        }
+        throw new Error(errorMessage);
+      }
+
       const result = await response.json();
-      
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || 'Failed to send email.');
+
+      if (!result.success) {
+        throw new Error(result.message || 'An unknown error occurred.');
       }
       
       console.log('Email send API result:', result.message);
@@ -105,12 +109,11 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
   
   const handleClose = () => {
     onOpenChange(false);
-    // Reset state after a delay to allow for closing animation
     setTimeout(() => {
         setIsSubmitted(false);
         setIsLoading(false);
     }, 300);
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -135,7 +138,7 @@ export function ActivityRegistrationModal({ activity, isOpen, onOpenChange }: Ac
                         <Input id="email" name="email" type="email" placeholder={t('your.email@example.com', 'email@example.com')} required defaultValue={user?.email || ''} />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="mobile">{t('Mobile Number', 'رقم الموبايل')}</Label>
+                        <Label htmlFor="Mobile Number', 'رقم الموبايل')}</Label>
                         <Input id="mobile" name="mobile" type="tel" placeholder={t('e.g. 05XXXXXXXX', 'مثال: 05XXXXXXXX')} required />
                     </div>
                     <div className="space-y-2">
