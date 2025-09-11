@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -68,6 +68,19 @@ export default function AdminDashboardPage() {
   const [welcomedUsers, setWelcomedUsers] = useState<string[]>([]);
   
   const allUsers = getAllUsers();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedConfirmed = localStorage.getItem('confirmedRegistrations');
+      if (storedConfirmed) {
+        setConfirmedRegistrations(JSON.parse(storedConfirmed));
+      }
+      const storedWelcomed = localStorage.getItem('welcomedUsers');
+      if (storedWelcomed) {
+        setWelcomedUsers(JSON.parse(storedWelcomed));
+      }
+    }
+  }, []);
 
   const stats = [
     { title: t('Total Activities', 'إجمالي الأنشطة'), value: activities.length, icon: PlusCircle, color: 'text-blue-500' },
@@ -147,7 +160,11 @@ export default function AdminDashboardPage() {
     if (!user.email || !user.displayName) return;
     const template = EmailTemplates.welcome({ userName: user.displayName });
     window.location.href = generateMailtoLink(user.email, template.subject, template.body);
-    setWelcomedUsers(prev => [...prev, user.uid]);
+    setWelcomedUsers(prev => {
+        const newWelcomed = [...prev, user.uid];
+        localStorage.setItem('welcomedUsers', JSON.stringify(newWelcomed));
+        return newWelcomed;
+    });
   };
 
   const handleConfirmationEmail = (registration: Registration) => {
@@ -160,7 +177,11 @@ export default function AdminDashboardPage() {
     });
     
     window.location.href = generateMailtoLink(registration.email, template.subject, template.body);
-    setConfirmedRegistrations(prev => [...prev, registration.id]);
+    setConfirmedRegistrations(prev => {
+        const newConfirmed = [...prev, registration.id];
+        localStorage.setItem('confirmedRegistrations', JSON.stringify(newConfirmed));
+        return newConfirmed;
+    });
   };
 
 
