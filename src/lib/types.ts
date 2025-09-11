@@ -16,7 +16,7 @@ export interface Activity {
   cost?: number;
   sessions?: number;
   imageUrl: string;
-  imageHint: string;
+  imageHint?: string;
   showInSlider?: boolean;
   sliderUrl?: string;
 }
@@ -87,9 +87,3 @@ export interface RegistrationConfirmationArgs {
     activityTitleEn: string;
     activityTitleAr: string;
 }
-
-    
-
-    
-
-    

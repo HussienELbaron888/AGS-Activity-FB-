@@ -2,17 +2,25 @@
 'use client';
 
 import type { Activity } from '@/lib/types';
-import { ActivityCard } from '@/components/activity-card';
 import { HeroSlider } from '@/components/hero-slider';
 import { useLanguage } from '@/contexts/language-provider';
 import { useData } from '@/contexts/data-provider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, DollarSign, Gift, Plane, Calendar, Star } from 'lucide-react';
+import { Users, DollarSign, Gift, Plane, Calendar as CalendarIcon, Star, Palmtree, Gamepad2, School } from 'lucide-react';
 import React from 'react';
+import { ActivityCard } from '@/components/activity-card';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+
+const categoryDetails = {
+    Paid: { icon: DollarSign, t: (t: Function) => t('Paid Activities', 'الأنشطة المدفوعة') },
+    Free: { icon: Gift, t: (t: Function) => t('Free Activities', 'الأنشطة المجانية') },
+    Trip: { icon: Plane, t: (t: Function) => t('School Trips', 'الرحلات المدرسية') },
+    Event: { icon: CalendarIcon, t: (t: Function) => t('School Events', 'الفعاليات المدرسية') },
+};
 
 
 function HomePageContent() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { activities, talentedStudents, registrations } = useData();
   const sliderActivities = activities.filter(a => a.showInSlider);
 
@@ -38,7 +46,7 @@ function HomePageContent() {
     {
       title: t('School Events', 'فعاليات مدرسية'),
       value: activities.filter(a => a.category === 'Event').length,
-      icon: Calendar,
+      icon: CalendarIcon,
       color: 'bg-purple-100 text-purple-600',
     },
     {
@@ -54,6 +62,13 @@ function HomePageContent() {
       color: 'bg-red-100 text-red-600',
     },
   ], [t, activities, talentedStudents, registrations]);
+
+  const activitiesByCategory = {
+      Paid: activities.filter(a => a.category === 'Paid'),
+      Free: activities.filter(a => a.category === 'Free'),
+      Trip: activities.filter(a => a.category === 'Trip'),
+      Event: activities.filter(a => a.category === 'Event'),
+  };
 
   return (
     <div className="space-y-12">
@@ -77,31 +92,50 @@ function HomePageContent() {
         </div>
       </div>
       
-      <div className="space-y-4">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight font-headline">
-              {t('All School Activities', 'جميع أنشطة المدرسة')}
-            </h2>
-            <p className="text-muted-foreground">
-              {t('Explore and register for upcoming events, trips, and clubs.', 'استكشف وسجل في الفعاليات والرحلات والنوادي القادمة.')}
-            </p>
-          </div>
-        </div>
-        
-        {activities.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {activities.map((activity) => (
-              <ActivityCard key={activity.id} activity={activity} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16 border-2 border-dashed rounded-lg">
-              <h3 className="text-xl font-medium">{t('No Activities Found', 'لم يتم العثور على أنشطة')}</h3>
-              <p className="text-muted-foreground">{t('Please check back later.', 'يرجى التحقق مرة أخرى لاحقًا.')}</p>
-          </div>
-        )}
-      </div>
+      {Object.entries(activitiesByCategory).map(([category, categoryActivities]) => {
+          if (categoryActivities.length === 0) return null;
+          
+          const details = categoryDetails[category as keyof typeof categoryDetails];
+          const Icon = details.icon;
+          const title = details.t(t);
+
+          return (
+              <div key={category} className="space-y-6">
+                  <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Icon className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                          <h2 className="text-2xl md:text-3xl font-bold tracking-tight font-headline">
+                              {title}
+                          </h2>
+                          <p className="text-muted-foreground">{t('Explore the latest in this category.', 'استكشف أحدث الأنشطة في هذه الفئة.')}</p>
+                      </div>
+                  </div>
+                  
+                  <Carousel
+                      opts={{
+                          align: "start",
+                          loop: categoryActivities.length > 4,
+                          direction: language === 'ar' ? 'rtl' : 'ltr',
+                      }}
+                      className="w-full"
+                  >
+                      <CarouselContent>
+                          {categoryActivities.map((activity) => (
+                              <CarouselItem key={activity.id} className="sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                                  <div className="p-1 h-full">
+                                    <ActivityCard activity={activity} />
+                                  </div>
+                              </CarouselItem>
+                          ))}
+                      </CarouselContent>
+                      <CarouselPrevious className="absolute top-1/2 -translate-y-1/2 -left-4 hidden md:flex" />
+                      <CarouselNext className="absolute top-1/2 -translate-y-1/2 -right-4 hidden md:flex" />
+                  </Carousel>
+              </div>
+          );
+      })}
     </div>
   );
 }

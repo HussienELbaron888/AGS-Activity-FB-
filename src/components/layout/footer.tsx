@@ -64,7 +64,7 @@ export function AppFooter() {
           
           <div>
             <h3 className="text-lg font-bold font-headline mb-4">{t('Follow Us', 'تابعنا')}</h3>
-            <div className="flex space-x-4">
+            <div className="flex gap-x-4 gap-y-2 flex-wrap">
               {socialLinks.map((social, index) => (
                   <a key={index} href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social['aria-label']} className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
                       <social.icon className="h-6 w-6" />

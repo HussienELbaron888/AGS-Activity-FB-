@@ -50,7 +50,7 @@ const formSchema = z.object({
   cost: z.coerce.number().min(0).optional(),
   sessions: z.coerce.number().min(1, { message: "Sessions must be at least 1." }).optional(),
   imageUrl: z.string().min(1, { message: "An image is required." }),
-  imageHint: z.string().min(2, { message: "Image hint must be at least 2 characters." }),
+  imageHint: z.string().optional(),
   showInSlider: z.boolean().default(false).optional(),
   sliderUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
 });
@@ -71,7 +71,10 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
 
   const form = useForm<ActivityFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: activity || {
+    defaultValues: activity ? {
+        ...activity,
+        imageHint: activity.imageHint || '',
+    } : {
       title: "",
       titleAr: "",
       description: "",
@@ -93,7 +96,10 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
   const showInSlider = form.watch("showInSlider");
 
   useEffect(() => {
-    const currentValues = activity || {
+    const currentValues = activity ? {
+        ...activity,
+        imageHint: activity.imageHint || '',
+    } : {
       title: "",
       titleAr: "",
       description: "",
@@ -253,7 +259,7 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
                             <FormItem>
                             <FormLabel>{t('Time', 'الوقت')}</FormLabel>
                             <FormControl>
-                                <Input placeholder="HH:MM - HH:MM" {...field} />
+                                <Input placeholder="09:00 AM - 03:00 PM" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -344,7 +350,7 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
                         name="imageHint"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>{t('Image AI Hint', 'تلميح للصورة (AI)')}</FormLabel>
+                            <FormLabel>{t('Image AI Hint', 'تلميح للصورة (AI)')} <span className="text-muted-foreground">({t('Optional', 'اختياري')})</span></FormLabel>
                             <FormControl>
                                 <Input placeholder={t('e.g. science experiment', 'مثال: تجربة علمية')} {...field} />
                             </FormControl>
