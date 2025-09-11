@@ -7,8 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-provider";
-import type { Activity, TalentedStudent, Registration } from "@/lib/types";
-import { Users, PlusCircle, Edit, Trash2, Mail, Star, CheckSquare, XSquare, UserPlus, CheckCircle } from "lucide-react";
+import type { Activity, TalentedStudent, Registration, FaqItem } from "@/lib/types";
+import { Users, PlusCircle, Edit, Trash2, Mail, Star, CheckSquare, XSquare, UserPlus, CheckCircle, MessageSquareQuestion } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +30,7 @@ import {
 import { ActivityForm } from "@/components/activity-form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TalentedStudentForm } from "@/components/talented-student-form";
+import { FaqForm } from "@/components/faq-form";
 import { useData } from "@/contexts/data-provider";
 import { useAuth } from "@/contexts/auth-provider";
 import { EmailTemplates } from "@/lib/email-service";
@@ -41,12 +42,16 @@ export default function AdminDashboardPage() {
     activities,
     registrations,
     talentedStudents,
+    faqItems,
     addActivity,
     updateActivity,
     deleteActivity,
     addTalentedStudent,
     updateTalentedStudent,
     deleteTalentedStudent,
+    addFaqItem,
+    updateFaqItem,
+    deleteFaqItem,
   } = useData();
   const { getAllUsers } = useAuth();
   
@@ -55,6 +60,10 @@ export default function AdminDashboardPage() {
   
   const [selectedTalentedStudent, setSelectedTalentedStudent] = useState<TalentedStudent | null>(null);
   const [isTalentedStudentFormOpen, setIsTalentedStudentFormOpen] = useState(false);
+  
+  const [selectedFaqItem, setSelectedFaqItem] = useState<FaqItem | null>(null);
+  const [isFaqFormOpen, setIsFaqFormOpen] = useState(false);
+
   const [confirmedRegistrations, setConfirmedRegistrations] = useState<string[]>([]);
   const [welcomedUsers, setWelcomedUsers] = useState<string[]>([]);
   
@@ -62,9 +71,9 @@ export default function AdminDashboardPage() {
 
   const stats = [
     { title: t('Total Activities', 'إجمالي الأنشطة'), value: activities.length, icon: PlusCircle, color: 'text-blue-500' },
-    { title: t('Total Registrations', 'إجمالي التسجيلات'), value: registrations.length, icon: Users, color: 'text-green-500' },
     { title: t('Site Members', 'أعضاء الموقع'), value: allUsers.length, icon: UserPlus, color: 'text-indigo-500' },
     { title: t('Talented Students', 'الطلاب الموهوبون'), value: talentedStudents.length, icon: Star, color: 'text-yellow-500' },
+    { title: t('Chatbot Q&As', 'أسئلة الشات بوت'), value: faqItems.length, icon: MessageSquareQuestion, color: 'text-purple-500' },
   ];
   
   // Activity Handlers
@@ -109,6 +118,27 @@ export default function AdminDashboardPage() {
     setIsTalentedStudentFormOpen(false);
   };
   
+   // FAQ Handlers
+  const handleAddNewFaq = () => {
+    setSelectedFaqItem(null);
+    setIsFaqFormOpen(true);
+  };
+  const handleEditFaq = (faq: FaqItem) => {
+    setSelectedFaqItem(faq);
+    setIsFaqFormOpen(true);
+  };
+  const handleDeleteFaq = (id: string) => {
+    deleteFaqItem(id);
+  };
+  const handleFaqFormSubmit = (values: Omit<FaqItem, 'id'>) => {
+    if (selectedFaqItem) {
+      updateFaqItem(selectedFaqItem.id, values);
+    } else {
+      addFaqItem(values);
+    }
+    setIsFaqFormOpen(false);
+  };
+
   const generateMailtoLink = (to: string, subject: string, body: string) => {
     return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
@@ -159,9 +189,7 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* Activities and Talented Students */}
        <div className="grid gap-8 lg:grid-cols-2">
-        <div>
             <Dialog open={isActivityFormOpen} onOpenChange={setIsActivityFormOpen}>
                 <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
@@ -236,8 +264,6 @@ export default function AdminDashboardPage() {
                     <ActivityForm activity={selectedActivity} onSubmit={handleActivityFormSubmit} onCancel={() => setIsActivityFormOpen(false)} />
                 </DialogContent>
             </Dialog>
-        </div>
-         <div>
             <Dialog open={isTalentedStudentFormOpen} onOpenChange={setIsTalentedStudentFormOpen}>
                 <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
@@ -313,10 +339,9 @@ export default function AdminDashboardPage() {
                 />
                 </DialogContent>
             </Dialog>
-        </div>
       </div>
       
-       {/* New Activity Registrations Section */}
+       {/* New Activity Registrations & Site Members Section */}
       <div className="grid gap-8 lg:grid-cols-2">
         <Card>
             <CardHeader>
@@ -378,8 +403,6 @@ export default function AdminDashboardPage() {
                 </Table>
             </CardContent>
         </Card>
-
-        {/* Site Members Section */}
         <Card>
             <CardHeader>
                 <CardTitle>{t('Site Members', 'أعضاء الموقع')}</CardTitle>
@@ -435,6 +458,79 @@ export default function AdminDashboardPage() {
         </Card>
       </div>
 
+        {/* FAQ Management Section */}
+        <div>
+            <Dialog open={isFaqFormOpen} onOpenChange={setIsFaqFormOpen}>
+                <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>{t('Manage Chatbot FAQs', 'إدارة أسئلة الشات بوت')}</CardTitle>
+                        <CardDescription>{t('Add, edit, or remove questions and answers for the chatbot.', 'إضافة أو تعديل أو حذف أسئلة وأجوبة الشات بوت.')}</CardDescription>
+                    </div>
+                    <Button onClick={handleAddNewFaq}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        {t('Add New FAQ', 'إضافة سؤال جديد')}
+                    </Button>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                    <TableHeader>
+                        <TableRow>
+                        <TableHead>{t('Question', 'السؤال')}</TableHead>
+                        <TableHead className="text-right">{t('Actions', 'الإجراءات')}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {faqItems.map((faq) => (
+                        <TableRow key={faq.id}>
+                            <TableCell className="font-medium">
+                            {language === 'en' ? faq.question : faq.questionAr}
+                            </TableCell>
+                            <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                                <Button variant="ghost" size="icon" onClick={() => handleEditFaq(faq)}>
+                                    <Edit className="h-4 w-4" />
+                                </Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>{t('Are you sure?', 'هل أنت متأكد؟')}</AlertDialogTitle>
+                                        <AlertDialogDescription>{t('This action will permanently delete this FAQ.', 'سيؤدي هذا إلى حذف هذا السؤال نهائيًا.')}</AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>{t('Cancel', 'إلغاء')}</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteFaq(faq.id)} className="bg-destructive hover:bg-destructive/90">{t('Delete', 'حذف')}</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
+                            </TableCell>
+                        </TableRow>
+                        ))}
+                    </TableBody>
+                    </Table>
+                </CardContent>
+                </Card>
+                <DialogContent className="sm:max-w-2xl">
+                    <DialogHeader>
+                    <DialogTitle className="font-headline text-2xl">
+                        {selectedFaqItem ? t('Edit FAQ', 'تعديل السؤال') : t('Add New FAQ', 'إضافة سؤال جديد')}
+                    </DialogTitle>
+                    <DialogDescription>
+                        {t('Fill in the details below. Click save when you are done.', 'املأ التفاصيل أدناه. انقر على "حفظ" عند الانتهاء.')}
+                    </DialogDescription>
+                    </DialogHeader>
+                    <FaqForm faqItem={selectedFaqItem} onSubmit={handleFaqFormSubmit} onCancel={() => setIsFaqFormOpen(false)} />
+                </DialogContent>
+            </Dialog>
+        </div>
     </div>
   );
 }
+
+    

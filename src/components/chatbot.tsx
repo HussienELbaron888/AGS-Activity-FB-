@@ -1,71 +1,39 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Send, MessageCircle, Bot, User, X, Loader2 } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Search, MessageCircle, Bot, X, FileQuestion } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-provider';
-import { chat, type ChatInput } from '@/ai/flows/chat-flow';
-import type { MessageData } from 'genkit';
+import { useData } from '@/contexts/data-provider';
+import type { FaqItem } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<MessageData[]>([]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const { t, language } = useLanguage();
+  const { faqItems } = useData();
 
-  useEffect(() => {
-    if (isOpen && messages.length === 0) {
-        const welcomeMessage = language === 'ar' 
-            ? 'مرحباً! أنا هوبي، مساعدك الذكي. كيف يمكنني مساعدتك اليوم؟'
-            : "Hi there! I'm Hubie, your friendly assistant. How can I help you today?";
-        setMessages([{ role: 'model', content: [{ text: welcomeMessage }] }]);
+  const filteredFaqs = useMemo(() => {
+    if (!searchTerm) {
+      return faqItems;
     }
-  }, [isOpen, language, messages.length]);
+    return faqItems.filter(faq =>
+      faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      faq.questionAr.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      faq.answerAr.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, faqItems]);
 
-
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-        const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-        if (viewport) {
-            viewport.scrollTop = viewport.scrollHeight;
-        }
-    }
-  }, [messages]);
-
-  const handleSend = async () => {
-    if (input.trim() === '' || isLoading) return;
-
-    const userMessage: MessageData = { role: 'user', content: [{ text: input }] };
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
-    setInput('');
-    setIsLoading(true);
-
-    try {
-      const chatInput: ChatInput = { history: newMessages };
-      const responseText = await chat(chatInput);
-      const modelMessage: MessageData = { role: 'model', content: [{ text: responseText }] };
-      setMessages((prevMessages) => [...prevMessages, modelMessage]);
-    } catch (error) {
-      console.error('Chatbot error:', error);
-      const errorMessage: MessageData = {
-        role: 'model',
-        content: [{ text: t('Sorry, something went wrong. Please try again.', 'عذراً، حدث خطأ ما. يرجى المحاولة مرة أخرى.') }],
-      };
-      setMessages((prevMessages) => [...prevMessages, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const getQuestion = (faq: FaqItem) => language === 'en' ? faq.question : faq.questionAr;
+  const getAnswer = (faq: FaqItem) => language === 'en' ? faq.answer : faq.answerAr;
 
   return (
     <>
@@ -88,83 +56,47 @@ export default function Chatbot() {
                         <AvatarFallback><Bot /></AvatarFallback>
                     </Avatar>
                     <div>
-                        <CardTitle className="text-lg font-headline">{t('AGS Chatbot', 'شات بوت AGS')}</CardTitle>
-                        <CardDescription className="text-xs">{t('Powered by AI', 'مدعوم بالذكاء الاصطناعي')}</CardDescription>
+                        <CardTitle className="text-lg font-headline">{t('Help Center', 'مركز المساعدة')}</CardTitle>
+                        <CardDescription className="text-xs">{t('Find answers instantly', 'ابحث عن إجابات فورية')}</CardDescription>
                     </div>
                 </div>
                 <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
                     <X className="h-5 w-5" />
                 </Button>
               </CardHeader>
-              <CardContent className="flex-1 p-0">
-                <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
-                  <div className="space-y-6">
-                    {messages.map((message, index) => (
-                      <div
-                        key={index}
-                        className={cn(
-                          'flex items-start gap-3',
-                          message.role === 'user' ? 'justify-end' : 'justify-start'
-                        )}
-                      >
-                        {message.role === 'model' && (
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback><Bot size={18} /></AvatarFallback>
-                          </Avatar>
-                        )}
-                        <div
-                          className={cn(
-                            'max-w-[80%] rounded-lg px-4 py-2 text-sm whitespace-pre-wrap',
-                            message.role === 'user'
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted'
-                          )}
-                        >
-                          {typeof message.content === 'string'
-                            ? message.content
-                            : message.content[0].text}
-                        </div>
-                         {message.role === 'user' && (
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback><User size={18} /></AvatarFallback>
-                          </Avatar>
-                        )}
-                      </div>
-                    ))}
-                    {isLoading && (
-                       <div className="flex items-start gap-3 justify-start">
-                           <Avatar className="h-8 w-8">
-                               <AvatarFallback><Bot size={18} /></AvatarFallback>
-                           </Avatar>
-                           <div className="bg-muted rounded-lg px-4 py-3 flex items-center">
-                               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                           </div>
-                       </div>
-                    )}
-                  </div>
+              <CardContent className="flex-1 flex flex-col p-4 gap-4">
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                        placeholder={t('Search questions...', '...ابحث عن سؤال')}
+                        className="pl-10"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <ScrollArea className="flex-1">
+                  {filteredFaqs.length > 0 ? (
+                      <Accordion type="single" collapsible className="w-full">
+                        {filteredFaqs.map((faq) => (
+                           <AccordionItem value={faq.id} key={faq.id}>
+                                <AccordionTrigger>{getQuestion(faq)}</AccordionTrigger>
+                                <AccordionContent className="whitespace-pre-wrap text-muted-foreground">
+                                    {getAnswer(faq)}
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                      </Accordion>
+                  ) : (
+                    <div className="text-center py-10">
+                        <FileQuestion className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                        <h3 className="mt-4 text-lg font-medium">{t('No results found', 'لم يتم العثور على نتائج')}</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {t('Try searching for something else.', 'جرّب البحث عن شيء آخر.')}
+                        </p>
+                    </div>
+                  )}
                 </ScrollArea>
               </CardContent>
-              <CardFooter className="border-t p-4">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSend();
-                  }}
-                  className="flex w-full items-center gap-2"
-                >
-                  <Input
-                    type="text"
-                    placeholder={t('Type a message...', '...اكتب رسالة')}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    disabled={isLoading}
-                    className="flex-1"
-                  />
-                  <Button type="submit" size="icon" disabled={isLoading}>
-                    <Send className="h-5 w-5" />
-                  </Button>
-                </form>
-              </CardFooter>
             </Card>
           </motion.div>
         )}
@@ -194,3 +126,13 @@ export default function Chatbot() {
   );
 }
 
+// Simple Avatar component for internal use
+const Avatar = ({children, className}: {children: React.ReactNode, className?: string}) => (
+    <div className={cn("flex items-center justify-center rounded-full bg-muted", className)}>
+        {children}
+    </div>
+);
+
+const AvatarFallback = ({children}: {children: React.ReactNode}) => <>{children}</>;
+
+    

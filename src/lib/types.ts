@@ -68,6 +68,15 @@ export interface TalentedStudent {
   imageHint: string;
 }
 
+export interface FaqItem {
+  id: string;
+  question: string;
+  questionAr: string;
+  answer: string;
+  answerAr: string;
+}
+
+
 // For generating mailto links
 export interface WelcomeEmailTemplateArgs {
     userName: string;
@@ -77,6 +86,8 @@ export interface RegistrationConfirmationArgs {
     activityTitleEn: string;
     activityTitleAr: string;
 }
+
+    
 
     
 

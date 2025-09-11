@@ -1,5 +1,5 @@
 
-import type { Activity, Album, Registration, TalentedStudent } from './types';
+import type { Activity, Album, Registration, TalentedStudent, FaqItem } from './types';
 
 export const activities: Activity[] = [
   {
@@ -211,3 +211,29 @@ export const talentedStudents: TalentedStudent[] = [
         imageHint: 'girl writing'
     }
 ];
+
+export const faqItems: FaqItem[] = [
+    {
+        id: 'faq1',
+        question: 'How do I register for an activity?',
+        questionAr: 'كيف أسجل في نشاط؟',
+        answer: 'You can register for any activity by clicking the "Register" button on the activity card. This will open a form for you to fill out.',
+        answerAr: 'يمكنك التسجيل في أي نشاط عن طريق الضغط على زر "تسجيل" الموجود على بطاقة النشاط. سيؤدي هذا إلى فتح نموذج لتقوم بتعبئته.'
+    },
+    {
+        id: 'faq2',
+        question: 'Are there any fees for the activities?',
+        questionAr: 'هل هناك أي رسوم للأنشطة؟',
+        answer: 'Some activities are free, while others have a fee. The cost, if any, is clearly mentioned on the activity card.',
+        answerAr: 'بعض الأنشطة مجانية، بينما يتطلب البعض الآخر رسومًا. التكلفة، إن وجدت، مذكورة بوضوح على بطاقة النشاط.'
+    },
+    {
+        id: 'faq3',
+        question: 'Who can I contact for more information?',
+        questionAr: ' بمن يمكنني الاتصال لمزيد من المعلومات؟',
+        answer: 'You can visit our "Contact Us" page to find all the relevant contact details for different school departments.',
+        answerAr: 'يمكنك زيارة صفحة "اتصل بنا" للعثور على جميع تفاصيل الاتصال ذات الصلة بأقسام المدرسة المختلفة.'
+    }
+];
+
+    
