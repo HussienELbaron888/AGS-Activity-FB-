@@ -5,6 +5,7 @@ import AppSidebar from '@/components/layout/sidebar';
 import Header from '@/components/layout/header';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { ConditionalFooter } from '@/components/layout/conditional-footer';
+import Chatbot from '@/components/chatbot';
 
 export default function MainLayout({
   children,
@@ -23,6 +24,7 @@ export default function MainLayout({
           <ConditionalFooter />
         </div>
       </SidebarInset>
+      <Chatbot />
     </SidebarProvider>
   );
 }
