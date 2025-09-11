@@ -14,6 +14,7 @@ export interface Activity {
   location: string;
   locationAr: string;
   cost?: number;
+  sessions?: number;
   imageUrl: string;
   imageHint: string;
   showInSlider?: boolean;

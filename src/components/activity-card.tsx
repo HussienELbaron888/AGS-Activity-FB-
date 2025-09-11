@@ -6,7 +6,7 @@ import type { Activity } from '@/lib/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, MapPin } from 'lucide-react';
+import { Calendar, Clock, MapPin, BookOpen } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-provider';
 import { useState } from 'react';
 import { ActivityDetailsModal } from './activity-details-modal';
@@ -51,6 +51,14 @@ export function ActivityCard({ activity }: ActivityCardProps) {
             <MapPin className="h-4 w-4" />
             <span>{location}</span>
           </div>
+          {activity.sessions && activity.sessions > 0 && (
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              <span>
+                {activity.sessions} {t('Sessions', 'حصص')}
+              </span>
+            </div>
+          )}
         </CardContent>
         <CardFooter className="flex justify-between gap-2">
           <Button variant="outline" onClick={() => setIsDetailsOpen(true)}>{t('Details', 'تفاصيل')}</Button>

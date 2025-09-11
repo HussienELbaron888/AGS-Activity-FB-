@@ -48,6 +48,7 @@ const formSchema = z.object({
   location: z.string().min(3, { message: "English location is required." }),
   locationAr: z.string().min(3, { message: "Arabic location is required." }),
   cost: z.coerce.number().min(0).optional(),
+  sessions: z.coerce.number().min(1, { message: "Sessions must be at least 1." }).optional(),
   imageUrl: z.string().min(1, { message: "An image is required." }),
   imageHint: z.string().min(2, { message: "Image hint must be at least 2 characters." }),
   showInSlider: z.boolean().default(false).optional(),
@@ -81,6 +82,7 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
       location: "",
       locationAr: "",
       cost: 0,
+      sessions: 1,
       imageUrl: "",
       imageHint: "",
       showInSlider: false,
@@ -102,6 +104,7 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
       location: "",
       locationAr: "",
       cost: 0,
+      sessions: 1,
       imageUrl: "",
       imageHint: "",
       showInSlider: false,
@@ -286,20 +289,36 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
                     />
                 </div>
                 
-                 <FormField
-                    control={form.control}
-                    name="cost"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>{t('Cost (SAR)', 'التكلفة (ر.س)')}</FormLabel>
-                        <FormControl>
-                            <Input type="number" placeholder="0" {...field} />
-                        </FormControl>
-                        <FormDescription>{t('Leave 0 for free activities.', 'اترك 0 للأنشطة المجانية.')}</FormDescription>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="cost"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>{t('Cost (SAR)', 'التكلفة (ر.س)')}</FormLabel>
+                            <FormControl>
+                                <Input type="number" placeholder="0" {...field} />
+                            </FormControl>
+                            <FormDescription>{t('Leave 0 for free activities.', 'اترك 0 للأنشطة المجانية.')}</FormDescription>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="sessions"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>{t('Number of Sessions', 'عدد الحصص')}</FormLabel>
+                            <FormControl>
+                                <Input type="number" placeholder="1" {...field} />
+                            </FormControl>
+                            <FormDescription>{t('How many sessions does this activity have?', 'كم عدد حصص هذا النشاط؟')}</FormDescription>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                     <FormField

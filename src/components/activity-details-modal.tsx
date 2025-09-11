@@ -5,7 +5,7 @@ import Image from 'next/image';
 import type { Activity } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, MapPin, DollarSign } from 'lucide-react';
+import { Calendar, Clock, MapPin, DollarSign, BookOpen } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-provider';
 
 interface ActivityDetailsModalProps {
@@ -35,31 +35,40 @@ export function ActivityDetailsModal({ activity, isOpen, onOpenChange }: Activit
           <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
             <Calendar className="h-5 w-5 text-primary" />
             <div>
-              <p className="font-semibold">Date</p>
+              <p className="font-semibold">{t('Date', 'التاريخ')}</p>
               <p className="text-muted-foreground">{activity.date}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
             <Clock className="h-5 w-5 text-primary" />
             <div>
-              <p className="font-semibold">Time</p>
+              <p className="font-semibold">{t('Time', 'الوقت')}</p>
               <p className="text-muted-foreground">{activity.time}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
             <MapPin className="h-5 w-5 text-primary" />
             <div>
-              <p className="font-semibold">Location</p>
+              <p className="font-semibold">{t('Location', 'الموقع')}</p>
               <p className="text-muted-foreground">{location}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
             <DollarSign className="h-5 w-5 text-primary" />
             <div>
-              <p className="font-semibold">Cost</p>
+              <p className="font-semibold">{t('Cost', 'التكلفة')}</p>
               <p className="text-muted-foreground">{activity.cost ? `${activity.cost} ${t('SAR', 'ر.س')}` : 'Free'}</p>
             </div>
           </div>
+          {activity.sessions && activity.sessions > 0 && (
+            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg sm:col-span-2">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <div>
+                <p className="font-semibold">{t('Sessions', 'الحصص')}</p>
+                <p className="text-muted-foreground">{activity.sessions} {activity.sessions > 1 ? t('sessions', 'حصص') : t('session', 'حصة')}</p>
+              </div>
+            </div>
+          )}
         </div>
         <div className="flex justify-start">
           <Badge variant="secondary" className="bg-accent text-accent-foreground">{activity.category}</Badge>
