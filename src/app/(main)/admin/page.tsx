@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-provider";
 import type { Activity, TalentedStudent, Registration, FaqItem } from "@/lib/types";
-import { Users, PlusCircle, Edit, Trash2, Mail, Star, CheckSquare, XSquare, UserPlus, CheckCircle, MessageSquareQuestion } from "lucide-react";
+import { Users, PlusCircle, Edit, Trash2, Mail, Star, CheckSquare, XSquare, UserPlus, CheckCircle, MessageSquareText } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
     { title: t('Total Activities', 'إجمالي الأنشطة'), value: activities.length, icon: PlusCircle, color: 'text-blue-500' },
     { title: t('Site Members', 'أعضاء الموقع'), value: allUsers.length, icon: UserPlus, color: 'text-indigo-500' },
     { title: t('Talented Students', 'الطلاب الموهوبون'), value: talentedStudents.length, icon: Star, color: 'text-yellow-500' },
-    { title: t('Chatbot Q&As', 'أسئلة الشات بوت'), value: faqItems.length, icon: MessageSquareQuestion, color: 'text-purple-500' },
+    { title: t('Chatbot Q&As', 'أسئلة الشات بوت'), value: faqItems.length, icon: MessageSquareText, color: 'text-purple-500' },
   ];
   
   // Activity Handlers
@@ -532,5 +532,3 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
-
-    
