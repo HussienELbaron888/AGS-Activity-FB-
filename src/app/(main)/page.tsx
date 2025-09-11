@@ -6,10 +6,12 @@ import { HeroSlider } from '@/components/hero-slider';
 import { useLanguage } from '@/contexts/language-provider';
 import { useData } from '@/contexts/data-provider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, DollarSign, Gift, Plane, Calendar as CalendarIcon, Star, Palmtree, Gamepad2, School } from 'lucide-react';
+import { Users, DollarSign, Gift, Plane, Calendar as CalendarIcon, Star } from 'lucide-react';
 import React from 'react';
 import { ActivityCard } from '@/components/activity-card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import Autoplay from "embla-carousel-autoplay"
+
 
 const categoryDetails = {
     Paid: { icon: DollarSign, t: (t: Function) => t('Paid Activities', 'الأنشطة المدفوعة') },
@@ -113,6 +115,12 @@ function HomePageContent() {
                   </div>
                   
                   <Carousel
+                       plugins={[
+                        Autoplay({
+                          delay: 5000,
+                          stopOnInteraction: true,
+                        }),
+                      ]}
                       opts={{
                           align: "start",
                           loop: categoryActivities.length > 4,
