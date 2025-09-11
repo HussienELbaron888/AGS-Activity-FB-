@@ -68,43 +68,52 @@ export function ActivityForm({ activity, onSubmit, onCancel }: ActivityFormProps
   const { toast } = useToast();
   const [imagePreview, setImagePreview] = useState<string | null>(activity?.imageUrl || null);
 
+  const defaultValues = activity ? {
+      ...activity,
+      cost: activity.cost || 0,
+      sessions: activity.sessions || 1,
+      imageHint: activity.imageHint || '',
+      showInSlider: activity.showInSlider || false,
+      sliderUrl: activity.sliderUrl || '',
+  } : {
+    title: "",
+    titleAr: "",
+    description: "",
+    descriptionAr: "",
+    category: 'Event' as ActivityCategory,
+    date: "",
+    time: "",
+    location: "",
+    locationAr: "",
+    cost: 0,
+    sessions: 1,
+    imageUrl: "",
+    imageHint: "",
+    showInSlider: false,
+    sliderUrl: "",
+  };
 
   const form = useForm<ActivityFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: activity ? {
-        ...activity,
-        imageHint: activity.imageHint || '',
-    } : {
-      title: "",
-      titleAr: "",
-      description: "",
-      descriptionAr: "",
-      category: 'Event',
-      date: "",
-      time: "",
-      location: "",
-      locationAr: "",
-      cost: 0,
-      sessions: 1,
-      imageUrl: "",
-      imageHint: "",
-      showInSlider: false,
-      sliderUrl: "",
-    },
+    defaultValues: defaultValues,
   });
 
   const showInSlider = form.watch("showInSlider");
 
   useEffect(() => {
     const currentValues = activity ? {
-        ...activity,
-        imageHint: activity.imageHint || '',
+      ...activity,
+      cost: activity.cost || 0,
+      sessions: activity.sessions || 1,
+      imageHint: activity.imageHint || '',
+      showInSlider: activity.showInSlider || false,
+      sliderUrl: activity.sliderUrl || '',
     } : {
       title: "",
       titleAr: "",
       description: "",
       descriptionAr: "",
-      category: 'Event',
+      category: 'Event' as ActivityCategory,
       date: "",
       time: "",
       location: "",
