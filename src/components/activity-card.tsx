@@ -36,7 +36,9 @@ export function ActivityCard({ activity }: ActivityCardProps) {
             data-ai-hint={activity.imageHint}
           />
           <Badge variant="secondary" className="absolute top-3 right-3 bg-accent text-accent-foreground">
-            {activity.category}
+            {activity.category === 'Paid' && activity.cost && activity.cost > 0
+              ? `${activity.cost} ${t('SAR', 'ر.س')}`
+              : t(activity.category, activity.category)}
           </Badge>
         </div>
         <CardHeader>
