@@ -34,12 +34,12 @@ const getFromStorage = <T extends Array<any>>(key: string, fallback: T): T => {
   if (typeof window === 'undefined') return fallback;
   try {
     const item = window.localStorage.getItem(key);
-    // If the stored item is an empty array string, use the fallback to ensure initial data is loaded once.
-    if (item === '[]' && fallback.length > 0) {
+    // If no item exists, it's the first load. Use the fallback to populate initial data.
+    if (item === null) {
         setInStorage(key, fallback);
         return fallback;
     }
-    return item ? JSON.parse(item) : fallback;
+    return JSON.parse(item);
   } catch (error) {
     console.error(`Error reading from localStorage key “${key}”:`, error);
     return fallback;
