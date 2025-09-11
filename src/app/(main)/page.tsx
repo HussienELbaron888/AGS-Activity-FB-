@@ -109,7 +109,6 @@ function HomePageContent() {
                           <h2 className="text-2xl md:text-3xl font-bold tracking-tight font-headline">
                               {title}
                           </h2>
-                          <p className="text-muted-foreground">{t('Explore the latest in this category.', 'استكشف أحدث الأنشطة في هذه الفئة.')}</p>
                       </div>
                   </div>
                   
