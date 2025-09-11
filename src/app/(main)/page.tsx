@@ -123,7 +123,7 @@ function HomePageContent() {
                       ]}
                       opts={{
                           align: "start",
-                          loop: categoryActivities.length > 4,
+                          loop: categoryActivities.length > 1,
                           direction: language === 'ar' ? 'rtl' : 'ltr',
                       }}
                       className="w-full"

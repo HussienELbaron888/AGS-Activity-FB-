@@ -29,45 +29,11 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-// Helper function to get data from localStorage
-const getFromStorage = <T extends Array<any>>(key: string, fallback: T): T => {
-  if (typeof window === 'undefined') return fallback;
-  try {
-    const item = window.localStorage.getItem(key);
-    // If no item exists, it's the first load. Use the fallback to populate initial data.
-    if (item === null) {
-        setInStorage(key, fallback);
-        return fallback;
-    }
-    return JSON.parse(item);
-  } catch (error) {
-    console.error(`Error reading from localStorage key “${key}”:`, error);
-    return fallback;
-  }
-};
-
-// Helper function to set data in localStorage
-const setInStorage = <T>(key: string, value: T) => {
-  if (typeof window === 'undefined') return;
-  try {
-    window.localStorage.setItem(key, JSON.stringify(value));
-  } catch (error) {
-    console.error(`Error writing to localStorage key “${key}”:`, error);
-  }
-};
-
-
 export function DataProvider({ children }: { children: React.ReactNode }) {
-  const [activities, setActivities] = useState<Activity[]>(() => getFromStorage('activitiesData', initialActivities));
-  const [registrations, setRegistrations] = useState<Registration[]>(() => getFromStorage('registrationsData', initialRegistrations));
-  const [talentedStudents, setTalentedStudents] = useState<TalentedStudent[]>(() => getFromStorage('talentedStudentsData', initialTalentedStudents));
-  const [faqItems, setFaqItems] = useState<FaqItem[]>(() => getFromStorage('faqData', initialFaqItems));
-
-
-  useEffect(() => { setInStorage('activitiesData', activities); }, [activities]);
-  useEffect(() => { setInStorage('registrationsData', registrations); }, [registrations]);
-  useEffect(() => { setInStorage('talentedStudentsData', talentedStudents); }, [talentedStudents]);
-  useEffect(() => { setInStorage('faqData', faqItems); }, [faqItems]);
+  const [activities, setActivities] = useState<Activity[]>(initialActivities);
+  const [registrations, setRegistrations] = useState<Registration[]>(initialRegistrations);
+  const [talentedStudents, setTalentedStudents] = useState<TalentedStudent[]>(initialTalentedStudents);
+  const [faqItems, setFaqItems] = useState<FaqItem[]>(initialFaqItems);
 
   const addActivity = (activity: Omit<Activity, 'id'>) => {
     const newActivity: Activity = { id: `act-${Date.now()}`, ...activity };
@@ -148,5 +114,3 @@ export function useData() {
   }
   return context;
 }
-
-    
